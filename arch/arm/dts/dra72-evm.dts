@@ -1,0 +1,38 @@
+/*
+ * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+#include <dra72-evm-common.dtsi>
+
+/ {
+	model = "TI DRA722";
+	compatible = "ti,dra72-evm", "ti,dra722", "ti,dra72", "ti,dra7";
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x40000000>; /* 1024 MB */
+	};
+};
+
+
+&cpsw_emac0 {
+	phy_id = <&davinci_mdio>, <3>;
+	phy-mode = "rgmii";
+};
+
+&dss {
+	status = "ok";
+
+	vdda_video-supply = <&ldo5_reg>;
+};
+
+&hdmi {
+	vdda-supply = <&ldo3_reg>;
+};
+
+&mac {
+	 mode-gpios = <&pcf_gpio_21 4 GPIO_ACTIVE_HIGH>;
+};

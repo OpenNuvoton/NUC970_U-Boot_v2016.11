@@ -1,0 +1,15 @@
+if TARGET_NUC970
+
+config SYS_BOARD
+	default "nuc970"
+
+config SYS_VENDOR
+	default "nuvoton"
+
+config SYS_SOC
+	default "nuc970"
+
+config SYS_CONFIG_NAME
+	default "nuc970_evb"
+
+endif
