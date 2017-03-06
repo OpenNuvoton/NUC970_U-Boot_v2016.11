@@ -590,4 +590,8 @@ config LCD
 	  CONFIG option. See the README for details. Drives which have been
 	  converted to driver model will instead used CONFIG_DM_VIDEO.
 
+config NUC970_LCD
+	bool "Enable LCD support on NUC970"
+	depends on LCD
+
 endmenu

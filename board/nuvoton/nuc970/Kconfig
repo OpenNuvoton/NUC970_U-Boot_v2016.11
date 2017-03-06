@@ -12,4 +12,8 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "nuc970_evb"
 
+config NUC970
+	bool
+	default y
+
 endif

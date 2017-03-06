@@ -209,4 +209,7 @@ config TI_QSPI
 	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
 	  This driver support spi flash single, quad and memory reads.
 
+config NUC970_SPI
+	bool "NUC970 SPI driver"
+
 endmenu # menu "SPI Support"

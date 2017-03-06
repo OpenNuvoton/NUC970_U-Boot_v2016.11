@@ -71,7 +71,7 @@ typedef struct
  */
 
 u32 baudrate = CONFIG_BAUDRATE;
-u32 ext_clk  = CONFIG_EXT_CLK;
+u32 ext_clk  = EXT_CLK;
 
 int nuc970_serial_init (void)
 {
@@ -185,7 +185,7 @@ static struct serial_device nuc970_serial_drv = {
         .puts   = nuc970_serial_puts,
         #ifdef CONFIG_KPI_NUC970
         .getc   = nuc970_serial_and_kpi_getc,
-		#else
+        #else
         .getc   = nuc970_serial_getc,
         #endif
         .tstc   = nuc970_serial_tstc,

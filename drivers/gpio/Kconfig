@@ -221,4 +221,10 @@ config MPC85XX_GPIO
 
 	  The driver has been tested on MPC85XX, but it is likely that other
 	  PowerQUICC III devices will work as well.
+
+config NUC970_GPIO
+	bool "NUC970 GPIO driver"
+	depends on NUC970
+	help
+	  Support for the NUC970 GPIO driver.
 endmenu

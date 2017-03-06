@@ -29,18 +29,17 @@
 #define REG_TICR0       0xB8001004
 #define REG_TDR0        0xB8001008
 #define TIMER_INIT_VAL  0xFFFFFF
-#define TIMER_CLK       (CONFIG_EXT_CLK / CONFIG_TMR_DIV)
+#define TMR_DIV         120             /* timer prescaler */  
+#define TIMER_CLK       (EXT_CLK / TMR_DIV)
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static inline unsigned long long tick_to_time(unsigned long long tick)
 {
         tick *= CONFIG_SYS_HZ;
-	//printf("tick1=%ld\n",tick);
 
         do_div(tick, gd->arch.timer_rate_hz);
-	//printf("gd->arch.timer_rate_hz=%ld\n",gd->arch.timer_rate_hz);
-	//printf("tick2=%lx\n",tick);
 
         return tick;
 }
@@ -58,7 +57,7 @@ int timer_init(void)
 {
         writel(readl(REG_CLKEN) | 0x100, REG_CLKEN); //enable timer engine clock
         writel(TIMER_INIT_VAL, REG_TICR0);   // set timer init counter value
-        writel(0x68000000 |(CONFIG_TMR_DIV - 1), REG_TSCR0);    // start timer counting in periodic mode, prescale = (255 + 1)
+        writel(0x68000000 |(TMR_DIV - 1), REG_TSCR0);    // start timer counting in periodic mode, prescale = (255 + 1)
 
         gd->arch.timer_rate_hz = TIMER_CLK;
         gd->arch.tbu = gd->arch.tbl = 0;
@@ -90,8 +89,7 @@ unsigned long long get_ticks(void)
                 }                                
         }
         gd->arch.tbl = (gd->arch.tbl & 0xFF000000 ) + now;
-        
-        //printf("tbu(%lx) tbl(%lx)\n", gd->arch.tbu, gd->arch.tbl);
+
         return (((unsigned long long)gd->arch.tbu) << 32) | gd->arch.tbl;
 }
 
@@ -113,8 +111,7 @@ ulong get_timer(ulong base)
 {
 #if 1
         ulong temp = tick_to_time(get_ticks());
-      //  printf("%x %x\n", gd->tbu, gd->tbl);
-	//printf("get_timer(%lx)=>temp=%x,temp-base=%lx\n",base,temp,temp-base);
+
 
         return(temp - base);
         

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
+#include <watchdog.h>
 
 #define REG_HCLKEN      0xB0000210
 #define REG_PCLKEN0     0xB0000218
@@ -168,7 +169,7 @@ int board_mmc_init(bd_t *bd)
 
 #ifdef CONFIG_NUC970_EMMC
 #ifdef CONFIG_NAND_NUC970
-# error Don't enable eMMC(CONFIG_NUC970_EMMC) and NAND(CONFIG_NAND_NUC970) at the same time!
+# error Do not enable eMMC(CONFIG_NUC970_EMMC) and NAND(CONFIG_NAND_NUC970) at the same time!
 #endif
 
     writel(readl(REG_HCLKEN) | 0x00700000, REG_HCLKEN);   // eMMC & NAND & FMI clk

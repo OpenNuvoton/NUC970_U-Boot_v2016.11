@@ -87,6 +87,10 @@ config NAND_MXS
 	  This enables NAND driver for the NAND flash controller on the
 	  MXS processors.
 
+config NAND_NUC970
+	bool "NUC970 NAND support"
+	depends on NUC970
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config

@@ -1,0 +1,4 @@
+config NUC970_WATCHDOG
+	bool "NUC970 Watchdog"
+	depends on NUC970
+

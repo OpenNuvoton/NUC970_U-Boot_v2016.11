@@ -95,4 +95,8 @@ config SANDBOX_MMC
 	  improves build coverage for sandbox and makes it easier to detect
 	  MMC build errors with sandbox.
 
+config NUC970_MMC
+	bool "NUC970 eMMC support"
+	depends on NUC970
+
 endmenu

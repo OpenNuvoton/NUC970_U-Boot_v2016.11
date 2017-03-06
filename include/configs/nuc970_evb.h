@@ -26,13 +26,12 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_NUC970
+#define EXT_CLK	        12000000        /* 12 MHz crystal */
 
 #define CONFIG_SYS_TEXT_BASE		0xE00000
 
 #define CONFIG_SYS_LOAD_ADDR            0x8000
-#define CONFIG_EXT_CLK	                12000000        /* 12 MHz crystal */
-#define CONFIG_TMR_DIV                  120             /* timer prescaler */  
+
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_MEMTEST_START         0xA00000
 #define CONFIG_SYS_MEMTEST_END           0xB00000
@@ -58,8 +57,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 
-
-#define CONFIG_NUC970_WATCHDOG
 #define CONFIG_HW_WATCHDOG
 
 #define CONFIG_SYS_BOOTM_LEN		0x1000000 /* 16MB max kernel size */
@@ -75,16 +72,10 @@
 #define CONFIG_BAUDRATE         115200
 #define CONFIG_SYS_BAUDRATE_TABLE       {115200, 57600, 38400}
 
-
-#define CONFIG_NUC970_EMAC0
 /*#define CONFIG_NUC970_EMAC1*/
 /*#define CONFIG_CMD_NET */
-#define CONFIG_NUC970_ETH
-#define CONFIG_NUC970_PHY_ADDR          1
 #define CONFIG_ETHADDR                  00:00:00:11:66:88
 #define CONFIG_SYS_RX_ETH_BUFFER        16 // default is 4, set to 16 here.
-
-#define CONFIG_NUC970_CONSOLE
 
 /*#define CONFIG_KPI_NUC970*/
 
@@ -133,7 +124,6 @@
 #endif
 
 #ifdef CONFIG_SYS_USE_NANDFLASH
-#define CONFIG_NAND_NUC970
 #define CONFIG_CMD_NAND		1
 #define CONFIG_CMD_UBI         1 
 #define CONFIG_CMD_UBIFS       1 
@@ -235,38 +225,27 @@
 #define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#ifdef CONFIG_KPI_NUC970
-/*#define CONFIG_KPI_PA_PORT   1 */   /* KPI select PA port */
-#define CONFIG_KPI_PH_PORT   1  /* KPI select PH port */
-#define CONFIG_KPI_ROW_NUM   3  /* row number is 1~4 */
-#define CONFIG_KPI_COL_NUM   3  /* col number is 1~8 */
-#define CONFIG_KPI_DEBOUNCE  8  /* debounce length setting: 0~13 */
-#endif
 
 /* Following block is for LCD support */
-#if 1
-#define CONFIG_LCD
-#define CONFIG_NUC970_LCD
+#ifdef CONFIG_LCD
 /*#define CONFIG_NUC977_LCD*/
 #define LCD_BPP                         LCD_COLOR16
 #define CONFIG_LCD_LOGO
 #define CONFIG_LCD_INFO
 #define CONFIG_LCD_INFO_BELOW_LOGO
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+/*#define CONFIG_SYS_CONSOLE_IS_IN_ENV*/
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_CONSOLE_SCROLL_LINES	1 
 #endif
 
 /* Following block is for MMC support */
-#if 1
-#define CONFIG_NUC970_MMC
+#ifdef CONFIG_NUC970_MMC
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
-#define CONFIG_MMC
-#define CONFIG_GENERIC_MMC
+/*#define CONFIG_MMC */
+/*#define CONFIG_GENERIC_MMC */
 #define CONFIG_DOS_PARTITION
 /*#define CONFIG_MMC_TRACE */
 #define CONFIG_NUC970_SD_PORT0 
@@ -292,7 +271,6 @@
 #define CONFIG_DOS_PARTITION
 #endif
 
-#define CONFIG_NUC970_GPIO
 
 /*#define CONFIG_OF_LIBFDT */
 /*#define CONFIG_FIT */

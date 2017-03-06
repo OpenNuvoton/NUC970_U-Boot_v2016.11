@@ -1296,6 +1296,6 @@ int spi_flash_reset(void)
 
 	printf("SF: Device software reset\n");
 	
-	return NULL;
+	return 0;//NULL;
 }
 

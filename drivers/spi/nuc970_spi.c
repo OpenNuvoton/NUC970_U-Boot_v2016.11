@@ -47,7 +47,6 @@ static __inline u32 readl_ESwap(u32 addr)
 static __inline void writel_ESwap(u32 val, u32 addr)
 {
 	*(volatile u32 *) (addr) = (((val & 0xFF) << 24) | ((val & 0xFF000000) >> 24) | ((val & 0xFF00) << 8) | ((val & 0xFF0000) >> 8));
-	return val;
 }
 
 void spi_init()
@@ -86,7 +85,7 @@ void spi_free_slave(struct spi_slave *slave)
 
 int spi_claim_bus(struct spi_slave *slave)
 {
-	char *cp;
+	//char *cp;
 	struct nuc970_spi_slave *ns = to_nuc970_spi(slave);
 	
 #ifdef USE_NUC970_SPI0
@@ -104,7 +103,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	writel(readl(REG_MFP_GPB_H) | 0xBBBB0000, REG_MFP_GPB_H);	
 #endif
 
-	cp = getenv("spimode");
+	//cp = getenv("spimode");
 	if (1) { //(cp) {
 		if (1) { //(*cp == SPI_QUAD_MODE ) {
 #ifdef USE_NUC970_SPI0
@@ -142,7 +141,7 @@ int spi_claim_bus(struct spi_slave *slave)
 
 void spi_release_bus(struct spi_slave *slave)
 {
-	char *cp;
+	//char *cp;
 
 #ifdef USE_NUC970_SPI0
 	writel(readl(REG_PCLKEN1) & ~0x10, REG_PCLKEN1);       // SPI0 clk
@@ -159,7 +158,7 @@ void spi_release_bus(struct spi_slave *slave)
 	writel(readl(REG_MFP_GPB_H) & ~0xBBBB0000, REG_MFP_GPB_H);
 #endif
 
-	cp = getenv("spimode");
+	//cp = getenv("spimode");
 	if (1) { //(cp) {
 		if (1) { //(*cp == SPI_QUAD_MODE ) {
 #ifdef USE_NUC970_SPI0
@@ -178,7 +177,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 {
 	unsigned int len;
 	unsigned int i;
-	unsigned char *tx = dout;
+	unsigned char *tx = (unsigned char *)dout;
 	unsigned char *rx = din;        
 	
 	//printf("entr xfr\n");

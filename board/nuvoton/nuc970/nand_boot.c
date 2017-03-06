@@ -29,6 +29,7 @@ void board_init_f(unsigned long bootflag);
 extern int nuc970_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct nand_chip *chip, uint8_t *buf, int oob_required, int page);
 extern void nuc970_nand_command_lp(struct mtd_info *mtd, unsigned int command, int column, int page_addr);
 extern unsigned char nuc970_nand_read_byte(struct mtd_info *mtd);
+extern int nand_register(int devnum, struct mtd_info *mtd);
 //#define printf(fmt, arg...) sysprintf(fmt, ##arg) //CWWeng add
 
 //static int nand_ecc_pos[] = CONFIG_SYS_NAND_ECCPOS;
@@ -47,16 +48,9 @@ static ulong base_address[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIS
 
 static int nand_is_bad_block(struct mtd_info *mtd, int block)
 {
-	//struct nand_chip *this = mtd->priv;
-	struct nand_chip *chip = mtd_to_nand(mtd);
-
-	//nand_command(mtd, block, 0, CONFIG_SYS_NAND_BAD_BLOCK_POS, NAND_CMD_READOOB);
 	int page_addr = 0 + block * CONFIG_SYS_NAND_PAGE_COUNT;
 	
-	//chip->cmdfunc(mtd, NAND_CMD_READOOB, 0 , page_addr );
 	nuc970_nand_command_lp(mtd, NAND_CMD_READOOB, 0 , page_addr );
-
-	//if(chip->read_byte(mtd)!=0xff)
 	if(nuc970_nand_read_byte(mtd)!=0xff)
 		return 1;
 	return 0;
