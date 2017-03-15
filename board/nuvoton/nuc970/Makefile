@@ -17,4 +17,5 @@ obj-y	+= string.o
 else
 obj-y	:= nuc970.o
 obj-y	+= cmd_decrypt.o
+obj-y	+= cmd_rtc_spare.o
 endif

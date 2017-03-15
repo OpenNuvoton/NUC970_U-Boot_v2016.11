@@ -675,6 +675,15 @@
 #define     REG_CRPT_AES_CNT		(CRPT_BA+0x0148)  /* AES Byte Count Register */
 
 
+/**********************************************************************************************************
+ *
+ * 26. RTC Control Registers
+ *
+ **********************************************************************************************************/
+#define		REG_RTC_INIR			(RTC_BA+0x0000)	/* Initial register */
+#define		REG_RTC_AER			(RTC_BA+0x0004)	/* Access Enable Register*/
+#define		REG_RTC_INTSTS			(RTC_BA+0x002C)	/* Interrupt Status */
+#define		REG_RTC_SPARE			(RTC_BA+0x0040)	/* Spare register */
 
  
 #endif /* _REGISTER_H */
