@@ -215,6 +215,13 @@ int spi_flash_mtd_register(struct spi_flash *flash);
 void spi_flash_mtd_unregister(void);
 #endif
 
+#ifdef CONFIG_SPI_NAND
+int spi_nand_write_raw(struct spi_flash *flash, u32 offset, size_t len, const void *buf);
+int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *data);
+int spi_nand_erase_raw(struct spi_flash *flash, u32 offset, size_t len);
+void spinand_enable_internal_ecc(struct spi_flash *flash);
+#endif
+
 /**
  * spi_flash_scan - scan the SPI FLASH
  * @flash:	the spi flash structure

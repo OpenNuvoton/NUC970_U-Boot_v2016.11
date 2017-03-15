@@ -1046,7 +1046,25 @@ int spi_flash_scan(struct spi_flash *flash)
 		}
 	}
 
+#ifdef CONFIG_SPI_NAND	// second try, search for SPI NAND
 	if (!params->name) {
+		jedec = idcode[2] << 8 | idcode[3];
+		idcode[0] = idcode[1];
+		ext_jedec = 0x00;
+		params = spi_flash_params_table;
+		for (; params->name != NULL; params++) {
+			if ((params->jedec >> 16) == idcode[0]) {
+				if ((params->jedec & 0xFFFF) == jedec) {
+					if (params->ext_jedec == 0)
+						break;
+					else if (params->ext_jedec == ext_jedec)
+						break;
+				}
+			}
+		}
+	}
+#endif	
+	if (!params->name) {	
 		printf("SF: Unsupported flash IDs: ");
 		printf("manuf %02x, jedec %04x, ext_jedec %04x\n",
 		       idcode[0], jedec, ext_jedec);
@@ -1188,15 +1206,28 @@ int spi_flash_scan(struct spi_flash *flash)
 	else
 		/* Go for default supported write cmd */
 		flash->write_cmd = CMD_PAGE_PROGRAM;
-
-	/* Set the quad enable bit - only for quad commands */
-	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
-	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
-	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
-		ret = set_quad_mode(flash, idcode[0]);
-		if (ret) {
-			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
-			return -EINVAL;
+#ifdef CONFIG_SPI_NAND
+	if(jedec == 0xaa21) { // treat SPI NAND seperately
+		flash->read = spi_nand_read_raw;
+		flash->write = spi_nand_write_raw;
+		flash->erase = spi_nand_erase_raw;
+		flash->page_size = 2048;		// 2kB per page
+		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
+		spinand_enable_internal_ecc(flash);
+	} else {
+#else
+	if(1) {
+#endif
+		/* Set the quad enable bit - only for quad commands */
+		if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
+		    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
+		    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
+			ret = set_quad_mode(flash, idcode[0]);
+			if (ret) {
+				debug("SF: Fail to set QEB for %02x\n", idcode[0]);
+				return -EINVAL;
+			}
 		}
 	}
 
