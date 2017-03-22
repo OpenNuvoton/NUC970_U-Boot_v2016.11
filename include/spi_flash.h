@@ -106,6 +106,9 @@ struct spi_flash {
 			const void *buf);
 	int (*erase)(struct spi_flash *flash, u32 offset, size_t len);
 #endif
+#ifdef CONFIG_SPI_FLASH_EON
+	int (*set_4byte_mode)(struct spi_flash *flash);
+#endif
 };
 
 struct dm_spi_flash_ops {

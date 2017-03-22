@@ -36,6 +36,7 @@ enum spi_nor_option_flags {
 #define SPI_FLASH_CFI_MFR_SST		0xbf
 #define SPI_FLASH_CFI_MFR_WINBOND	0xef
 #define SPI_FLASH_CFI_MFR_ATMEL		0x1f
+#define SPI_FLASH_CFI_MFR_EON		0x1c
 
 /* Erase commands */
 #define CMD_ERASE_4K			0x20
@@ -74,6 +75,16 @@ enum spi_nor_option_flags {
 
 #define CMD_RESET_ENABLE 	0x66
 #define CMD_RESET_MEMORY 	0x99
+
+/* Spansion command */
+#define CMD_RESET_SPAN          0xf0
+#define CMD_RESET_MODE          0xff
+
+/* EON commands */
+#define CMD_QUAD_ENABLE                 0x38
+#define CMD_QUAD_RESET                  0xff
+#define CMD_READ_INFORMATION            0x2b
+#define CMD_READ_QUAD_EON               0xeb
 
 /* Common status */
 #define STATUS_WIP			BIT(0)

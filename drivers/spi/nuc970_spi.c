@@ -62,12 +62,13 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
         ns = malloc(sizeof(struct nuc970_spi_slave));
         if (!ns)
                 return NULL;
+        memset(ns,0,sizeof(struct nuc970_spi_slave));
 
         ns->slave.bus = bus;
         ns->slave.cs = cs;     
         ns->max_hz = max_hz;
         ns->mode = mode;
-	ns->slave.quad_enable = 0;
+        ns->slave.quad_enable = 0;
  
         
         return &ns->slave;        

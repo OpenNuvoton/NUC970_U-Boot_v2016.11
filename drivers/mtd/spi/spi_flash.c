@@ -22,6 +22,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_SPI_FLASH_EON
+extern int spi_flash_cmd_read_quad(struct spi_flash *flash, u32 offset, size_t len, void *data);
+extern int eon_set_4byte_mode(struct spi_flash *flash);
+extern int spi_flash_set_4byte_mode(struct spi_flash *flash);
+#endif
+
 int spi_flash_reset(void);
 
 static void spi_flash_addr(u32 addr, u8 *cmd)
@@ -942,6 +948,10 @@ static int set_quad_mode(struct spi_flash *flash, u8 idcode0)
 	case SPI_FLASH_CFI_MFR_STMICRO:
 		return micron_quad_enable(flash);
 #endif
+#ifdef CONFIG_SPI_FLASH_EON
+	case SPI_FLASH_CFI_MFR_EON:
+		return 0;
+#endif
 	default:
 		printf("SF: Need set QEB func for %02x flash\n", idcode0);
 		return -1;
@@ -1135,6 +1145,7 @@ int spi_flash_scan(struct spi_flash *flash)
 #endif
 	flash->erase = spi_flash_cmd_erase_ops;
 	flash->read = spi_flash_cmd_read_ops;
+
 #endif
 
 	/* lock hooks are flash specific - assign them based on idcode0 */
@@ -1206,6 +1217,22 @@ int spi_flash_scan(struct spi_flash *flash)
 	else
 		/* Go for default supported write cmd */
 		flash->write_cmd = CMD_PAGE_PROGRAM;
+
+#if defined(CONFIG_SPI_FLASH_EON)
+	if (flash->size > (1 << 24))
+                flash->set_4byte_mode = eon_set_4byte_mode;
+		
+	ret = spi_flash_set_4byte_mode(flash); 
+	if (ret) { 
+		printf("SF: Failed to enable 4 byte mode: %d\n", ret); 
+		return ret; 
+	}
+
+	if (params->flags & RD_QUAD)
+		flash->read = spi_flash_cmd_read_quad;
+#endif
+
+		
 #ifdef CONFIG_SPI_NAND
 	if(jedec == 0xaa21) { // treat SPI NAND seperately
 		flash->read = spi_nand_read_raw;
@@ -1313,6 +1340,7 @@ int spi_flash_reset(void)
 
 	spi_claim_bus(spi);
 
+#if defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_EON)
 	ret = spi_flash_cmd(spi, CMD_RESET_ENABLE, NULL, 0);
 	if (ret) {
 		printf("SF: Failed issue reset command (CMD_RESET_ENABLE)\n");
@@ -1322,6 +1350,18 @@ int spi_flash_reset(void)
 	if (ret) {
 		printf("SF: Failed issue reset command (CMD_RESET_MEMORY)\n");
 	}
+#endif
+#if defined(CONFIG_SPI_FLASH_SPANSION)
+	ret = spi_flash_cmd(spi, CMD_RESET_SPAN, NULL, 0);
+        if (ret) {
+                printf("SF: Failed issue reset command (CMD_RESET_SPAN)\n");
+        }
+
+        ret = spi_flash_cmd(spi, CMD_RESET_MODE, NULL, 0);
+        if (ret) {
+                printf("SF: Failed issue reset command (CMD_RESET_SPAN)\n");
+        }
+#endif
 
 	spi_release_bus(spi);
 

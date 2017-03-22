@@ -10,6 +10,47 @@
 #include <common.h>
 #include <spi.h>
 
+#ifdef CONFIG_SPI_FLASH_EON 
+static int spi_flash_read_write(struct spi_slave *spi,
+				const u8 *cmd, size_t cmd_len,
+				const u8 *data_out, u8 *data_in,
+				size_t data_len)
+{
+	unsigned long flags = SPI_XFER_BEGIN;
+	int ret;
+
+#ifdef CONFIG_SF_DUAL_FLASH
+	if (spi->flags & SPI_XFER_U_PAGE)
+		flags |= SPI_XFER_U_PAGE;
+#endif
+	if (data_len == 0)
+		flags |= SPI_XFER_END;
+
+	if (spi->quad_enable)
+                flags |= SPI_6WIRE;
+
+	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags);
+	if (ret) {
+		debug("SF: Failed to send command (%zu bytes): %d\n",
+		      cmd_len, ret);
+	} else if (data_len != 0) {
+		if (spi->quad_enable) {
+			ret = spi_xfer(spi, data_len * 8, data_out, data_in,
+					SPI_6WIRE | SPI_XFER_END);
+		} else {
+			ret = spi_xfer(spi, data_len * 8, data_out, data_in,
+					SPI_XFER_END);
+		}
+		if (ret)
+			debug("SF: Failed to transfer %zu bytes of data: %d\n",
+			      data_len, ret);
+	}
+
+	return ret;
+}
+#endif
+
+#if defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_SPANSION)
 static int spi_flash_read_write(struct spi_slave *spi,
 				const u8 *cmd, size_t cmd_len,
 				const u8 *data_out, u8 *data_in,
@@ -44,6 +85,7 @@ static int spi_flash_read_write(struct spi_slave *spi,
 
 	return ret;
 }
+#endif
 
 int spi_flash_cmd_read(struct spi_slave *spi, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len)
