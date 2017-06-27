@@ -249,7 +249,7 @@
 /*#define CONFIG_GENERIC_MMC */
 #define CONFIG_DOS_PARTITION
 /*#define CONFIG_MMC_TRACE */
-#define CONFIG_NUC970_SD_PORT0 
+/*#define CONFIG_NUC970_SD_PORT0 */
 /*#define CONFIG_NUC970_SD_PORT1 */
 /*#define CONFIG_NUC970_EMMC */      /* Don't enable eMMC(CONFIG_NUC970_EMMC) and NAND(CONFIG_NAND_NUC970) at the same time! */
 #ifdef CONFIG_ENV_IS_IN_MMC

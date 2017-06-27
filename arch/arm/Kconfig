@@ -191,7 +191,6 @@ config TARGET_NUC970
 	bool "Support nuc970"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
-        select SPL
 
 config TARGET_ZMX25
 	bool "Support zmx25"
