@@ -192,6 +192,14 @@ config TARGET_NUC970
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
+config TARGET_NUC970_TOMATO
+	bool "Support nuc970 tomato"
+	select CPU_ARM926EJS
+
+config TARGET_NUC970_ETH2UART
+	bool "Support nuc970 Eth2UART"
+	select CPU_ARM926EJS
+
 config TARGET_ZMX25
 	bool "Support zmx25"
 	select CPU_ARM926EJS

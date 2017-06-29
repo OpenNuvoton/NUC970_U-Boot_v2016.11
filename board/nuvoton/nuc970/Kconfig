@@ -1,4 +1,4 @@
-if TARGET_NUC970
+if (TARGET_NUC970 || TARGET_NUC970_TOMATO || TARGET_NUC970_ETH2UART)
 
 config SYS_BOARD
 	default "nuc970"
@@ -10,10 +10,16 @@ config SYS_SOC
 	default "nuc970"
 
 config SYS_CONFIG_NAME
-	default "nuc970_evb"
+	default "nuc970_evb" if TARGET_NUC970
+	default "nuc970_tomato" if TARGET_NUC970_TOMATO
+	default "nuc970_eth2uart" if TARGET_NUC970_ETH2UART
 
 config NUC970
 	bool
 	default y
+
+config NUC970_HW_CHECKSUM
+	bool
+	default y if TARGET_NUC970_TOMATO
 
 endif
