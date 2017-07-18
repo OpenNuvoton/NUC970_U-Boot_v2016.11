@@ -173,27 +173,6 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_SIZE     (500 * 1024)    /* Size of RAM U-Boot image   */
 
-
-/* NAND chip page size          */
-#define CONFIG_SYS_NAND_PAGE_SIZE       2048
-/* NAND chip block size         */
-#define CONFIG_SYS_NAND_BLOCK_SIZE      (128 * 1024)
-/* NAND chip page per block count  */
-#define CONFIG_SYS_NAND_PAGE_COUNT      64
-/* Location of the bad-block label */
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS   0
-/* Size of the block protected by one OOB (Spare Area in Samsung terminology) */
-#define CONFIG_SYS_NAND_ECCSIZE CONFIG_SYS_NAND_PAGE_SIZE
-/* Number of ECC-blocks per NAND page */
-#define CONFIG_SYS_NAND_ECCSTEPS        (CONFIG_SYS_NAND_PAGE_SIZE / CONFIG_SYS_NAND_ECCSIZE)
-/* Size of a single OOB region */
-#define CONFIG_SYS_NAND_OOBSIZE 64
-/* Number of ECC bytes per page */
-#define CONFIG_SYS_NAND_ECCTOTAL        (CONFIG_SYS_NAND_ECCBYTES * CONFIG_SYS_NAND_ECCSTEPS)
-/* ECC byte positions */
-#define CONFIG_SYS_NAND_ECCPOS          {40, 41, 42, 43, 44, 45, 46, 47, \
-                                 48, 49, 50, 51, 52, 53, 54, 55, \
-                                 56, 57, 58, 59, 60, 61, 62, 63}
 #endif 
 
 

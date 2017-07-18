@@ -41,14 +41,10 @@ extern int nand_register(int devnum, struct mtd_info *mtd);
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
 static ulong base_address[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIST;
 
-#define ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / \
-					CONFIG_SYS_NAND_ECCSIZE)
-#define ECCTOTAL	(ECCSTEPS * CONFIG_SYS_NAND_ECCBYTES)
-
 
 static int nand_is_bad_block(struct mtd_info *mtd, int block)
 {
-	int page_addr = 0 + block * CONFIG_SYS_NAND_PAGE_COUNT;
+	int page_addr = 0 + block * (mtd->erasesize / mtd->writesize);
 	
 	nuc970_nand_command_lp(mtd, NAND_CMD_READOOB, 0 , page_addr );
 	if(nuc970_nand_read_byte(mtd)!=0xff)
@@ -63,7 +59,7 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	int real_page;
 
-	real_page = block * (CONFIG_SYS_NAND_BLOCK_SIZE / CONFIG_SYS_NAND_PAGE_SIZE) + page;
+	real_page = block * (mtd->erasesize / mtd->writesize) + page;
 
 	nuc970_nand_read_page_hwecc_oob_first(mtd, chip, dst, 0, real_page);
 /*
@@ -78,22 +74,23 @@ static int nand_load(struct mtd_info *mtd, unsigned int offs,
 {
 	unsigned int block, lastblock;
 	unsigned int page;
+	unsigned int page_count = mtd->erasesize / mtd->writesize;
 
 	/*
 	 * offs has to be aligned to a page address!
 	 */
-	block = offs / CONFIG_SYS_NAND_BLOCK_SIZE;
-	lastblock = (offs + uboot_size - 1) / CONFIG_SYS_NAND_BLOCK_SIZE;
-	page = (offs % CONFIG_SYS_NAND_BLOCK_SIZE) / CONFIG_SYS_NAND_PAGE_SIZE;
+	block = offs / mtd->erasesize;
+	lastblock = (offs + uboot_size - 1) / mtd->erasesize;
+	page = (offs % mtd->erasesize) / mtd->writesize;
 
 	while (block <= lastblock) {
 		if (!nand_is_bad_block(mtd, block)) {
 			/*
 			 * Skip bad blocks
 			 */
-			while (page < CONFIG_SYS_NAND_PAGE_COUNT) {
+			while (page < page_count) {
 				nand_read_page(mtd, block, page, dst);
-				dst += CONFIG_SYS_NAND_PAGE_SIZE;
+				dst += mtd->writesize;
 				page++;
 			}
 
