@@ -287,12 +287,10 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 	}
 
 	buf = map_physmem(addr, len, MAP_WRBACK);
-	/* Not return error if destination address is 0
 	if (!buf) {
 		puts("Failed to map physical memory\n");
 		return 1;
 	}
-	*/
 
 	if (strcmp(argv[0], "update") == 0) {
 		ret = spi_flash_update(flash, offset, len, buf);
