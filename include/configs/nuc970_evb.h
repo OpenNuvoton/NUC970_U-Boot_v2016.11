@@ -32,7 +32,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR            0x8000
 
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_MEMTEST_START         0xA00000
 #define CONFIG_SYS_MEMTEST_END           0xB00000
 
@@ -43,13 +42,10 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
-#define CONFIG_CMD_TIMER
-
 /*#define CONFIG_NUC970_HW_CHECKSUM */
 
 #define CONFIG_SYS_USE_SPIFLASH 
 #define CONFIG_SYS_USE_NANDFLASH  
-#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
 #define CONFIG_ENV_IS_IN_NAND 
 /*#define CONFIG_ENV_IS_IN_SPI_FLASH */
 /*#define CONFIG_ENV_IS_IN_MMC */
@@ -61,9 +57,7 @@
 
 #define CONFIG_SYS_BOOTM_LEN		0x1000000 /* 16MB max kernel size */
 
-/*#define CONFIG_DISPLAY_CPUINFO */
-
-#define CONFIG_BOOTDELAY	3
+/*#define CONFIG_BOOTDELAY	3*/
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
@@ -104,11 +98,6 @@
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_SOURCE
 #endif
-
-#define CONFIG_CMD_PING		1
-#define CONFIG_CMD_DHCP		1
-#define CONFIG_CMD_JFFS2        1
-
 
 #ifdef CONFIG_SYS_USE_SPIFLASH
 #undef CONFIG_CMD_IMLS  /*====================> SPI only */
@@ -188,7 +177,7 @@
 /*#define CONFIG_SPI_FLASH_EON 1 */
 /*#define CONFIG_SPI_FLASH_SPANSION 1 */
 /*#define CONFIG_SPI_FLASH_USE_4K_SECTORS*/
-#define CONFIG_SPI_FLASH_BAR
+/*#define CONFIG_SPI_FLASH_BAR*/
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET       0x80000
 #define CONFIG_ENV_SIZE         0x10000
@@ -216,7 +205,7 @@
 #define CONFIG_LCD_INFO
 #define CONFIG_LCD_INFO_BELOW_LOGO
 /*#define CONFIG_SYS_CONSOLE_IS_IN_ENV*/
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+/*#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE*/
 #define CONFIG_CONSOLE_SCROLL_LINES	1 
 #endif
 
@@ -242,11 +231,11 @@
 
 /* Following block is for EHCI support*/
 #if 1
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
-#define CONFIG_USB_STORAGE
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_NUC970
+/*#define CONFIG_CMD_USB*/
+/*#define CONFIG_CMD_FAT*/
+/*#define CONFIG_USB_STORAGE*/
+/*#define CONFIG_USB_EHCI*/
+/*#define CONFIG_USB_EHCI_NUC970*/
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_DOS_PARTITION
 #endif
