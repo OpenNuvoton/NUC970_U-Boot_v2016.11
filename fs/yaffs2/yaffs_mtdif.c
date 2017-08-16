@@ -135,14 +135,14 @@ int nandmtd_EraseBlockInNAND(struct yaffs_dev *dev, int blockNumber)
 {
 	struct mtd_info *mtd = (struct mtd_info *)(dev->driver_context);
 	__u32 addr =
-	    ((loff_t) blockNumber) * dev->data_bytes_per_chunk
+	    ((loff_t) blockNumber) * dev->param.total_bytes_per_chunk
 		* dev->param.chunks_per_block;
 	struct erase_info ei;
 	int retval = 0;
 
 	ei.mtd = mtd;
 	ei.addr = addr;
-	ei.len = dev->data_bytes_per_chunk * dev->param.chunks_per_block;
+	ei.len = dev->param.total_bytes_per_chunk * dev->param.chunks_per_block;
 	ei.time = 1000;
 	ei.retries = 2;
 	ei.callback = NULL;
