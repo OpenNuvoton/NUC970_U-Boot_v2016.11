@@ -123,6 +123,7 @@
 #define CONFIG_MTD_PARTITIONS  1 
 #define CONFIG_RBTREE          1 
 #define CONFIG_LZO             1 
+#define CONFIG_SYS_NAND_ONFI_DETECTION 1
 
 #define MTDIDS_DEFAULT "nand0=nand0"
 #define MTDPARTS_DEFAULT "mtdparts=nand0:0x200000@0x0(u-boot),0x1400000@0x200000(kernel),-(user)"
