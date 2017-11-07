@@ -397,6 +397,11 @@ config CMD_I2C
 	help
 	  I2C support.
 
+config CMD_DATE
+	bool "RTC"
+	help
+	  RTC support.
+
 config CMD_USB
 	bool "usb"
 	help

@@ -13,4 +13,9 @@ config DM_RTC
 	  drivers to perform the actual functions. See rtc.h for a
 	  description of the API.
 
+config RTC_NUC970
+       select CMD_DATE
+       bool "NUC970 RTC support"
+       depends on NUC970
+
 endmenu
