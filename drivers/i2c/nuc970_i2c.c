@@ -14,7 +14,6 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #endif
-#endif
 
 #include <asm/io.h>
 #include <i2c.h>
