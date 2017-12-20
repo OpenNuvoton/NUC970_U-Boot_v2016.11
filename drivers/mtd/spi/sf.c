@@ -50,7 +50,7 @@ static int spi_flash_read_write(struct spi_slave *spi,
 }
 #endif
 
-#if defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_SPANSION)
+#if defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_GIGADEVICE)
 static int spi_flash_read_write(struct spi_slave *spi,
 				const u8 *cmd, size_t cmd_len,
 				const u8 *data_out, u8 *data_in,

@@ -173,10 +173,6 @@
 #define CONFIG_CMD_SF           1
 #define CONFIG_SPI              1
 #define CONFIG_SPI_FLASH        1
-/*#define CONFIG_SPI_FLASH_MACRONIX   1 */
-#define CONFIG_SPI_FLASH_WINBOND   1
-/*#define CONFIG_SPI_FLASH_EON 1 */
-/*#define CONFIG_SPI_FLASH_SPANSION 1 */
 /*#define CONFIG_SPI_FLASH_USE_4K_SECTORS*/
 /*#define CONFIG_SPI_FLASH_BAR*/
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
