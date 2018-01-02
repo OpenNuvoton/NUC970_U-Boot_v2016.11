@@ -1035,8 +1035,11 @@ int nand_scan(struct mtd_info *mtd, int maxchips)
 	int ret;
 
 	ret = nand_scan_ident(mtd, maxchips, NULL);
+/* CWWeng 2018/1/2
 	if (!ret)
 		ret = nand_scan_tail(mtd);
+*/
+	ret = nand_scan_tail(mtd);
 	return ret;
 }
 EXPORT_SYMBOL(nand_scan);

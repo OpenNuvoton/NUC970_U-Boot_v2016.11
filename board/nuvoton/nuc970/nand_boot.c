@@ -128,8 +128,7 @@ void board_init_f(unsigned long bootflag)
         if (board_nand_init(nand))
                 return;
 
-        if (nand_scan(mtd, maxchips))
-                return;
+        nand_scan(mtd, maxchips); /* CWWeng : 2018/1/2 : not return */
 
         nand_register(0, mtd);
 	

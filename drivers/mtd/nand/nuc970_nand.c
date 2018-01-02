@@ -812,18 +812,21 @@ int board_nand_init(struct nand_chip *nand)
 	    case 0x00: // 2KB
 	        mtd->writesize = 2048;
 	        writel( (readl(REG_SMCSR)&(~0x30000)) + 0x10000, REG_SMCSR);
+		mtd->oobsize = g_i32ParityNum[1][nuc970_nand->eBCHAlgo] + 8;
 	        nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[1][nuc970_nand->eBCHAlgo] );
 	        break;
 
 	    case 0x40: // 4KB
 	        mtd->writesize = 4096;
 	        writel( (readl(REG_SMCSR)&(~0x30000)) + 0x20000, REG_SMCSR);
+		mtd->oobsize = g_i32ParityNum[2][nuc970_nand->eBCHAlgo] + 8;
 	        nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[2][nuc970_nand->eBCHAlgo] );
 	        break;
 
 	    case 0x80: // 8KB
 	        mtd->writesize = 8192;
 	        writel( (readl(REG_SMCSR)&(~0x30000)) + 0x30000, REG_SMCSR);
+		mtd->oobsize = g_i32ParityNum[3][nuc970_nand->eBCHAlgo] + 8;
 	        nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[3][nuc970_nand->eBCHAlgo] );
 	        break;
 
