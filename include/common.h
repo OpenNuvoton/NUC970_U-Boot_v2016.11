@@ -866,10 +866,13 @@ int	getc(void);
 int	tstc(void);
 
 /* stdout */
+/*
 #if !defined(CONFIG_SPL_BUILD) || \
 	(defined(CONFIG_TPL_BUILD) && defined(CONFIG_TPL_SERIAL_SUPPORT)) || \
 	(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD) && \
 		defined(CONFIG_SPL_SERIAL_SUPPORT))
+*/
+#if 1
 void	putc(const char c);
 void	puts(const char *s);
 int	printf(const char *fmt, ...)

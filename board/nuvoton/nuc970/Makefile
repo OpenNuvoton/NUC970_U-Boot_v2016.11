@@ -14,6 +14,13 @@ obj-y	+= my_nand.o
 obj-y	+= my_nand_ecc.o
 obj-y	+= my_nand_ids.o
 obj-y	+= string.o
+
+obj-y	+= serial_nuc970.o
+obj-y	+= serial.o
+obj-y	+= nuc970_sysprintf.o
+obj-y	+= vsprintf.o
+obj-y	+= div64.o
+obj-y	+= console.o
 else
 obj-y	:= nuc970.o
 obj-y	+= cmd_decrypt.o

@@ -46,6 +46,8 @@
 #include <asm/io.h>
 #include <linux/errno.h>
 
+#define printf(fmt, arg...) sysprintf(fmt, ##arg) //CWWeng add
+
 struct nand_buffers g_nand_buffers;
 struct nand_buffers *nand_buffers;
 
