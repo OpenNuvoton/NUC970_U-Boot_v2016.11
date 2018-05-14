@@ -118,7 +118,6 @@ void lcd_ctrl_init(void *lcdbase)
 	//LCD register
         writel(vpost_cfg.devctl, REG_LCM_DEV_CTRL);  //1677721 color, 24bit
         writel(0x00000000, REG_LCM_MPU_CMD);
-        writel(0x80000001, REG_LCM_INT_CS);
 
         writel(0x020d03a0, REG_LCM_CRTC_SIZE);  //800*480
         writel(0x01e00320, REG_LCM_CRTC_DEND);
