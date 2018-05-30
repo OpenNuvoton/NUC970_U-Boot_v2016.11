@@ -2,3 +2,6 @@ config NUC970_WATCHDOG
 	bool "NUC970 Watchdog"
 	depends on NUC970
 
+config N9H30_WATCHDOG
+	bool "N9H30 Watchdog"
+	depends on N9H30

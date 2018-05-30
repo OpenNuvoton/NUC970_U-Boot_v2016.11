@@ -14,7 +14,12 @@
 #include <spi_flash.h>
 #include <watchdog.h>
 
+#ifdef CONFIG_NUC970
 #include "../../spi/nuc970_spi.h"
+#endif
+#ifdef CONFIG_N9H30
+#include "../../spi/n9h30_spi.h"
+#endif
 
 #include "sf_internal.h"
 

@@ -594,4 +594,8 @@ config NUC970_LCD
 	bool "Enable LCD support on NUC970"
 	depends on LCD
 
+config N9H30_LCD
+	bool "Enable LCD support on N9H30"
+	depends on LCD
+
 endmenu

@@ -125,6 +125,10 @@ config USB_EHCI_NUC970
 	bool  "Support for NUC970 on-chip EHCI USB controller"
 	depends on NUC970
 
+config USB_EHCI_N9H30
+	bool  "Support for N9H30 on-chip EHCI USB controller"
+	depends on N9H30
+
 config USB_EHCI_GENERIC
 	bool "Support for generic EHCI USB controller"
 	depends on OF_CONTROL

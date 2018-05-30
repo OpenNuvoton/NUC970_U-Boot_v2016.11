@@ -1,0 +1,19 @@
+if (TARGET_N9H30)
+
+config SYS_BOARD
+	default "n9h30"
+
+config SYS_VENDOR
+	default "nuvoton"
+
+config SYS_SOC
+	default "n9h30"
+
+config SYS_CONFIG_NAME
+	default "n9h30_evb" if TARGET_N9H30
+
+config N9H30
+	bool
+	default y
+
+endif

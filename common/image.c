@@ -72,6 +72,10 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #include <nuc970_crypto.h>
 #endif
 
+#ifdef CONFIG_N9H30_HW_CHECKSUM
+#include <n9h30_crypto.h>
+#endif
+
 static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_INVALID,	"invalid",	"Invalid ARCH",	},
 	{	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
@@ -229,9 +233,8 @@ int image_check_dcrc(const image_header_t *hdr)
 {
 	ulong data = image_get_data(hdr);
 	ulong len = image_get_data_size(hdr);
-#ifndef CONFIG_NUC970_HW_CHECKSUM
-	ulong dcrc = crc32_wd(0, (unsigned char *)data, len, CHUNKSZ_CRC32);
-#else //use SHA-1
+#if defined(CONFIG_NUC970_HW_CHECKSUM) || defined(CONFIG_N9H30_HW_CHECKSUM)
+	//use SHA-1
         ulong dcrc;
 
         *(volatile u32 *)REG_HCLKEN |= 0x800000; //Crypto clk
@@ -259,6 +262,9 @@ int image_check_dcrc(const image_header_t *hdr)
         dcrc = SECURE->HMAC_H0;
 
         *(volatile u32 *)REG_HCLKEN &= ~0x800000; //Crypto clk
+
+#else	// software crc
+	ulong dcrc = crc32_wd(0, (unsigned char *)data, len, CHUNKSZ_CRC32);
 #endif
 
 	return (dcrc == image_get_dcrc(hdr));

@@ -212,4 +212,7 @@ config TI_QSPI
 config NUC970_SPI
 	bool "NUC970 SPI driver"
 
+config N9H30_SPI
+	bool "N9H30 SPI driver"
+
 endmenu # menu "SPI Support"

@@ -143,6 +143,7 @@ serial_initfunc(mxc_serial_initialize);
 serial_initfunc(mxs_auart_initialize);
 serial_initfunc(ns16550_serial_initialize);
 serial_initfunc(nuc970_serial_initialize);
+serial_initfunc(n9h30_serial_initialize);
 serial_initfunc(oc_serial_initialize);
 serial_initfunc(p3mx_serial_initialize);
 serial_initfunc(pl01x_serial_initialize);
@@ -233,6 +234,7 @@ void serial_initialize(void)
 	mpc8xx_serial_initialize();
 	mxc_serial_initialize();
 	mxs_auart_initialize();
+	n9h30_serial_initialize();
 	ns16550_serial_initialize();
 	nuc970_serial_initialize();
 	oc_serial_initialize();

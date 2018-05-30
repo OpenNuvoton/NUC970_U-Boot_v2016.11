@@ -229,5 +229,4 @@ config NUC970_PHY_ADDR
 	int "PHY Address"
 	depends on NUC970_ETH
 
-
 endif # NETDEVICES

@@ -2,7 +2,7 @@ menu "MMC Host controller Support"
 
 config MMC
 	bool "Enable MMC support"
-	depends on ARCH_SUNXI || SANDBOX || NUC970_MMC
+	depends on ARCH_SUNXI || SANDBOX || NUC970_MMC || N9H30_MMC
 	help
 	  TODO: Move all architectures to use this option
 
@@ -99,9 +99,13 @@ config NUC970_MMC
 	bool "NUC970 MMC support"
 	depends on NUC970
 
+config N9H30_MMC
+	bool "N9H30 MMC support"
+	depends on N9H30
+
 config GENERIC_MMC
 	bool "Generic MMC support"
-	depends on NUC970_MMC
+	depends on (NUC970_MMC  || N9H30_MMC)
 
 config NUC970_SD_PORT0
 	bool "NUC970 SD port 0 support"
@@ -114,5 +118,17 @@ config NUC970_SD_PORT1
 config NUC970_EMMC
 	bool "NUC970 EMMC support"
 	depends on NUC970_MMC
+
+config N9H30_SD_PORT0
+	bool "N9H30 SD port 0 support"
+	depends on N9H30_MMC
+
+config N9H30_SD_PORT1
+	bool "N9H30 SD port 1 support"
+	depends on N9H30_MMC
+
+config N9H30_EMMC
+	bool "N9H30 EMMC support"
+	depends on N9H30_MMC
 
 endmenu
