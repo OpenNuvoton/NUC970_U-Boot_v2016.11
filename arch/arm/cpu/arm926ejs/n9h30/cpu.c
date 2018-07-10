@@ -34,8 +34,11 @@ int print_cpuinfo (void)
         printf("CPU: ");
 
         switch(id) {
+                case 0:
+                        printf("N9H30F\n");
+                        break;
                 case 9:
-                        printf("N9H30\n");
+                        printf("N9H30K\n");
                         break;
                 default:
                         printf("Unknown\n");
