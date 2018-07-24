@@ -47,7 +47,7 @@ static ulong base_address[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIS
 static int nand_is_bad_block(struct mtd_info *mtd, int block)
 {
 	int page_addr = 0 + block * (mtd->erasesize / mtd->writesize);
-	
+
 	nuc970_nand_command_lp(mtd, NAND_CMD_READOOB, 0 , page_addr );
 	if(nuc970_nand_read_byte(mtd)!=0xff)
 		return 1;
@@ -64,15 +64,15 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 	real_page = block * (mtd->erasesize / mtd->writesize) + page;
 
 	nuc970_nand_read_page_hwecc_oob_first(mtd, chip, dst, 0, real_page);
-/*
-	if (chip->ecc.read_page)
-		chip->ecc.read_page(mtd, chip, dst, 0, real_page); //CWWeng : it calls nuc970_nand_read_page_hwecc_oob_first
-*/
+	/*
+		if (chip->ecc.read_page)
+			chip->ecc.read_page(mtd, chip, dst, 0, real_page); //CWWeng : it calls nuc970_nand_read_page_hwecc_oob_first
+	*/
 	return 0;
 }
 
 static int nand_load(struct mtd_info *mtd, unsigned int offs,
-		     unsigned int uboot_size, uchar *dst)
+                     unsigned int uboot_size, uchar *dst)
 {
 	unsigned int block, lastblock;
 	unsigned int page;
@@ -116,39 +116,41 @@ static int nand_load(struct mtd_info *mtd, unsigned int offs,
 void board_init_f(unsigned long bootflag)
 {
 	struct nand_chip *nand = &nand_chip[0];
-        struct mtd_info *mtd = nand_to_mtd(nand);
-        ulong base_addr = base_address[0];
-        int maxchips = CONFIG_SYS_NAND_MAX_CHIPS;
+	struct mtd_info *mtd = nand_to_mtd(nand);
+	ulong base_addr = base_address[0];
+	int maxchips = CONFIG_SYS_NAND_MAX_CHIPS;
 	__attribute__((noreturn)) void (*uboot)(void);
 
 	nuc970_serial_init();
 	printf("NAND boot!\n");
 
-        if (maxchips < 1)
-                maxchips = 1;
+	if (maxchips < 1)
+		maxchips = 1;
 
-        nand->IO_ADDR_R = nand->IO_ADDR_W = (void  __iomem *)base_addr;
+	nand->IO_ADDR_R = nand->IO_ADDR_W = (void  __iomem *)base_addr;
 
-        if (board_nand_init(nand))
-                return;
+	if (board_nand_init(nand))
+		return;
 
-        nand_scan(mtd, maxchips); /* CWWeng : 2018/1/2 : not return */
+	nand_scan(mtd, maxchips); /* CWWeng : 2018/1/2 : not return */
 
-        nand_register(0, mtd);
-	
+	board_nand_reinit(mtd);
+
+	nand_register(0, mtd);
+
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
 	nand_load(mtd, CONFIG_SYS_NAND_U_BOOT_OFFS, CONFIG_SYS_NAND_U_BOOT_SIZE,
-		  (uchar *)CONFIG_SYS_NAND_U_BOOT_DST);
+	          (uchar *)CONFIG_SYS_NAND_U_BOOT_DST);
 
 #ifdef CONFIG_NAND_ENV_DST
 	nand_load(mtd, CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-		  (uchar *)CONFIG_NAND_ENV_DST);
+	          (uchar *)CONFIG_NAND_ENV_DST);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	nand_load(mtd, CONFIG_ENV_OFFSET_REDUND, CONFIG_ENV_SIZE,
-		  (uchar *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
+	          (uchar *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
 #endif
 #endif
 
@@ -171,6 +173,6 @@ void lowlevel_init(void) {}
  */
 void hang(void)
 {
-        /* Loop forever */
-        while (1) ;
+	/* Loop forever */
+	while (1) ;
 }
