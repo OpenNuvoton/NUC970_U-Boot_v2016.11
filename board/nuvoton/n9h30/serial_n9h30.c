@@ -64,6 +64,7 @@ typedef struct
 #define REG_MFP_GPE_L	(GCR_BA+0x090)  /* GPIOE Low Byte Multiple Function Control Register */
 #define UART0_BA  0xB8000000 /* UART0 Control (High-Speed UART) */
 #define UART0	   ((UART_TypeDef *)UART0_BA) 
+#define REG_PCLKEN0	0xB0000218
 
 /*
  * Initialise the serial port with the given baudrate. The settings are always 8n1.
@@ -74,6 +75,7 @@ u32 ext_clk  = EXT_CLK;
 
 int n9h30_serial_init (void)
 {
+	__raw_writel(__raw_readl(REG_PCLKEN0) | 0x10000, REG_PCLKEN0);
 	__raw_writel((__raw_readl(REG_MFP_GPE_L) & 0xffffff00) | 0x99, REG_MFP_GPE_L); // UART0 multi-function
 
 	/* UART0 line configuration for (115200,n,8,1) */

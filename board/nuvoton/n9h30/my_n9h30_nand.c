@@ -736,6 +736,21 @@ int board_nand_init(struct nand_chip *nand)
             //printf("N9H30 NAND CONTROLLER IS NOT SUPPORT THE PAGE SIZE. (%d, %d)\n", mtd->writesize, mtd->oobsize );
     }
 
+    nand->ecc.bytes = n9h30_nand_oob.eccbytes;
+    nand->ecc.size  = mtd->writesize;
+
+    nand->options = 0;
+
+    return 0;
+}
+
+int board_nand_postinit(struct mtd_info *mtd)
+{
+
+    // NAND Reset
+    writel(readl(REG_SMCSR) | 0x1, REG_SMCSR);    // software reset
+    while (readl(REG_SMCSR) & 0x1);
+
     /* check power on setting */
     if ((readl(REG_PWRON) & 0x300) != 0x300) { /* ECC */
 	switch ((readl(REG_PWRON) & 0x300)) {
@@ -788,10 +803,8 @@ int board_nand_init(struct nand_chip *nand)
     }
 
     n9h30_nand->m_i32SMRASize  = mtd->oobsize;
-    nand->ecc.bytes = n9h30_nand_oob.eccbytes;
-    nand->ecc.size  = mtd->writesize;
-
-    nand->options = 0;
+    n9h30_nand->chip.ecc.bytes = n9h30_nand_oob.eccbytes;
+    n9h30_nand->chip.ecc.size  = mtd->writesize;
 
     // Redundant area size
     writel( n9h30_nand->m_i32SMRASize , REG_SMREACTL );
@@ -807,8 +820,6 @@ int board_nand_init(struct nand_chip *nand)
     writel( (readl(REG_SMCSR) & (~0x007C0000)) | g_i32BCHAlgoIdx[n9h30_nand->eBCHAlgo], REG_SMCSR);
     // Enable H/W ECC, ECC parity check enable bit during read page
     writel( readl(REG_SMCSR) | 0x00800080, REG_SMCSR);
-
-    //printf("end of nand_init 0x%x\n", readl(REG_SMCSR));
 
     return 0;
 }

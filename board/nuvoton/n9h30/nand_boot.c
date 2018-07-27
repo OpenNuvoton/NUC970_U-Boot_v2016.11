@@ -134,6 +134,8 @@ void board_init_f(unsigned long bootflag)
 
         nand_scan(mtd, maxchips); /* CWWeng : 2018/1/2 : not return */
 
+	board_nand_postinit(mtd);
+
         nand_register(0, mtd);
 	
 	/*
