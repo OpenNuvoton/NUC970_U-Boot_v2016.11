@@ -66,8 +66,6 @@ static int do_rtcspare(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	u32 *buffer;
 	const char *str_cmd;
 
-	u32 u32data[16];
-
 	u32PCLK = readl(REG_PCLKEN0);
 
 	if (argc != 3)
@@ -83,7 +81,7 @@ show_usage:
 
 	str_cmd = argv[1];
 
-    buffer = simple_strtoul(argv[2], NULL, 16);
+    buffer = (u32*)simple_strtoul(argv[2], NULL, 16);
 
 	#ifdef RTC_DEBUG
 	printf("\n buffer address = 0x%x ", buffer);
