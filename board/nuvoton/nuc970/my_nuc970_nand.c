@@ -21,6 +21,7 @@
 int nuc970_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct nand_chip *chip, uint8_t *buf, int oob_required, int page);
 void nuc970_nand_command_lp(struct mtd_info *mtd, unsigned int command, int column, int page_addr);
 unsigned char nuc970_nand_read_byte(struct mtd_info *mtd);
+int board_nand_postinit(struct mtd_info *mtd);
 //#define debug printf
 
 #define NAND_EN     0x08
@@ -724,7 +725,7 @@ int board_nand_init(struct nand_chip *nand)
 	return 0;
 }
 
-int board_nand_reinit(struct mtd_info *mtd)
+int board_nand_postinit(struct mtd_info *mtd)
 {
 	// NAND Reset
 	writel(readl(REG_SMCSR) | 0x1, REG_SMCSR);    // software reset

@@ -587,7 +587,6 @@ static int nuc970_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct na
 	int eccsize = chip->ecc.size;
 	uint8_t *p = buf;
 	char * ptr= (char *)REG_SMRA0;
-	int volatile i;
 
 	//debug("nuc970_nand_read_page_hwecc_oob_first\n");
 	/* At first, read the OOB area  */
@@ -598,12 +597,15 @@ static int nuc970_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct na
 	memcpy ( (void*)ptr, (void*)chip->oob_poi, mtd->oobsize );
 
 #if 0
-	for(i=0; i<mtd->oobsize; i++) {
-		printf("%02X ",  *(ptr+i) );
-		if ( i % 32 == 31)
-			printf("\n");
+	if (1) {
+		int volatile i;
+		for(i=0; i<mtd->oobsize; i++) {
+			printf("%02X ",  *(ptr+i) );
+			if ( i % 32 == 31)
+				printf("\n");
+		}
+		printf("\n");
 	}
-	printf("\n");
 #endif
 
 	// Third, read data from nand

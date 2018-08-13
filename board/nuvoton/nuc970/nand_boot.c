@@ -31,6 +31,7 @@ extern int nuc970_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct na
 extern void nuc970_nand_command_lp(struct mtd_info *mtd, unsigned int command, int column, int page_addr);
 extern unsigned char nuc970_nand_read_byte(struct mtd_info *mtd);
 extern int nand_register(int devnum, struct mtd_info *mtd);
+extern int board_nand_postinit(struct mtd_info *mtd);
 extern void sysprintf(char* pcStr,...);
 #define printf(fmt, arg...) sysprintf(fmt, ##arg) //CWWeng add
 
@@ -134,7 +135,7 @@ void board_init_f(unsigned long bootflag)
 
 	nand_scan(mtd, maxchips); /* CWWeng : 2018/1/2 : not return */
 
-	board_nand_reinit(mtd);
+	board_nand_postinit(mtd);
 
 	nand_register(0, mtd);
 
