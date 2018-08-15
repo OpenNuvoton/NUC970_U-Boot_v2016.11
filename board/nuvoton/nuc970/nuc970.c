@@ -265,7 +265,45 @@ int NUC970_cleanup(void)
 
 int checkboard(void)
 {
-	puts("Board: NUC970\n");
+        unsigned int id;
+
+        id = (readl(0xB0000004) & 0x0F000000) >> 24;
+
+        printf("Board: ");
+
+        switch(id) {
+                case 0:
+                        printf("N9H30F\n");
+                        break;
+                case 1:
+                        printf("NUC971\n");
+                        break;
+                case 2:
+                        printf("NUC972\n");
+                        break;
+                case 3:
+                        printf("NUC973\n");
+                        break;
+                case 8:
+                        printf("NUC978\n");
+                        break;
+                case 9:
+                        printf("N9H30K\n");
+                        break;
+                case 0xd:
+                        printf("NUC975\n");
+                        break;
+                case 0xe:
+                        printf("NUC976\n");
+                        break;
+                case 0xf:
+                        printf("NUC977\n");
+                        break;
+                default:
+                        printf("Unknown\n");
+                        break;
+
+        }
 
 	return 0;
 }

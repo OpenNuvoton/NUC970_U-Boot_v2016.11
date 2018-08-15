@@ -34,8 +34,8 @@ int print_cpuinfo (void)
         printf("CPU: ");
 
         switch(id) {
-                case 0:
-                        printf("NUC970\n");
+		case 0:
+                        printf("N9H30F\n");
                         break;
                 case 1:
                         printf("NUC971\n");
@@ -45,6 +45,15 @@ int print_cpuinfo (void)
                         break;
                 case 3:
                         printf("NUC973\n");
+                        break;
+                case 8:
+                        printf("NUC978\n");
+                        break;
+                case 9:
+                        printf("N9H30K\n");
+                        break;
+                case 0xd:
+                        printf("NUC975\n");
                         break;
                 case 0xe:
                         printf("NUC976\n");

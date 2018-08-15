@@ -591,11 +591,22 @@ config LCD
 	  converted to driver model will instead used CONFIG_DM_VIDEO.
 
 config NUC970_LCD
-	bool "Enable LCD support on NUC970"
+	bool "Enable LCD support on NUC970/N9H30"
 	depends on LCD
 
-config N9H30_LCD
-	bool "Enable LCD support on N9H30"
-	depends on LCD
+choice
+        prompt "Select panel for NUC970/N9H30 EVB"
+        default LCD_E50A2V1
+        depends on NUC970_LCD
+        help
+          This option sets the resolution used for the U-Boot framebuffer (and
+          bootsplash screen).
+
+config LCD_E50A2V1
+        bool "Panel E50A2V1"
+
+config LCD_FW070TFT
+        bool "Panel FW070TFT"
+endchoice
 
 endmenu

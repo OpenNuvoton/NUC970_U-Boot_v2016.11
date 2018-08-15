@@ -39,6 +39,7 @@
 
 
 vpost_cfg_t vpost_cfg = {
+#if defined(CONFIG_LCD_E50A2V1)
         .clk            = 3000000,
         .hight          = 480,
         .width          = 800,
@@ -56,6 +57,25 @@ vpost_cfg_t vpost_cfg = {
 #endif
         .fbctrl         = 0x01900190,//0x03200320,
         .scale          = 0x04000400,
+#elif defined(CONFIG_LCD_FW070TFT)
+        .clk            = 32000000,
+        .hight          = 480,
+        .width          = 800,
+        .left_margin    = 20,
+        .right_margin   = 196,
+        .hsync_len      = 26,
+        .upper_margin   = 23,
+        .lower_margin   = 19,
+        .vsync_len      = 3,
+        .dccs           = 0x0e00040a,//0x0e00041a,
+#ifdef CONFIG_NUC970_LCD
+        .devctl         = 0x070000C0,
+#else
+        .devctl         = 0x050000C0,
+#endif
+        .fbctrl         = 0x01900190,//0x03200320,
+        .scale          = 0x04000400,
+#endif
 };
 
 
@@ -119,12 +139,20 @@ void lcd_ctrl_init(void *lcdbase)
         writel(vpost_cfg.devctl, REG_LCM_DEV_CTRL);  //1677721 color, 24bit
         writel(0x00000000, REG_LCM_MPU_CMD);
 
+#if defined(CONFIG_LCD_E50A2V1)
         writel(0x020d03a0, REG_LCM_CRTC_SIZE);  //800*480
         writel(0x01e00320, REG_LCM_CRTC_DEND);
         writel(0x03250321, REG_LCM_CRTC_HR);
         writel(0x03780348, REG_LCM_CRTC_HSYNC);
-
         writel(0x01f001ed, REG_LCM_CRTC_VR);
+#elif defined(CONFIG_LCD_FW070TFT)
+        writel(0x020d0420, REG_LCM_CRTC_SIZE);  //800*480
+        writel(0x01e00320, REG_LCM_CRTC_DEND);
+        writel(0x033e0339, REG_LCM_CRTC_HR);
+        writel(0x040c03f8, REG_LCM_CRTC_HSYNC);
+        writel(0x020001f6, REG_LCM_CRTC_VR);
+#endif
+
         writel((unsigned int)lcdbase, REG_LCM_VA_BADDR0);
         writel(vpost_cfg.fbctrl, REG_LCM_VA_FBCTRL);
 
@@ -142,11 +170,48 @@ void lcd_getcolreg (ushort regno, ushort *red, ushort *green, ushort *blue)
 }
 #ifdef CONFIG_LCD_INFO
 #include <version.h>
+static char* get_cpuinfo (void)
+{
+        unsigned int id;
+	char *cpuinfo = "NUC972";
+
+        id = (readl(0xB0000004) & 0x0F000000) >> 24;
+	if (id == 0) {
+		cpuinfo = "N9H30F";
+	}
+	else if (id == 1) {
+                cpuinfo = "NUC971";
+        }
+	else if (id == 2) {
+                cpuinfo = "NUC972";
+        }
+	else if (id == 3) {
+                cpuinfo = "NUC973";
+        }
+	else if (id == 8) {
+                cpuinfo = "NUC978";
+        }
+	else if (id == 9) {
+                cpuinfo = "N9H30K";
+        }
+	else if (id == 0xd) {
+                cpuinfo = "NUC975";
+        }
+	else if (id == 0xe) {
+                cpuinfo = "NUC976";
+        }
+	else if (id == 0xf) {
+                cpuinfo = "NUC977";
+        }
+
+	return cpuinfo;
+}
+
 void lcd_show_board_info(void)
 {
         lcd_printf ("%s\n", U_BOOT_VERSION);
         lcd_printf ("(C) 2016 Nuvoton Technology Corp.\n");
-        lcd_printf ("NUC970 Evaluation Board\n");
+        lcd_printf ("%s Evaluation Board\n", get_cpuinfo());
 
 }
 #endif /* CONFIG_LCD_INFO */
