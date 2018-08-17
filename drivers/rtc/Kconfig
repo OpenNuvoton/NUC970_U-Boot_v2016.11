@@ -15,12 +15,7 @@ config DM_RTC
 
 config RTC_NUC970
        select CMD_DATE
-       bool "NUC970 RTC support"
+       bool "NUC970/N9H30 RTC support"
        depends on NUC970
-
-config RTC_N9H30
-	select CMD_DATE
-	bool "N9H30 RTC support"
-	depends on N9H30
 
 endmenu

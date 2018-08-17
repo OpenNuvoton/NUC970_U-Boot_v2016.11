@@ -2,7 +2,7 @@
  * (C) Copyright 2014
  * Nuvoton Technology Corp. <www.nuvoton.com>
  *
- * SPI driver for NUC970 
+ * SPI driver for NUC970
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -55,40 +55,40 @@ void spi_init()
 }
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-                        unsigned int max_hz, unsigned int mode)
-{
-        struct nuc970_spi_slave  *ns;
-        
-        ns = malloc(sizeof(struct nuc970_spi_slave));
-        if (!ns)
-                return NULL;
-        memset(ns,0,sizeof(struct nuc970_spi_slave));
+                                  unsigned int max_hz, unsigned int mode) {
+	struct nuc970_spi_slave  *ns;
 
-        ns->slave.bus = bus;
-        ns->slave.cs = cs;     
-        ns->max_hz = max_hz;
-        ns->mode = mode;
-        ns->slave.quad_enable = 0;
- 
-        
-        return &ns->slave;        
+	ns = malloc(sizeof(struct nuc970_spi_slave));
+	if (!ns)
+		return NULL;
+	memset(ns,0,sizeof(struct nuc970_spi_slave));
+
+	ns->slave.bus = bus;
+	ns->slave.cs = cs;
+	ns->max_hz = max_hz;
+	ns->mode = mode;
+	ns->slave.quad_enable = 0;
+#ifdef CONFIG_NUC970_SPI_Quad
+	ns->slave.mode |= SPI_RX_QUAD;
+#endif
+	return &ns->slave;
 }
 
 
 void spi_free_slave(struct spi_slave *slave)
 {
-        struct nuc970_spi_slave *ns = to_nuc970_spi(slave);
+	struct nuc970_spi_slave *ns = to_nuc970_spi(slave);
 
-        free(ns);
-        
-        return;
+	free(ns);
+
+	return;
 }
 
 int spi_claim_bus(struct spi_slave *slave)
 {
 	//char *cp;
 	struct nuc970_spi_slave *ns = to_nuc970_spi(slave);
-	
+
 #ifdef USE_NUC970_SPI0
 	writel(readl(REG_PCLKEN1) | 0x10, REG_PCLKEN1);       // SPI0 clk
 #else
@@ -97,11 +97,11 @@ int spi_claim_bus(struct spi_slave *slave)
 
 #ifdef USE_NUC970_SPI0
 	//SPI0: B6, B7, B8, B9
-	writel(readl(REG_MFP_GPB_L) | 0xBB000000, REG_MFP_GPB_L);	
+	writel(readl(REG_MFP_GPB_L) | 0xBB000000, REG_MFP_GPB_L);
 	writel(readl(REG_MFP_GPB_H) | 0x000000BB, REG_MFP_GPB_H);
 #else
 	//SPI1: B12, B13, B14, B15
-	writel(readl(REG_MFP_GPB_H) | 0xBBBB0000, REG_MFP_GPB_H);	
+	writel(readl(REG_MFP_GPB_H) | 0xBBBB0000, REG_MFP_GPB_H);
 #endif
 
 	//cp = getenv("spimode");
@@ -116,9 +116,9 @@ int spi_claim_bus(struct spi_slave *slave)
 #endif
 		}
 	}
-			
+
 	writel(SPI_8BIT, SPICTL);
-	
+
 	if(ns->mode & SPI_CS_HIGH)
 		writel(SPI_SS_HIGH, SPISSR);
 	else
@@ -127,16 +127,16 @@ int spi_claim_bus(struct spi_slave *slave)
 		writel(readl(SPICTL) | SPI_CLKPOL, SPICTL);
 	else
 		writel(readl(SPICTL) & ~SPI_CLKPOL, SPICTL);
-	
+
 	if(ns->mode & SPI_CPHA)
 		writel(readl(SPICTL) | SPI_CLKPHAINV, SPICTL);
 	else
-		writel(readl(SPICTL) | SPI_CLKPHA, SPICTL);   
-	
+		writel(readl(SPICTL) | SPI_CLKPHA, SPICTL);
+
 	spi_set_speed(slave, ns->max_hz);
-	
+
 	return(0);
-        
+
 }
 
 
@@ -149,11 +149,11 @@ void spi_release_bus(struct spi_slave *slave)
 #else
 	writel(readl(REG_PCLKEN1) & ~0x20, REG_PCLKEN1);       // SPI1 clk
 #endif
-	
+
 #ifdef USE_NUC970_SPI0
 	//SPI0: B6, B7, B8, B9
-	writel(readl(REG_MFP_GPB_L) & ~0xBB000000, REG_MFP_GPB_L);	
-	writel(readl(REG_MFP_GPB_H) & ~0x000000BB, REG_MFP_GPB_H); 
+	writel(readl(REG_MFP_GPB_L) & ~0xBB000000, REG_MFP_GPB_L);
+	writel(readl(REG_MFP_GPB_H) & ~0x000000BB, REG_MFP_GPB_H);
 #else
 	//SPI1: B12, B13, B14, B15
 	writel(readl(REG_MFP_GPB_H) & ~0xBBBB0000, REG_MFP_GPB_H);
@@ -174,43 +174,42 @@ void spi_release_bus(struct spi_slave *slave)
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-                const void *dout, void *din, unsigned long flags)
+             const void *dout, void *din, unsigned long flags)
 {
 	unsigned int len;
 	unsigned int i;
 	unsigned char *tx = (unsigned char *)dout;
-	unsigned char *rx = din;        
-	
+	unsigned char *rx = din;
+
 	//printf("entr xfr\n");
-	
+
 	if(bitlen == 0)
 		goto out;
-	
+
 	if(bitlen % 8) {
 		/* Errors always terminate an ongoing transfer */
 		flags |= SPI_XFER_END;
 		goto out;
 	}
-	
-	len = bitlen / 8;	
-	
+
+	len = bitlen / 8;
+
 	if(flags & SPI_XFER_BEGIN) {
 		spi_cs_activate(slave);
 	}
-	
+
 	// handle quad mode
-	if (flags & SPI_6WIRE) {		
+	if (flags & SPI_6WIRE) {
 		writel(readl(SPICTL) | SPI_QUAD_EN, SPICTL);
 		if(rx)
-			 writel(readl(SPICTL) & ~SPI_DIR_2QM, SPICTL);
+			writel(readl(SPICTL) & ~SPI_DIR_2QM, SPICTL);
 		else
-			 writel(readl(SPICTL) | SPI_DIR_2QM, SPICTL);
+			writel(readl(SPICTL) | SPI_DIR_2QM, SPICTL);
 		//printf("QUAD=>(o)(0x%08x)\n", readl(SPICTL));
-    	}
-    	else {    	
-    		writel(readl(SPICTL) & ~SPI_QUAD_EN, SPICTL);
-    		//printf("QUAD=>(x)(0x%08x)\n", readl(SPICTL));
-    	}
+	} else {
+		writel(readl(SPICTL) & ~SPI_QUAD_EN, SPICTL);
+		//printf("QUAD=>(x)(0x%08x)\n", readl(SPICTL));
+	}
 
 	if (len > 65536) {
 		unsigned char NonAlignLen;
@@ -220,7 +219,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			NonAlignLen = 4 - ((unsigned int)tx % 4);
 			for (i = 0; i < NonAlignLen; i++) {
 				writel(*tx++, SPITX0);
-		
+
 				writel(readl(SPICTL) | SPI_BUSY, SPICTL);
 				while (readl(SPICTL) & SPI_BUSY);
 			}
@@ -233,13 +232,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			for (i = 0; i < NonAlignLen; i++) {
 				writel(readl(SPICTL) | SPI_BUSY, SPICTL);
 				while (readl(SPICTL) & SPI_BUSY);
-		
+
 				*rx++ = (unsigned char)readl(SPIRX0);
 			}
 
 			len -= NonAlignLen;
 		}
-		
+
 		writel(readl(SPICTL) & ~0xF8, SPICTL); //set bit length to 32 bits
 		writel(readl(SPICTL) | 0x300, SPICTL); //set tx/rx number to 4 (SPI0/1/2/3)
 		for (i = 0; (i+16) <= len; i+=16) {
@@ -250,10 +249,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 				writel_ESwap(*(unsigned int*)(tx + 12), SPITX3);
 				tx += 16;
 			}
-		
+
 			writel(readl(SPICTL) | SPI_BUSY, SPICTL);
 			while (readl(SPICTL) & SPI_BUSY);
-		
+
 			if(rx) {
 				*(unsigned int*)rx = readl_ESwap(SPIRX0);
 				*(unsigned int*)(rx + 4) = readl_ESwap(SPIRX1);
@@ -261,7 +260,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 				*(unsigned int*)(rx + 12) = readl_ESwap(SPIRX3);
 				rx += 16;
 			}
-		}        
+		}
 		//process rest bytes
 		if (i < len) {
 			writel((readl(SPICTL) & ~0xF8) | 0x40, SPICTL); //set bit length to 8 bits
@@ -269,28 +268,27 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			for (; i < len; i++) {
 				if(tx)
 					writel(*tx++, SPITX0);
-		
+
 				writel(readl(SPICTL) | SPI_BUSY, SPICTL);
 				while (readl(SPICTL) & SPI_BUSY);
-		
+
 				if(rx)
 					*rx++ = (unsigned char)readl(SPIRX0);
 			}
 		}
-	}
-	else {
+	} else {
 		for (i = 0; i < len; i++) {
 			if(tx)
 				writel(*tx++, SPITX0);
-		
+
 			writel(readl(SPICTL) | SPI_BUSY, SPICTL);
 			while (readl(SPICTL) & SPI_BUSY);
-		
+
 			if(rx)
 				*rx++ = (unsigned char)readl(SPIRX0);
 		}
 	}
-	
+
 out:
 	if (flags & SPI_XFER_END) {
 		/*
@@ -298,12 +296,12 @@ out:
 		 * we deactivate CS.
 		 */
 		while (readl(SPICTL) & SPI_BUSY);
-		
+
 		spi_cs_deactivate(slave);
 	}
-	
-	
-	return 0;  
+
+
+	return 0;
 }
 
 int  spi_cs_is_valid(unsigned int bus, unsigned int cs)
@@ -314,12 +312,12 @@ int  spi_cs_is_valid(unsigned int bus, unsigned int cs)
 void spi_cs_activate(struct spi_slave *slave)
 {
 	writel(readl(SPISSR) | SPI_SS_ACT, SPISSR);
-	return;        
+	return;
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-	writel(readl(SPISSR) & ~SPI_SS_ACT, SPISSR);        
+	writel(readl(SPISSR) & ~SPI_SS_ACT, SPISSR);
 	return;
 }
 
@@ -327,20 +325,20 @@ void spi_cs_deactivate(struct spi_slave *slave)
 void spi_set_speed(struct spi_slave *slave, uint hz)
 {
 	unsigned int div;
-	
+
 	div = SPI_CLK / (hz * 2);
-	
+
 	if((SPI_CLK % (hz * 2)) == 0)
-	        div--;
-	
+		div--;
+
 	if(div == 0)
 		div = 1;  // div should at lease be 1
-	        
+
 	if(div > 0xFFFF)
 		div = 0xFFFF; // 16 bits only
-	
+
 	writel(div, SPIDIV);
-	
+
 	return;
 }
 
