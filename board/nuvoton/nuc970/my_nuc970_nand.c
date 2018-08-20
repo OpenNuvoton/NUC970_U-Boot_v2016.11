@@ -56,6 +56,7 @@ struct nuc970_nand_info {
 	struct nand_chip        chip;
 	int                     eBCHAlgo;
 	int                     m_i32SMRASize;
+	int                     m_ePageSize;
 };
 
 struct nuc970_nand_info g_nuc970_nand;
@@ -699,22 +700,22 @@ int board_nand_init(struct nand_chip *nand)
 	case 2048:
 		writel( (readl(REG_SMCSR)&(~0x30000)) + 0x10000, REG_SMCSR);
 		nuc970_nand->eBCHAlgo = 0; /* T4 */
-		nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[1][nuc970_nand->eBCHAlgo] );
+		nuc970_nand->m_ePageSize = 1;
 		break;
 
 	case 4096:
 		writel( (readl(REG_SMCSR)&(~0x30000)) + 0x20000, REG_SMCSR);
 		nuc970_nand->eBCHAlgo = 1; /* T8 */
-		nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[2][nuc970_nand->eBCHAlgo] );
+		nuc970_nand->m_ePageSize = 2;
 		break;
 
 	case 8192:
 		writel( (readl(REG_SMCSR)&(~0x30000)) + 0x30000, REG_SMCSR);
 		nuc970_nand->eBCHAlgo = 2; /* T12 */
-		nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[3][nuc970_nand->eBCHAlgo] );
+		nuc970_nand->m_ePageSize = 3;
 		break;
 	}
-
+	nuc970_layout_oob_table(&nuc970_nand_oob,mtd->oobsize,g_i32ParityNum[nuc970_nand->m_ePageSize][nuc970_nand->eBCHAlgo]);
 	nand->ecc.bytes = nuc970_nand_oob.eccbytes;
 	nand->ecc.size  = mtd->writesize;
 
@@ -732,6 +733,37 @@ int board_nand_postinit(struct mtd_info *mtd)
 	while (readl(REG_SMCSR) & 0x1);
 
 	/* check power on setting */
+	if ((readl(REG_PWRON) & 0xc0) != 0xc0) 
+	{ /* page size */
+		switch ((readl(REG_PWRON) & 0xc0)) 
+		{
+		case 0x00: // 2KB
+			mtd->writesize = 2048;
+			writel( (readl(REG_SMCSR)&(~0x30000)) + 0x10000, REG_SMCSR);
+			nuc970_nand->eBCHAlgo = 0; /* T4 */
+			nuc970_nand->m_ePageSize = 1;
+			mtd->oobsize = 64;
+			break;
+
+		case 0x40: // 4KB
+			mtd->writesize = 4096;
+			writel( (readl(REG_SMCSR)&(~0x30000)) + 0x20000, REG_SMCSR);
+			nuc970_nand->eBCHAlgo = 1; /* T8 */
+			nuc970_nand->m_ePageSize = 2;
+			mtd->oobsize = 128;
+			break;
+
+		case 0x80: // 8KB
+			mtd->writesize = 8192;
+			writel( (readl(REG_SMCSR)&(~0x30000)) + 0x30000, REG_SMCSR);
+			nuc970_nand->eBCHAlgo = 2; /* T12 */
+			nuc970_nand->m_ePageSize = 3;
+			mtd->oobsize = 376;
+			break;
+		}
+		mtd->erasesize = CONFIG_ENV_SECT_SIZE; /* CWWeng 2018/1/2 */
+	}
+
 	if ((readl(REG_PWRON) & 0x300) != 0x300) { /* ECC */
 		switch ((readl(REG_PWRON) & 0x300)) {
 		case 0x000: // T12
@@ -746,35 +778,9 @@ int board_nand_postinit(struct mtd_info *mtd)
 			nuc970_nand->eBCHAlgo = 4;
 			break;
 		}
+		mtd->oobsize = g_i32ParityNum[nuc970_nand->m_ePageSize][nuc970_nand->eBCHAlgo] + 8;
 	}
-
-	if ((readl(REG_PWRON) & 0xc0) != 0xc0) { /* page size */
-		switch ((readl(REG_PWRON) & 0xc0)) {
-		case 0x00: // 2KB
-			mtd->writesize = 2048;
-			writel( (readl(REG_SMCSR)&(~0x30000)) + 0x10000, REG_SMCSR);
-			mtd->oobsize = g_i32ParityNum[1][nuc970_nand->eBCHAlgo] + 8;
-			mtd->erasesize = CONFIG_ENV_SECT_SIZE; /* CWWeng 2018/1/2 */
-			nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[1][nuc970_nand->eBCHAlgo] );
-			break;
-
-		case 0x40: // 4KB
-			mtd->writesize = 4096;
-			writel( (readl(REG_SMCSR)&(~0x30000)) + 0x20000, REG_SMCSR);
-			mtd->oobsize = g_i32ParityNum[2][nuc970_nand->eBCHAlgo] + 8;
-			mtd->erasesize = CONFIG_ENV_SECT_SIZE; /* CWWeng 2018/1/2 */
-			nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[2][nuc970_nand->eBCHAlgo] );
-			break;
-
-		case 0x80: // 8KB
-			mtd->writesize = 8192;
-			writel( (readl(REG_SMCSR)&(~0x30000)) + 0x30000, REG_SMCSR);
-			mtd->oobsize = g_i32ParityNum[3][nuc970_nand->eBCHAlgo] + 8;
-			mtd->erasesize = CONFIG_ENV_SECT_SIZE; /* CWWeng 2018/1/2 */
-			nuc970_layout_oob_table ( &nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[3][nuc970_nand->eBCHAlgo] );
-			break;
-		}
-	}
+	nuc970_layout_oob_table(&nuc970_nand_oob, mtd->oobsize, g_i32ParityNum[nuc970_nand->m_ePageSize][nuc970_nand->eBCHAlgo]);
 
 	nuc970_nand->m_i32SMRASize  = mtd->oobsize;
 	nuc970_nand->chip.ecc.bytes = nuc970_nand_oob.eccbytes;
