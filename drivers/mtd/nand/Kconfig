@@ -88,12 +88,8 @@ config NAND_MXS
 	  MXS processors.
 
 config NAND_NUC970
-	bool "NUC970 NAND support"
+	bool "NUC970/N9H30 NAND support"
 	depends on NUC970
-
-config NAND_N9H30
-	bool "N9H30 NAND support"
-	depends on N9H30
 
 comment "Generic NAND options"
 

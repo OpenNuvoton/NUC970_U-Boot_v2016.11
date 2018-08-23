@@ -24,9 +24,6 @@
 #ifdef CONFIG_NUC970
 #include "../../spi/nuc970_spi.h"
 #endif
-#ifdef CONFIG_N9H30
-#include "../../spi/n9h30_spi.h"
-#endif
 
 //#define CONFIG_SF_DEFAULT_SPEED		(48 * 1000 * 1000)
 #define TIMEOUT		5000

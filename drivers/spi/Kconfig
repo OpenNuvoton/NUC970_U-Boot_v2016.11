@@ -210,9 +210,20 @@ config TI_QSPI
 	  This driver support spi flash single, quad and memory reads.
 
 config NUC970_SPI
-	bool "NUC970 SPI driver"
+	bool "NUC970/N9H30 SPI driver"
 
-config N9H30_SPI
-	bool "N9H30 SPI driver"
+choice
+        prompt "Select NUC970/N9H30 SPI in Quad mode or Normal mode"
+        default NUC970_SPI_Quad
+        depends on NUC970_SPI
+        help
+          This option sets SPI in Quad mode or Normal mode.
+
+config NUC970_SPI_Quad
+        bool "Quad mode"
+
+config NUC970_SPI_Normal
+        bool "Normal mode"
+endchoice
 
 endmenu # menu "SPI Support"

@@ -183,26 +183,21 @@ config TEGRA186_BPMP_I2C
 
 config NUC970_I2C
        select CMD_I2C
-       bool "NUC970 I2C support"
+       bool "NUC970/N9H30 I2C support"
        depends on NUC970
-
-config N9H30_I2C
-       select CMD_I2C
-       bool "N9H30 I2C support"
-       depends on N9H30
 
 config SYS_I2C
         bool
-        depends on (NUC970_I2C || N9H30_I2C)
+        depends on (NUC970_I2C)
         default y
 
 config SYS_I2C_SPEED
         int
-        depends on (NUC970_I2C || N9H30_I2C)
+        depends on (NUC970_I2C)
         default "100"
 
 config ENABLE_NUC970_I2C0
-	bool "NUC970 I2C0 Enable"
+	bool "NUC970/N9H30 I2C0 Enable"
 	depends on NUC970_I2C
 
 config NUC970_I2C0_PG
@@ -217,7 +212,7 @@ config NUC970_I2C0_SPEED
 
 
 config ENABLE_NUC970_I2C1
-	bool "NUC970 I2C1 Enable"
+	bool "NUC970/N9H30 I2C1 Enable"
 	depends on NUC970_I2C
 
 config NUC970_I2C1_PIN_XXX
@@ -230,39 +225,6 @@ config NUC970_I2C1_SPEED
         int "I2C1_SPEED(Kbps)"
         depends on ENABLE_NUC970_I2C1
         default "100"
-
-
-config ENABLE_N9H30_I2C0
-        bool "N9H30 I2C0 Enable"
-        depends on N9H30_I2C
-
-config N9H30_I2C0_PG
-        bool "I2C0 PIN: SCL-->PG0, SDA-->PG1"
-        depends on ENABLE_N9H30_I2C0
-        default y
-
-config N9H30_I2C0_SPEED
-        int "I2C0_SPEED(Kbps)"
-        depends on ENABLE_N9H30_I2C0
-        default "100"
-
-
-config ENABLE_N9H30_I2C1
-        bool "N9H30 I2C1 Enable"
-        depends on N9H30_I2C
-
-config N9H30_I2C1_PIN_XXX
-        bool "I2C1 PIN: user need define"
-        depends on ENABLE_N9H30_I2C1
-        default y
-
-
-config N9H30_I2C1_SPEED
-        int "I2C1_SPEED(Kbps)"
-        depends on ENABLE_N9H30_I2C1
-        default "100"
-
-
 
 source "drivers/i2c/muxes/Kconfig"
 

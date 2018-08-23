@@ -408,11 +408,7 @@ config MSM_SERIAL
 	  Single baudrate is supported in current implementation (115200).
 
 config NUC970_CONSOLE
-	bool "NUC970 serial port support"
+	bool "NUC970/N9H30 serial port support"
 	depends on NUC970
-
-config N9H30_CONSOLE
-	bool "N9H30 serial port support"
-	depends on N9H30
 
 endmenu

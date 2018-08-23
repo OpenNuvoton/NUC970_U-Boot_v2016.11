@@ -55,4 +55,3 @@ obj-$(CONFIG_XILINX_SPI) += xilinx_spi.o
 obj-$(CONFIG_ZYNQ_SPI) += zynq_spi.o
 obj-$(CONFIG_ZYNQ_QSPI) += zynq_qspi.o
 obj-$(CONFIG_NUC970_SPI) += nuc970_spi.o
-obj-$(CONFIG_N9H30_SPI) += n9h30_spi.o

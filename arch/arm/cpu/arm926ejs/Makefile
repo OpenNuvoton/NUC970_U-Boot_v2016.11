@@ -19,7 +19,6 @@ obj-$(if $(filter lpc32xx,$(SOC)),y) += lpc32xx/
 obj-$(CONFIG_MX25) += mx25/
 obj-$(CONFIG_MX27) += mx27/
 obj-$(CONFIG_NUC970) += nuc970/
-obj-$(CONFIG_N9H30) += n9h30/
 obj-$(if $(filter mxs,$(SOC)),y) += mxs/
 obj-$(if $(filter spear,$(SOC)),y) += spear/
 
