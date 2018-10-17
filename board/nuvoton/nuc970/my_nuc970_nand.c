@@ -652,6 +652,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->chip_delay = 50;
 
 	nand->controller = &nuc970_nand->controller;
+	nand->options = 0;
 
 	nand->ecc.mode      = NAND_ECC_HW_OOB_FIRST;
 	nand->ecc.hwctl     = nuc970_nand_enable_hwecc;
@@ -733,10 +734,9 @@ int board_nand_postinit(struct mtd_info *mtd)
 	while (readl(REG_SMCSR) & 0x1);
 
 	/* check power on setting */
-	if ((readl(REG_PWRON) & 0xc0) != 0xc0) 
-	{ /* page size */
-		switch ((readl(REG_PWRON) & 0xc0)) 
-		{
+	if ((readl(REG_PWRON) & 0xc0) != 0xc0) {
+		/* page size */
+		switch ((readl(REG_PWRON) & 0xc0)) {
 		case 0x00: // 2KB
 			mtd->writesize = 2048;
 			writel( (readl(REG_SMCSR)&(~0x30000)) + 0x10000, REG_SMCSR);
