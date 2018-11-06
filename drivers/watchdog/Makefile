@@ -17,3 +17,4 @@ obj-$(CONFIG_OMAP_WATCHDOG) += omap_wdt.o
 obj-$(CONFIG_DESIGNWARE_WATCHDOG) += designware_wdt.o
 obj-$(CONFIG_DESIGNWARE_WATCHDOG) += designware_wdt.o
 obj-$(CONFIG_NUC970_WATCHDOG) += nuc970_wdt.o
+obj-$(CONFIG_NUC980_WATCHDOG) += nuc980_wdt.o

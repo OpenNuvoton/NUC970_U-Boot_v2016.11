@@ -67,3 +67,4 @@ endif
 obj-$(CONFIG_PIC32_SDHCI) += pic32_sdhci.o
 obj-$(CONFIG_MSM_SDHCI) += msm_sdhci.o
 obj-$(CONFIG_NUC970_MMC) += nuc970_mmc.o
+obj-$(CONFIG_NUC980_MMC) += nuc980_mmc.o

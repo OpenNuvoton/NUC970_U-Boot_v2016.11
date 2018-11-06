@@ -72,6 +72,14 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #include <nuc970_crypto.h>
 #endif
 
+#ifdef CONFIG_N9H30_HW_CHECKSUM
+#include <n9h30_crypto.h>
+#endif
+
+#ifdef CONFIG_NUC980_HW_CHECKSUM
+#include <nuc980_crypto.h>
+#endif
+
 static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_INVALID,	"invalid",	"Invalid ARCH",	},
 	{	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
@@ -229,7 +237,7 @@ int image_check_dcrc(const image_header_t *hdr)
 {
 	ulong data = image_get_data(hdr);
 	ulong len = image_get_data_size(hdr);
-#if defined(CONFIG_NUC970_HW_CHECKSUM)
+#if defined(CONFIG_NUC970_HW_CHECKSUM) || defined(CONFIG_NUC980_HW_CHECKSUM)
 	//use SHA-1
         ulong dcrc;
 

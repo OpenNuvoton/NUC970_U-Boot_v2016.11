@@ -226,6 +226,62 @@ config NUC970_I2C1_SPEED
         depends on ENABLE_NUC970_I2C1
         default "100"
 
+config NUC980_I2C
+       bool "NUC980 I2C support"
+       depends on NUC980
+
+config SYS_I2C
+        select CMD_I2C
+        bool
+        depends on NUC980_I2C
+        default y
+
+config SYS_I2C_SPEED
+        int
+        depends on NUC980_I2C
+        default "100"
+
+config ENABLE_NUC980_I2C0
+	bool "NUC980 I2C0 Enable"
+	depends on NUC980_I2C
+
+config NUC980_I2C0_PA_1
+        bool "I2C0 PIN: SCL-->PA1, SDA-->PA0"
+        depends on ENABLE_NUC980_I2C0
+        default y
+
+config NUC980_I2C0_SPEED
+        int "I2C0_SPEED(Kbps)"
+        depends on ENABLE_NUC980_I2C0
+        default "100"
+
+config ENABLE_NUC980_I2C1
+	bool "NUC980 I2C1 Enable"
+	depends on NUC980_I2C
+
+config NUC980_I2C1_SPEED
+        int "I2C1_SPEED(Kbps)"
+        depends on ENABLE_NUC980_I2C1
+        default "100"
+
+config ENABLE_NUC980_I2C2
+	bool "NUC980 I2C2 Enable"
+	depends on NUC980_I2C
+
+config NUC980_I2C2_SPEED
+        int "I2C2_SPEED(Kbps)"
+        depends on ENABLE_NUC980_I2C2
+        default "100"
+
+config ENABLE_NUC980_I2C3
+	bool "NUC980 I2C3 Enable"
+	depends on NUC980_I2C
+
+config NUC980_I2C3_SPEED
+        int "I2C3_SPEED(Kbps)"
+        depends on ENABLE_NUC980_I2C3
+        default "100"
+
 source "drivers/i2c/muxes/Kconfig"
 
 endmenu

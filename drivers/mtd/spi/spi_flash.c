@@ -1056,7 +1056,8 @@ int spi_flash_scan(struct spi_flash *flash)
 		}
 	}
 
-#ifdef CONFIG_SPI_NAND	// second try, search for SPI NAND
+	/* second try, search for SPI NAND */
+#ifdef CONFIG_SPI_NAND_WINBOND
 	if (!params->name) {
 		jedec = idcode[2] << 8 | idcode[3];
 		idcode[0] = idcode[1];
@@ -1070,6 +1071,21 @@ int spi_flash_scan(struct spi_flash *flash)
 					else if (params->ext_jedec == ext_jedec)
 						break;
 				}
+			}
+		}
+	}
+#endif
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX)
+	if (!params->name) {
+		jedec = idcode[1] << 8 | idcode[2];
+		ext_jedec = 0x00;
+		params = spi_flash_params_table;
+		for (; params->name != NULL; params++) {
+			if ((params->jedec & 0xFFFF) == jedec) {
+				if (params->ext_jedec == 0)
+					break;
+				else if (params->ext_jedec == ext_jedec)
+					break;
 			}
 		}
 	}
@@ -1233,13 +1249,29 @@ int spi_flash_scan(struct spi_flash *flash)
 
 
 #ifdef CONFIG_SPI_NAND
-	if(jedec == 0xaa21) { // treat SPI NAND seperately
+	if (jedec == 0xaa21) { // treat SPI NAND seperately
 		flash->read = spi_nand_read_raw;
 		flash->write = spi_nand_write_raw;
 		flash->erase = spi_nand_erase_raw;
 		flash->page_size = 2048;		// 2kB per page
 		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
+		spinand_enable_internal_ecc(flash);
+	} else if ((jedec == 0x0be1) || (jedec == 0xc212)) {
+		flash->read = spi_nand_read_raw;
+		flash->write = spi_nand_write_raw;
+		flash->erase = spi_nand_erase_raw;
+		flash->page_size = 2048;		// 2kB per page
+		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
+		spinand_enable_internal_ecc(flash);
+	} else if ((jedec == 0x0be2) || (jedec == 0xc222)) {
+		flash->read = spi_nand_read_raw;
+		flash->write = spi_nand_write_raw;
+		flash->erase = spi_nand_erase_raw;
+		flash->page_size = 2048;		// 2kB per page
+		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+		flash->size = 2048 * 64 * 2048;		// 2048 sectors per chip
 		spinand_enable_internal_ecc(flash);
 	} else {
 #else
@@ -1339,6 +1371,14 @@ int spi_flash_reset(void)
 
 	spi_claim_bus(spi);
 
+#if defined(CONFIG_SPI_NAND)
+	ret = spi_flash_cmd(spi, 0xFF, NULL, 0);
+	if (ret) {
+		printf("SF: Failed issue reset command (0xFF)\n");
+	}
+
+#endif
+
 #if defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_EON)
 	ret = spi_flash_cmd(spi, CMD_RESET_ENABLE, NULL, 0);
 	if (ret) {
@@ -1368,4 +1408,3 @@ int spi_flash_reset(void)
 
 	return 0;//NULL;
 }
-

@@ -85,7 +85,25 @@ config SPI_FLASH_WINBOND
 	  Add support for various Winbond SPI flash chips (W25xxx)
 
 config SPI_NAND
+	bool "SPI NAND flash support"
+
+choice
+        prompt "Select SPI NAND Flash"
+        default SPI_NAND_WINBOND
+        depends on SPI_NAND
+        help
+          This option selects SPI NAND Flash.
+
+config SPI_NAND_WINBOND
 	bool "Winbond SPI NAND flash support"
+
+config SPI_NAND_MACRONIX
+	bool "MACRONIX SPI NAND flash support"
+
+config SPI_NAND_XTX
+	bool "XTX SPI NAND flash support"
+
+endchoice
 
 endif
 

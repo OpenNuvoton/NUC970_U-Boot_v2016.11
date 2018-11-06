@@ -46,7 +46,7 @@ void gigadevice_norm_read_cmd(u8 *cmd, int column);
 void macronix_norm_read_cmd(u8 *cmd, int column);
 void winbond_norm_read_cmd(u8 *cmd, int column);
 extern int spi_nand_flash_cmd_wait_ready(struct spi_flash *flash, u8 status_bit, u8 *status,
-                                  unsigned long timeout);
+                unsigned long timeout);
 int nand_register(int devnum, struct mtd_info *mtd);
 #define mtd_to_ipq_info(m)	((struct nand_chip *)((m)->priv))->priv
 
@@ -100,7 +100,7 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 		.norm_read_cmd = winbond_norm_read_cmd,
 		.verify_ecc = verify_2bit_ecc,
 		.name = "W25N01GV",
-        },
+	},
 };
 
 const struct spi_nand_flash_params *params;
@@ -112,7 +112,7 @@ void gigadevice_norm_read_cmd(u8 *cmd, int column)
 	cmd[1] = 0;
 	cmd[2] = (u8)(column >> 8);
 	cmd[3] = (u8)(column);
-	
+
 }
 
 void macronix_norm_read_cmd(u8 *cmd, int column)
@@ -121,22 +121,22 @@ void macronix_norm_read_cmd(u8 *cmd, int column)
 	cmd[1] = ((u8)(column >> 8) & MACRONIX_NORM_READ_MASK);
 	cmd[2] = (u8)(column);
 	cmd[3] = 0;
-	
+
 }
 
 void winbond_norm_read_cmd(u8 *cmd, int column)
 {
-	
+
 	cmd[0] = IPQ40XX_SPINAND_CMD_NORM_READ;
 	cmd[1] = (u8)(column >> 8);
 	cmd[2] = (u8)(column);
 	cmd[3] = 0;
-	
-	
+
+
 }
 
 int spi_nand_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
-                           u8 cmd, u8 poll_bit, u8 *status)
+                                u8 cmd, u8 poll_bit, u8 *status)
 {
 	struct spi_slave *spi = flash->spi;
 	unsigned long timebase;
@@ -168,7 +168,7 @@ int spi_nand_flash_cmd_wait_ready(struct spi_flash *flash, u8 status_bit, u8 *st
                                   unsigned long timeout)
 {
 	return spi_nand_flash_cmd_poll_bit(flash, timeout,
-					   0xC0, status_bit, status);
+	                                   0xC0, status_bit, status);
 }
 
 
@@ -211,12 +211,12 @@ static int spi_nand_erase(struct mtd_info *mtd, struct erase_info *instr)
 	struct ipq40xx_spinand_info *info = mtd_to_ipq_info(mtd);
 	struct spi_flash *flash = info->flash;
 	struct nand_chip *chip = info->chip;
-	
-	
+
+
 	u32 page = (int)(instr->addr >> chip->page_shift);
-	
-	
-	
+
+
+
 	if (check_offset(mtd, instr->addr))
 		return -1;
 
@@ -235,7 +235,7 @@ static int spi_nand_erase(struct mtd_info *mtd, struct erase_info *instr)
 	if (ret) {
 		goto out;
 	}
-	
+
 	cmd[0] = IPQ40XX_SPINAND_CMD_ERASE;
 	cmd[1] = (u8)(page >> 16);
 	cmd[2] = (u8)(page >> 8);
@@ -380,7 +380,7 @@ out:
 }
 
 static void fill_oob_data(struct mtd_info *mtd, uint8_t *oob,
-        size_t len, struct mtd_oob_ops *ops)
+                          size_t len, struct mtd_oob_ops *ops)
 {
 	struct ipq40xx_spinand_info *info = mtd_to_ipq_info(mtd);
 	struct nand_chip *chip = info->chip;
@@ -392,7 +392,7 @@ static void fill_oob_data(struct mtd_info *mtd, uint8_t *oob,
 }
 
 static int spi_nand_write_oob(struct mtd_info *mtd, loff_t to,
-			      struct mtd_oob_ops *ops)
+                              struct mtd_oob_ops *ops)
 {
 	int page;
 	struct ipq40xx_spinand_info *info = mtd_to_ipq_info(mtd);
@@ -491,10 +491,10 @@ static int spi_nand_read_std(struct mtd_info *mtd, loff_t from, struct mtd_oob_o
 	int ecc_corrected = 0;
 	column = mtd->writesize;
 	realpage = (int)(from >> 0xB);
-	
+
 
 	page = realpage & 0xfffff;
-	
+
 
 	readlen = ops->len;
 
@@ -572,7 +572,7 @@ out:
 }
 
 static int spi_nand_read(struct mtd_info *mtd, loff_t from, size_t len,
-			 size_t *retlen, u_char *buf)
+                         size_t *retlen, u_char *buf)
 {
 	struct mtd_oob_ops ops = {0};
 	u32 ret;
@@ -586,7 +586,7 @@ static int spi_nand_read(struct mtd_info *mtd, loff_t from, size_t len,
 }
 
 static int spi_nand_read_oob(struct mtd_info *mtd, loff_t from,
-			     struct mtd_oob_ops *ops)
+                             struct mtd_oob_ops *ops)
 {
 	u32 ret;
 
@@ -599,7 +599,7 @@ static int spi_nand_read_oob(struct mtd_info *mtd, loff_t from,
 }
 
 static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
-			  size_t *retlen, const u_char *buf)
+                          size_t *retlen, const u_char *buf)
 {
 	struct ipq40xx_spinand_info *info = mtd_to_ipq_info(mtd);
 	struct spi_flash *flash = info->flash;
@@ -613,7 +613,7 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 	/* Check whether page is aligned */
 	if (((to & (mtd->writesize -1)) !=0) ||
-		((len & (mtd->writesize -1)) != 0)) {
+	    ((len & (mtd->writesize -1)) != 0)) {
 		printf("Attempt to write to non page aligned data\n");
 		return -EINVAL;
 	}
@@ -633,8 +633,8 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 		if (ret) {
 			printf("Write enable failed\n");
 			goto out;
-                }
-	
+		}
+
 		/* buffer to be transmittted here */
 		cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
 		cmd[1] = 0;
@@ -695,7 +695,7 @@ int spi_nand_write_raw(struct spi_flash *flash, u32 offset, size_t len, const vo
 	u32 ret;
 	const u_char *wbuf;
 	int page, bytes, write_len;
-	
+
 	write_len = len;
 	bytes = flash->page_size;
 
@@ -726,7 +726,7 @@ int spi_nand_write_raw(struct spi_flash *flash, u32 offset, size_t len, const vo
 			printf("%s Operation Timeout\n", __func__);
 			goto out;
 		}
-	
+
 		/* buffer to be transmitted here */
 		cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
 		cmd[1] = 0;
@@ -780,6 +780,40 @@ out:
 
 }
 
+static void spinand_set_quad(struct spi_flash *flash, int enable)
+{
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX)
+	u8 status;
+	int ret;
+	u8 cmd[3];
+
+	cmd[0] = IPQ40XX_SPINAND_CMD_GETFEA;
+	cmd[1] = IPQ40XX_SPINAND_FEATURE_REG;
+
+	ret = spi_flash_cmd_read(flash->spi, cmd, 2, &status, 1);
+	if (ret) {
+		printf("%s: read data failed\n", __func__);
+		goto out;
+	}
+
+	cmd[0] = IPQ40XX_SPINAND_CMD_SETFEA;
+	cmd[1] = IPQ40XX_SPINAND_FEATURE_REG;
+	if (enable) {
+		cmd[2] = status | IPQ40XX_SPINAND_FEATURE_QE;
+	} else {
+		cmd[2] = status & ~(IPQ40XX_SPINAND_FEATURE_QE);
+	}
+
+	ret = spi_flash_cmd_write(flash->spi, cmd, 3, NULL, 0);
+	if (ret) {
+		printf("Quad mode enable failed\n");
+	}
+
+out:
+	return;
+#endif
+}
+
 
 int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *data)
 {
@@ -787,7 +821,7 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 	u8 cmd[8];
 	u8 status;
 	int page, readlen, bytes, quad = 0;
-	int ecc_corrected = 0;	
+	int ecc_corrected = 0;
 	struct spi_slave *spi = flash->spi;
 
 	readlen = len;
@@ -834,7 +868,7 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 			ret = -EBADMSG;
 			goto out;
 		} else if (ret == ECC_CORRECTED) {
-			ecc_corrected = 1; 
+			ecc_corrected = 1;
 		}
 
 		bytes = ((readlen < flash->page_size) ? readlen : flash->page_size);
@@ -845,8 +879,16 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 			cmd[2] = 0;
 			cmd[3] = 0;
 			spi->quad_enable = quad;
+
+			if (quad)
+				spinand_set_quad(flash, 1);
+
 			ret = spi_flash_cmd_read(flash->spi, cmd, 4, data, bytes);
 			spi->quad_enable = 0;
+
+			if (quad)
+				spinand_set_quad(flash, 0);
+
 			if (ret) {
 				printf("%s: read data failed\n", __func__);
 				return -1;
@@ -896,20 +938,20 @@ int spi_nand_erase_raw(struct spi_flash *flash, u32 offset, size_t len)
 		printf("%s Operation Timeout\n", __func__);
 		goto out;
 	}
-	
+
 	start = offset;
 	end = start + len;
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_ERASE;
 
 	while (offset < end) {
-		
+
 		cmd[1] = (u8)(page >> 16);
 		cmd[2] = (u8)(page >> 8);
 		cmd[3] = (u8)(page);
 		offset += flash->sector_size;
 		page += 64;  // 64 page per block...
-		//printf("SF: erase %2x %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1], 
+		//printf("SF: erase %2x %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
 		//		cmd[2], cmd[3], cmd[4], offset);
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
@@ -961,12 +1003,12 @@ void spinand_enable_internal_ecc(struct spi_flash *flash)
 	if (ret) {
 		printf("%s: read data failed\n", __func__);
 		goto out;
-	} 
-	
+	}
+
 	cmd[0] = IPQ40XX_SPINAND_CMD_SETFEA;
 	cmd[1] = IPQ40XX_SPINAND_FEATURE_REG;
 	cmd[2] = reg | IPQ40XX_SPINAND_FEATURE_ECC_EN;
-	
+
 	ret = spi_flash_cmd_write(flash->spi, cmd, 3, NULL, 0);
 	if (ret) {
 		printf("Internal ECC enable failed\n");
@@ -979,7 +1021,7 @@ void spinand_enable_internal_ecc(struct spi_flash *flash)
 	if (ret) {
 		printf("Failed to read protect register");
 		goto out;
-	} 
+	}
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_SETFEA;
 	cmd[1] = IPQ40XX_SPINAND_PROTEC_REG;
@@ -1015,8 +1057,8 @@ static int spinand_unlock_protect(struct mtd_info *mtd)
 		printf("Failed to read status register");
 		goto out;
 	}
-	
-	
+
+
 	status &= (info->params->protec_bpx);
 	cmd[0] = IPQ40XX_SPINAND_CMD_SETFEA;
 	cmd[1] = IPQ40XX_SPINAND_PROTEC_REG;
@@ -1026,7 +1068,7 @@ static int spinand_unlock_protect(struct mtd_info *mtd)
 		printf("Failed to unblock sectors #0\n");
 	}
 
-	
+
 out:
 	spi_release_bus(flash->spi);
 	return ret;
@@ -1054,9 +1096,9 @@ void spinand_internal_ecc(struct mtd_info *mtd, int enable)
 		printf("%s: read data failed\n", __func__);
 		goto out;
 	}
-	
 
-	
+
+
 	cmd[0] = IPQ40XX_SPINAND_CMD_SETFEA;
 	cmd[1] = IPQ40XX_SPINAND_FEATURE_REG;
 	if (enable) {
@@ -1064,7 +1106,7 @@ void spinand_internal_ecc(struct mtd_info *mtd, int enable)
 	} else {
 		cmd[2] = status & ~(IPQ40XX_SPINAND_FEATURE_ECC_EN);
 	}
-	
+
 	ret = spi_flash_cmd_write(flash->spi, cmd, 3, NULL, 0);
 	if (ret) {
 		printf("Internal ECC enable failed\n");
@@ -1089,7 +1131,7 @@ int spi_nand_init(void)
 	int ret;
 
 	info = (struct ipq40xx_spinand_info *)malloc(
-			sizeof(struct ipq40xx_spinand_info));
+	               sizeof(struct ipq40xx_spinand_info));
 	if (!info) {
 		printf ("Error in allocating mem\n");
 		return -ENOMEM;
@@ -1099,14 +1141,14 @@ int spi_nand_init(void)
 	flash = spi_flash_probe(0, 0, 1000000, 3);
 
 	if (!flash) {
-	    	free(info);
+		free(info);
 		spi_print("Id could not be mapped\n");
 		return -ENODEV;
 	}
 
 	//mtd = nand_info[0];
 	mtd = (struct mtd_info *)malloc(
-			sizeof(struct mtd_info));
+	              sizeof(struct mtd_info));
 	if (!mtd) {
 		printf ("Error in allocating mem\n");
 		return -ENOMEM;
@@ -1146,8 +1188,8 @@ int spi_nand_init(void)
 	 */
 	chip->scan_bbt = spi_nand_scan_bbt_nop;
 
-	// an ugly hack. cannot register our own probe function to set params, so assign correct one here. 
-	info->params = &spi_nand_flash_tbl[0];//params;  
+	// an ugly hack. cannot register our own probe function to set params, so assign correct one here.
+	info->params = &spi_nand_flash_tbl[0];//params;
 	info->flash = flash;
 	info->mtd = mtd;
 	info->chip = chip;
@@ -1161,7 +1203,7 @@ int spi_nand_init(void)
 
 	ret = spinand_unlock_protect(mtd);
 	if (ret) {
-	    	free(info);
+		free(info);
 		printf("Failed to unlock blocks\n");
 		return -1;
 	}

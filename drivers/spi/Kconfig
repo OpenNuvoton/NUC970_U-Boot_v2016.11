@@ -226,4 +226,37 @@ config NUC970_SPI_Normal
         bool "Normal mode"
 endchoice
 
+config NUC980_SPI
+	bool "NUC980 SPI driver"
+choice
+        prompt "Select Using QSPI0/SPI0/SPI1"
+        default USE_NUC980_QSPI0
+        depends on NUC980_SPI
+        help
+          This option select using QSPI0/SPI0/SPI1.
+
+config USE_NUC980_QSPI0
+        bool "Using QSPI0"
+
+config USE_NUC980_SPI0
+        bool "Using SPI0"
+
+config USE_NUC980_SPI1
+        bool "Using SPI1"
+endchoice
+
+choice
+        prompt "Select NUC980 QSPI0 in Quad mode or Normal mode"
+        default NUC980_SPI_Quad
+        depends on NUC980_SPI && USE_NUC980_QSPI0
+        help
+          This option sets QSPI0 in Quad mode or Normal mode.
+
+config NUC980_SPI_Quad
+        bool "Quad mode"
+
+config NUC980_SPI_Normal
+        bool "Normal mode"
+endchoice
+
 endmenu # menu "SPI Support"

@@ -91,6 +91,10 @@ config NAND_NUC970
 	bool "NUC970/N9H30 NAND support"
 	depends on NUC970
 
+config NAND_NUC980
+	bool "NUC980 NAND support"
+	depends on NUC980
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config

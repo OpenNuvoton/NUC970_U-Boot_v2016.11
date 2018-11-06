@@ -78,3 +78,4 @@ obj-$(CONFIG_VSC9953) += vsc9953.o
 obj-$(CONFIG_PIC32_ETH) += pic32_mdio.o pic32_eth.o
 obj-$(CONFIG_DWC_ETH_QOS) += dwc_eth_qos.o
 obj-$(CONFIG_NUC970_ETH) += nuc970_eth.o
+obj-$(CONFIG_NUC980_ETH) += nuc980_eth.o
