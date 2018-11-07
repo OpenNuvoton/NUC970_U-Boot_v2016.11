@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Nuvoton Technology Corp.
+ *  Copyright (c) 2018 Nuvoton Technology Corp.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,44 +27,20 @@
 
 int print_cpuinfo (void)
 {
-        unsigned int id;
+	//unsigned int id;
 
-        id = (readl(REG_PWRON) & 0x0F000000) >> 24;
+	//id = (readl(REG_PWRON) & 0x0F000000) >> 24;
 
-        printf("CPU: ");
+	printf("CPU: NUC980\n");
 
-        switch(id) {
-                case 0:
-                        printf("NUC980\n");
-                        break;
-                case 1:
-                        printf("NUC981\n");
-                        break;
-                case 2:
-                        printf("NUC982\n");
-                        break;
-                case 3:
-                        printf("NUC983\n");
-                        break;
-                case 0xe:
-                        printf("NUC986\n");
-                        break;
-                case 0xf:
-                        printf("NUC987\n");
-                        break;
-                default:
-                        printf("Unknown\n");
-                        break;
 
-        }
-
-        return(0);
+	return(0);
 }
 
 int arch_cpu_init(void)
 {
-        // do nothing...
+	// do nothing...
 
-        return 0;
+	return 0;
 }
 

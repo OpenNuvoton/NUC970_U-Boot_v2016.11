@@ -28,6 +28,5 @@ obj-y   += div64.o
 obj-y   += console.o
 else
 obj-y	:= nuc980.o
-obj-y	+= cmd_decrypt.o
 obj-y	+= cmd_rtc_spare.o
 endif
