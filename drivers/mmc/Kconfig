@@ -123,10 +123,6 @@ config NUC980_SD_PORT0
 	bool "NUC980 SD port 0 support"
 	depends on NUC980_MMC
 
-config NUC980_SD_PORT1
-	bool "NUC980 SD port 1 support"
-	depends on NUC980_MMC
-
 config NUC980_EMMC
 	bool "NUC980 EMMC support"
 	depends on NUC980_MMC
