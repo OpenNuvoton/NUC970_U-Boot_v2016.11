@@ -31,18 +31,14 @@
 #define BCH_PADDING_LEN_512     32
 #define BCH_PADDING_LEN_1024    64
 // define the BCH parity code lenght for 512 bytes data pattern
-#define BCH_PARITY_LEN_T4  8
 #define BCH_PARITY_LEN_T8  15
 #define BCH_PARITY_LEN_T12 23
-#define BCH_PARITY_LEN_T15 29
 // define the BCH parity code lenght for 1024 bytes data pattern
 #define BCH_PARITY_LEN_T24 45
 
 
-#define BCH_T15   0x00400000
 #define BCH_T12   0x00200000
 #define BCH_T8    0x00100000
-#define BCH_T4    0x00080000
 #define BCH_T24   0x00040000
 
 
@@ -57,12 +53,11 @@ struct nuc980_nand_info *nuc980_nand;
 
 static struct nand_ecclayout nuc980_nand_oob;
 
-static const int g_i32BCHAlgoIdx[5] = { BCH_T4, BCH_T8, BCH_T12, BCH_T15, BCH_T24 };
-static const int g_i32ParityNum[4][5] = {
-    { 8,    15,     23,     29,     -1  },  // For 512
-    { 32,   60,     92,     116,    90  },  // For 2K
-    { 64,   120,    184,    232,    180 },  // For 4K
-    { 128,  240,    368,    464,    360 },  // For 8K
+static const int g_i32BCHAlgoIdx[3] = { BCH_T8, BCH_T12, BCH_T24 };
+static const int g_i32ParityNum[3][3] = {
+    { 60,     92,     90  },  // For 2K
+    { 120,    184,    180 },  // For 4K
+    { 240,    368,    360 },  // For 8K
 };
 
 static void nuc980_layout_oob_table ( struct nand_ecclayout* pNandOOBTbl, int oobsize , int eccbytes )
@@ -80,8 +75,6 @@ static void nuc980_layout_oob_table ( struct nand_ecclayout* pNandOOBTbl, int oo
 static void nuc980_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
     struct nand_chip *chip = mtd->priv;
-
-    //debug("hwcontrol(): 0x%02x 0x%02x\n", cmd, ctrl);
 
     if (ctrl & NAND_CTRL_CHANGE) {
         ulong IO_ADDR_W = (ulong)REG_SMDATA;
@@ -127,7 +120,6 @@ static void nuc980_nand_command_lp(struct mtd_info *mtd, unsigned int command, i
         column += mtd->writesize;
         command = NAND_CMD_READ0;
     }
-//debug("cmd 0x%x, page 0x%x, col 0x%x\n", command, page_addr, column);
 
     writel(command & 0xff, REG_SMCMD);
 
@@ -201,10 +193,6 @@ static void nuc980_nand_command_lp(struct mtd_info *mtd, unsigned int command, i
  */
 static unsigned char nuc980_nand_read_byte(struct mtd_info *mtd)
 {
-//    unsigned char val;
-//    val = (unsigned char)readl(REG_SMDATA);
-//debug("nuc980_nand_read_byte <0x%x>\n", val);
-//    return val;
     return ((unsigned char)readl(REG_SMDATA));
 }
 
@@ -297,11 +285,6 @@ void fmiSM_CorrectData_BCH(u8 ucFieidIndex, u8 ucErrorCnt, u8* pDAddr)
             padding_len = BCH_PADDING_LEN_1024;
             parity_len  = BCH_PARITY_LEN_T24;
             break;
-        case BCH_T15:
-            field_len   = 512;
-            padding_len = BCH_PADDING_LEN_512;
-            parity_len  = BCH_PARITY_LEN_T15;
-            break;
         case BCH_T12:
             field_len   = 512;
             padding_len = BCH_PADDING_LEN_512;
@@ -311,11 +294,6 @@ void fmiSM_CorrectData_BCH(u8 ucFieidIndex, u8 ucErrorCnt, u8* pDAddr)
             field_len   = 512;
             padding_len = BCH_PADDING_LEN_512;
             parity_len  = BCH_PARITY_LEN_T8;
-            break;
-        case BCH_T4:
-            field_len   = 512;
-            padding_len = BCH_PADDING_LEN_512;
-            parity_len  = BCH_PARITY_LEN_T4;
             break;
         default:
             return;
@@ -428,7 +406,6 @@ int fmiSMCorrectData (struct mtd_info *mtd, unsigned long uDAddr )
         for ( jj=0; jj<i32FieldNum; jj++ )
         {
             uStatus = readl ( REG_SMECC_ST0+jj*4 );
-//printk(">> 0x%x, 0x%x, <0x%x>\n", uStatus, readl (REG_SMISR), readl(REG_SMECC_ST0+jj*4));
             if ( !uStatus )
                 continue;
 
@@ -442,13 +419,11 @@ int fmiSMCorrectData (struct mtd_info *mtd, unsigned long uDAddr )
                 } else if ( (uStatus & 0x03)==0x01 ) { // Correctable error
 
                     uErrorCnt = (uStatus >> 2) & 0x1F;
-//printk(">>> 0x%x\n", uErrorCnt);
                     fmiSM_CorrectData_BCH(jj*4+ii, uErrorCnt, (u8 *)uDAddr);
 
                     break;
                 } else // uncorrectable error or ECC error
                 {
-//printk("uncorrectable\n");
                     return -1;
                 }
                 uStatus >>= 8;
@@ -559,7 +534,6 @@ static inline int _nuc980_nand_dma_transfer(struct mtd_info *mtd, const u_char *
  * @chip:       nand chip info structure
  * @buf:        data buffer
  */
-//static void nuc980_nand_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip, const uint8_t *buf) //CWWeng 2017.2.14
 static int nuc980_nand_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip, const uint8_t *buf, int oob_required, int page)
 {
     uint8_t *ecc_calc = chip->buffers->ecccalc;
@@ -588,7 +562,6 @@ static int nuc980_nand_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *
  * @buf:        buffer to store read data
  * @page:       page number to read
  */
-//static int nuc980_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct nand_chip *chip, uint8_t *buf, int page) //CWWeng 2017.2.14
 static int nuc980_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct nand_chip *chip, uint8_t *buf, int oob_required, int page)
 {
     int eccsize = chip->ecc.size;
@@ -604,19 +577,8 @@ static int nuc980_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct na
     // Second, copy OOB data to SMRA for page read
     memcpy ( (void*)ptr, (void*)chip->oob_poi, mtd->oobsize );
 
-#if 0
-        for(i=0; i<mtd->oobsize; i++)
-        {
-            printk("%02X ",  *(ptr+i) );
-            if ( i % 32 == 31)
-                printk("\n");
-        }
-        printk("\n");
-#endif
-
     // Third, read data from nand
     nuc980_nand_command_lp(mtd, NAND_CMD_READ0, 0, page);
-//printk("===========> 0x%x, %d, 0x%x\n", p, eccsize, page);
     _nuc980_nand_dma_transfer(mtd, p, eccsize, 0x0);
 #if 0
         for(i=0; i<512; i++)
@@ -642,34 +604,19 @@ int (*read_oob)(struct mtd_info *mtd, struct nand_chip *chip, int page);
  * @page:       page number to read
  * @sndcmd:     flag whether to issue read command or not
  */
-//static int nuc980_nand_read_oob_hwecc(struct mtd_info *mtd, struct nand_chip *chip, int page, int sndcmd) //CWWeng 2017.2.14
 static int nuc980_nand_read_oob_hwecc(struct mtd_info *mtd, struct nand_chip *chip, int page)
 {
     char * ptr=(char *)REG_SMRA0;
 
     //debug("nuc980_nand_read_oob_hwecc, page %d, %d\n", page, sndcmd);
     /* At first, read the OOB area  */
-    //if ( sndcmd ) { //CWWeng 2017.2.14
-    if (1) { //CWWeng 2017.2.14
-        nuc980_nand_command_lp(mtd, NAND_CMD_READOOB, 0, page);
-        //sndcmd = 0; //CWWeng 2017.2.14
-    }
+    nuc980_nand_command_lp(mtd, NAND_CMD_READOOB, 0, page);
 
     nuc980_nand_read_buf(mtd, chip->oob_poi, mtd->oobsize);
 
     // Second, copy OOB data to SMRA for page read
     memcpy ( (void*)ptr, (void*)chip->oob_poi, mtd->oobsize );
 
-#if 0
-    // Third, read data from nand
-    nuc980_nand_command_lp(mtd, NAND_CMD_READ0, 0, page);
-    _nuc980_nand_dma_transfer(mtd, NULL, mtd->writesize, 0x0);
-
-    // Fouth, recovery OOB data for SMRA
-    memcpy ( (void*)chip->oob_poi, (void*)ptr, mtd->oobsize );
-#endif
-
-    //return sndcmd; //CWWeng 2017.2.14
     return 0; //CWWeng 2017.2.14
 }
 
@@ -718,7 +665,7 @@ int board_nand_init(struct nand_chip *nand)
     nand->ecc.read_page = nuc980_nand_read_page_hwecc_oob_first;
     nand->ecc.read_oob  = nuc980_nand_read_oob_hwecc;
     nand->ecc.layout    = &nuc980_nand_oob;
-    nand->ecc.strength  = 1; //CWWeng 2017.2.14
+    nand->ecc.strength  = 8; //CWWeng 2017.2.14
     mtd = nand_to_mtd(nand); //CWWeng 2017.2.14
 
     mtd->priv = nand;
@@ -744,38 +691,30 @@ int board_nand_init(struct nand_chip *nand)
 
     /* Detect NAND chips */
     /* first scan to find the device and get the page size */
-    //if (nand_scan_ident(&(nuc980_nand->mtd), 1, NULL)) { //CWWeng 2017.2.14
     if (nand_scan_ident(mtd, 1, NULL)) { //CWWeng 2017.2.14
         printf("NAND Flash not found !\n");
-        return -1;
+//        return -1;
     }
 
     //Set PSize bits of SMCSR register to select NAND card page size
     switch (mtd->writesize) {
         case 2048:
             writel( (readl(REG_SMCSR)&(~0x30000)) + 0x10000, REG_SMCSR);
-            nuc980_nand->eBCHAlgo = 0; /* T4 */
-            nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[1][nuc980_nand->eBCHAlgo] );
+            nuc980_nand->eBCHAlgo = 0; /* T8 */
+            nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[0][nuc980_nand->eBCHAlgo] );
             break;
 
         case 4096:
             writel( (readl(REG_SMCSR)&(~0x30000)) + 0x20000, REG_SMCSR);
-            nuc980_nand->eBCHAlgo = 1; /* T8 */
-            nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[2][nuc980_nand->eBCHAlgo] );
+            nuc980_nand->eBCHAlgo = 0; /* T8 */
+            nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[1][nuc980_nand->eBCHAlgo] );
             break;
 
         case 8192:
             writel( (readl(REG_SMCSR)&(~0x30000)) + 0x30000, REG_SMCSR);
-            nuc980_nand->eBCHAlgo = 2; /* T12 */
-            nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[3][nuc980_nand->eBCHAlgo] );
+            nuc980_nand->eBCHAlgo = 1; /* T12 */
+            nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[2][nuc980_nand->eBCHAlgo] );
             break;
-
-        /* Not support now. */
-        case 512:
-            //writel( (readl(REG_SMCSR)&(~0x30000)) + 0, REG_SMCSR);
-            //nuc980_nand->m_ePageSize = ePageSize_512;
-            //break;
-
         default:
             printf("NUC980 NAND CONTROLLER IS NOT SUPPORT THE PAGE SIZE. (%d, %d)\n", mtd->writesize, mtd->oobsize );
     }
@@ -783,16 +722,16 @@ int board_nand_init(struct nand_chip *nand)
     /* check power on setting */
     if ((readl(REG_PWRON) & 0x300) != 0x300) { /* ECC */
         switch ((readl(REG_PWRON) & 0x300)) {
-	    case 0x000: // T12
-	        nuc980_nand->eBCHAlgo = 2;
+	    case 0x000: // T8
+	        nuc980_nand->eBCHAlgo = 0;
 	        break;
 
-	    case 0x100: // T15
-	        nuc980_nand->eBCHAlgo = 3;
+	    case 0x100: // T12
+	        nuc980_nand->eBCHAlgo = 1;
 	        break;
 
 	    case 0x200: // T24
-	        nuc980_nand->eBCHAlgo = 4;
+	        nuc980_nand->eBCHAlgo = 2;
 	        break;
 
 	    default:
@@ -805,22 +744,22 @@ int board_nand_init(struct nand_chip *nand)
 	    case 0x00: // 2KB
 	        mtd->writesize = 2048;
 	        writel( (readl(REG_SMCSR)&(~0x30000)) + 0x10000, REG_SMCSR);
-		mtd->oobsize = g_i32ParityNum[1][nuc980_nand->eBCHAlgo] + 8;
-	        nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[1][nuc980_nand->eBCHAlgo] );
+		mtd->oobsize = g_i32ParityNum[0][nuc980_nand->eBCHAlgo] + 8;
+	        nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[0][nuc980_nand->eBCHAlgo] );
 	        break;
 
 	    case 0x40: // 4KB
 	        mtd->writesize = 4096;
 	        writel( (readl(REG_SMCSR)&(~0x30000)) + 0x20000, REG_SMCSR);
-		mtd->oobsize = g_i32ParityNum[2][nuc980_nand->eBCHAlgo] + 8;
-	        nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[2][nuc980_nand->eBCHAlgo] );
+		mtd->oobsize = g_i32ParityNum[1][nuc980_nand->eBCHAlgo] + 8;
+	        nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[1][nuc980_nand->eBCHAlgo] );
 	        break;
 
 	    case 0x80: // 8KB
 	        mtd->writesize = 8192;
 	        writel( (readl(REG_SMCSR)&(~0x30000)) + 0x30000, REG_SMCSR);
-		mtd->oobsize = g_i32ParityNum[3][nuc980_nand->eBCHAlgo] + 8;
-	        nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[3][nuc980_nand->eBCHAlgo] );
+		mtd->oobsize = g_i32ParityNum[2][nuc980_nand->eBCHAlgo] + 8;
+	        nuc980_layout_oob_table ( &nuc980_nand_oob, mtd->oobsize, g_i32ParityNum[2][nuc980_nand->eBCHAlgo] );
 	        break;
 
 	    default:
