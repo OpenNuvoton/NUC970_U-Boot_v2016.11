@@ -148,6 +148,10 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"XT26G01A",	   0x0be1,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"XT26G02A",	   0x0be2,   0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 #endif
+#ifdef CONFIG_SPI_NAND_MK		/* MK SPI NAND */
+	{"MKSV1GCL-DE",	   0xd51c,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+	{"MKSV1GCW-BE",	   0xd511,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+#endif
 	{},	/* Empty entry to terminate the list */
 	/*
 	 * Note:

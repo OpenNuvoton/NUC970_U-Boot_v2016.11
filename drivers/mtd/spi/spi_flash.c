@@ -1075,7 +1075,7 @@ int spi_flash_scan(struct spi_flash *flash)
 		}
 	}
 #endif
-#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX)
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) || defined(CONFIG_SPI_NAND_MK)
 	if (!params->name) {
 		jedec = idcode[1] << 8 | idcode[2];
 		ext_jedec = 0x00;
@@ -1257,7 +1257,7 @@ int spi_flash_scan(struct spi_flash *flash)
 		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
 		spinand_enable_internal_ecc(flash);
-	} else if ((jedec == 0x0be1) || (jedec == 0xc212)) {
+	} else if ((jedec == 0x0be1) || (jedec == 0xc212) || (jedec == 0xd511) || (jedec == 0xd51c)) {
 		flash->read = spi_nand_read_raw;
 		flash->write = spi_nand_write_raw;
 		flash->erase = spi_nand_erase_raw;

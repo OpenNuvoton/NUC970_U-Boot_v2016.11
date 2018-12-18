@@ -103,6 +103,9 @@ config SPI_NAND_MACRONIX
 config SPI_NAND_XTX
 	bool "XTX SPI NAND flash support"
 
+config SPI_NAND_MK
+	bool "MK Founder SPI NAND flash support"
+
 endchoice
 
 endif

@@ -782,7 +782,7 @@ out:
 
 static void spinand_set_quad(struct spi_flash *flash, int enable)
 {
-#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX)
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) || defined(CONFIG_SPI_NAND_MK)
 	u8 status;
 	int ret;
 	u8 cmd[3];
