@@ -14,7 +14,8 @@
 #ifndef _CRYPTO_H_
 #define _CRYPTO_H_
 
-#include "nuc980_register.h"
+#define REG_HCLKEN	0xB0000210
+#define CRPT_BA 	0xB001C000
 
 typedef unsigned int UINT32;
 
