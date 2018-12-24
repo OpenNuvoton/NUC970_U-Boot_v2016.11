@@ -62,10 +62,12 @@ int nuc970_eth_mii_read(uchar addr, uchar reg, ushort *val)
 
 int nuc970_reset_phy(void)
 {
-
+#ifdef CONFIG_TARGET_NUC970_DISP976
+        // set to 100Mb FULL 
+        writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
+#else
         unsigned short reg;
         int delay;
-
 
         nuc970_eth_mii_write(CONFIG_NUC970_PHY_ADDR, MII_BMCR, BMCR_RESET);
         
@@ -114,7 +116,7 @@ int nuc970_reset_phy(void)
                 else
                         writel(readl(MCMDR) & ~(MCMDR_OPMOD | MCMDR_FDUP), MCMDR);
         }
-
+#endif
         return(0);
 }
 
