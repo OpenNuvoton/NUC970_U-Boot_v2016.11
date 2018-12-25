@@ -62,7 +62,7 @@ int nuc970_eth_mii_read(uchar addr, uchar reg, ushort *val)
 
 int nuc970_reset_phy(void)
 {
-#ifdef CONFIG_TARGET_NUC970_DISP976
+#ifdef CONFIG_NUC970_EMAC0_NO_MDC
         // set to 100Mb FULL 
         writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
 #else

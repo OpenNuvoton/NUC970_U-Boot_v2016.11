@@ -196,6 +196,10 @@ config TARGET_NUC970_TOMATO
 	bool "Support nuc970 tomato"
 	select CPU_ARM926EJS
 
+config TARGET_NUC970_DISP976
+	bool "Support nuc970 disp976"
+	select CPU_ARM926EJS
+
 config TARGET_NUC970_ETH2UART
 	bool "Support nuc970 Eth2UART"
 	select CPU_ARM926EJS
@@ -1044,3 +1048,4 @@ source "board/zipitz2/Kconfig"
 source "arch/arm/Kconfig.debug"
 
 endmenu
+
