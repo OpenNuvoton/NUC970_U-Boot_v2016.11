@@ -750,7 +750,7 @@ static int  nuc970_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 
 	for(i = 0 ; i < len; i++)
 	{
-		i2cIoctl(I2CNUM, I2C_IOC_SET_SUB_ADDRESS, addr+i, 2);
+		i2cIoctl(I2CNUM, I2C_IOC_SET_SUB_ADDRESS, addr+i, alen);
 		j = RETRY;
 		while(j-- > 0)
 		{
@@ -782,7 +782,7 @@ static int  nuc970_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	//printf("Start Tx --> %d %d \n", len, alen);
 	for(i = 0 ; i < len ; i++)
 	{
-		i2cIoctl(I2CNUM, I2C_IOC_SET_SUB_ADDRESS, addr+i, 2);
+		i2cIoctl(I2CNUM, I2C_IOC_SET_SUB_ADDRESS, addr+i, alen);
 		j = RETRY;
 		while(j-- > 0)
 		{
