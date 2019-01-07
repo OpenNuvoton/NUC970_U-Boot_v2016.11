@@ -1,0 +1,24 @@
+if (TARGET_N32926 || TARGET_N32926_DISP)
+
+config SYS_BOARD
+	default "n32926"
+
+config SYS_VENDOR
+	default "nuvoton"
+
+config SYS_SOC
+	default "n32926"
+
+config SYS_CONFIG_NAME
+        default "n32926_soc" if TARGET_N32926
+        default "n32926_disp" if TARGET_N32926_DISP
+
+config N32926
+	bool
+	default y
+
+config N32926_EMAC_NO_MDC
+	bool
+	default y if TARGET_N32926_DISP
+
+endif

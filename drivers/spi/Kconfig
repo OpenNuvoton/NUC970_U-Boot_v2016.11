@@ -259,4 +259,21 @@ config NUC980_SPI_Normal
         bool "Normal mode"
 endchoice
 
+config N32926_SPI
+	bool "N32926/N9H26 SPI driver"
+
+choice
+        prompt "Select N32926/N9H26 SPI0 in Quad mode or Normal mode"
+        default N32926_SPI_Normal
+        depends on N32926_SPI
+        help
+          This option sets SPI in Quad mode or Normal mode.
+
+config N32926_SPI_Quad
+        bool "Quad mode"
+
+config N32926_SPI_Normal
+        bool "Normal mode"
+endchoice
+
 endmenu # menu "SPI Support"

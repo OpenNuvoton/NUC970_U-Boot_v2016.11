@@ -234,4 +234,10 @@ config NUC980_GPIO
 	help
 	  Support for the NUC980 GPIO driver.
 
+config N32926_GPIO
+        bool "N32926 GPIO driver"
+        depends on N32926
+        help
+          Support for the N32926 GPIO driver.
+ 
 endmenu

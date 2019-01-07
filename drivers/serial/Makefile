@@ -49,6 +49,7 @@ obj-$(CONFIG_MSM_SERIAL) += serial_msm.o
 obj-$(CONFIG_MVEBU_A3700_UART) += serial_mvebu_a3700.o
 obj-$(CONFIG_NUC970_CONSOLE) += serial_nuc970.o
 obj-$(CONFIG_NUC980_CONSOLE) += serial_nuc980.o
+obj-$(CONFIG_N32926_CONSOLE) += serial_n32926.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_USB_TTY) += usbtty.o

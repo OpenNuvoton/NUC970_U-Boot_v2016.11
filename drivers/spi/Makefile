@@ -56,3 +56,4 @@ obj-$(CONFIG_ZYNQ_SPI) += zynq_spi.o
 obj-$(CONFIG_ZYNQ_QSPI) += zynq_qspi.o
 obj-$(CONFIG_NUC970_SPI) += nuc970_spi.o
 obj-$(CONFIG_NUC980_SPI) += nuc980_spi.o
+obj-$(CONFIG_N32926_SPI) += n32926_spi.o

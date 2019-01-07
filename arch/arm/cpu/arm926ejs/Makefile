@@ -20,6 +20,7 @@ obj-$(CONFIG_MX25) += mx25/
 obj-$(CONFIG_MX27) += mx27/
 obj-$(CONFIG_NUC970) += nuc970/
 obj-$(CONFIG_NUC980) += nuc980/
+obj-$(CONFIG_N32926) += n32926/
 obj-$(if $(filter mxs,$(SOC)),y) += mxs/
 obj-$(if $(filter spear,$(SOC)),y) += spear/
 

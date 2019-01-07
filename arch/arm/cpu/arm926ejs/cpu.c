@@ -23,6 +23,9 @@ extern int NUC970_cleanup(void);
 #ifdef CONFIG_NUC980
 extern int NUC980_cleanup(void);
 #endif
+#ifdef CONFIG_N32926
+extern int N32926_cleanup(void);
+#endif
 static void cache_flush(void);
 
 int cleanup_before_linux (void)
@@ -40,7 +43,9 @@ int cleanup_before_linux (void)
 #ifdef CONFIG_NUC980
 	NUC980_cleanup();
 #endif
-
+#ifdef CONFIG_N32926
+        N32926_cleanup();
+#endif
 	disable_interrupts ();
 
 
