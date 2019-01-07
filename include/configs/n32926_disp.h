@@ -69,13 +69,11 @@
 #define CONFIG_BAUDRATE         115200
 #define CONFIG_SYS_BAUDRATE_TABLE       {115200, 57600, 38400}
 
-/*#define CONFIG_NUC970_EMAC1*/
-#define CONFIG_NUC970_EMAC0_NO_MDC      1
+#define CONFIG_N32926_EMAC_NO_MDC       1
 /*#define CONFIG_CMD_NET */
 #define CONFIG_ETHADDR                  00:00:00:11:66:88
 #define CONFIG_SYS_RX_ETH_BUFFER        16 // default is 4, set to 16 here.
 
-/*#define CONFIG_KPI_NUC970*/
 
 /*#undef CONFIG_SYS_ICACHE_OFF */
 /*#undef CONFIG_SYS_DCACHE_OFF */
@@ -113,13 +111,6 @@
 #undef CONFIG_CMD_JFFS2
 #endif
 
-#ifdef CONFIG_KPI_NUC970
-/*#define CONFIG_KPI_PA_PORT   1 */   /* KPI select PA port */
-#define CONFIG_KPI_PH_PORT   1  /* KPI select PH port */
-#define CONFIG_KPI_ROW_NUM   3  /* row number is 1~4 */
-#define CONFIG_KPI_COL_NUM   3  /* col number is 1~8 */
-#define CONFIG_KPI_DEBOUNCE  8  /* debounce length setting: 0~13 */
-#endif
 
 /* SPI flash */
 #ifdef CONFIG_SYS_USE_SPIFLASH
@@ -156,7 +147,7 @@
 #endif
 
 /* Following block is for MMC support */
-#ifdef CONFIG_NUC970_MMC
+#ifdef CONFIG_N32926_MMC
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
 /*#define CONFIG_MMC */
@@ -176,12 +167,12 @@
 #endif
 
 /* Following block is for EHCI support*/
-#if 1
+#if 0
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_NUC970
+#define CONFIG_USB_EHCI_N32926
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_DOS_PARTITION
 #endif
@@ -200,7 +191,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"uimage1=selftest.sha\0" \
-	"uimage2=970image.sha\0" \
+	"uimage2=926image.sha\0" \
 	"bootcmd=fatload mmc 0 0x7fc0 ${uimage1}; bootm 0x7fc0; fatload mmc 0 0x7fc0 ${uimage2}; bootm 0x7fc0\0" \
 
 #endif

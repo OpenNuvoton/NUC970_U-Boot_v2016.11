@@ -9,6 +9,7 @@
 
 /* Global control registers */
 #define REG_MFP_GPA_L   0xB0000080
+#define REG_MFP_GPG_L   0xB00000E8
 #define GPIO_BA		0xB8001000
 
 #define REG_GPIOA_DIR 		(GPIO_BA+0x000)
@@ -41,14 +42,10 @@
 #define REG_GPIOG_DATAOUT 	(GPIO_BA+0x058)
 #define REG_GPIOG_DATAIN 	(GPIO_BA+0x05C)              
                                                      
-#define REG_GPIOH_DIR 		(GPIO_BA+0x060)              
-#define REG_GPIOH_PUEN 		(GPIO_BA+0x064)              
-#define REG_GPIOH_DATAOUT 	(GPIO_BA+0x068)            
-#define REG_GPIOH_DATAIN 	(GPIO_BA+0x06C)              
-	                                                     
+                                                     
 #define GPIO_OFFSET 0x20
 #define	DRIVER_NAME "n32926-gpio"
-#define NUMGPIO 0x20 * 7	//(PortA~PortH)
+#define NUMGPIO 0x20 * 6	//(PortA~PortG)
 
 #define GPIO_PA0	0
 #define GPIO_PA1	1
@@ -146,21 +143,5 @@
 #define GPIO_PG13	(5*GPIO_OFFSET + 13)
 #define GPIO_PG14	(5*GPIO_OFFSET + 14)
 #define GPIO_PG15	(5*GPIO_OFFSET + 15)
-#define GPIO_PH0	(6*GPIO_OFFSET + 0)
-#define GPIO_PH1	(6*GPIO_OFFSET + 1)
-#define GPIO_PH2	(6*GPIO_OFFSET + 2)
-#define GPIO_PH3	(6*GPIO_OFFSET + 3)
-#define GPIO_PH4	(6*GPIO_OFFSET + 4)
-#define GPIO_PH5	(6*GPIO_OFFSET + 5)
-#define GPIO_PH6	(6*GPIO_OFFSET + 6)
-#define GPIO_PH7	(6*GPIO_OFFSET + 7)
-#define GPIO_PH8	(6*GPIO_OFFSET + 8)
-#define GPIO_PH9	(6*GPIO_OFFSET + 9)
-#define GPIO_PH10	(6*GPIO_OFFSET + 10)
-#define GPIO_PH11	(6*GPIO_OFFSET + 11)
-#define GPIO_PH12	(6*GPIO_OFFSET + 12)
-#define GPIO_PH13	(6*GPIO_OFFSET + 13)
-#define GPIO_PH14	(6*GPIO_OFFSET + 14)
-#define GPIO_PH15	(6*GPIO_OFFSET + 15)
 
 #endif /*  __N32926_REGS_GPIO_H */
