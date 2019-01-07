@@ -8,7 +8,7 @@
 #include <asm/gpio.h>
 #include <watchdog.h>
 
-#define REG_AHBHCLK     0xB0000204
+#define REG_AHBCLK      0xB0000204
 #define REG_APBCLK      0xB0000208
 #define REG_CLKDIV3     0xB0000218
 #define REG_CLKDIV4     0xB000021C

@@ -31,8 +31,6 @@ static const struct gpio_port port_class[] = {
 	 (volatile unsigned int *)REG_GPIOE_DATAIN},
 	{(volatile unsigned int *)REG_GPIOG_DIR, (volatile unsigned int *)REG_GPIOG_DATAOUT,
 	 (volatile unsigned int *)REG_GPIOG_DATAIN},
-	{(volatile unsigned int *)REG_GPIOH_DIR, (volatile unsigned int *)REG_GPIOH_DATAOUT,
-	 (volatile unsigned int *)REG_GPIOH_DATAIN},
 	{},
 };
 

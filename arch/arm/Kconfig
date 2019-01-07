@@ -209,7 +209,7 @@ config TARGET_NUC980
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
-config TARGET_N32926
+config TARGET_N32926_DISP
         bool "Support n32926/n9h26"
         select CPU_ARM926EJS
 
