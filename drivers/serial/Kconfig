@@ -417,6 +417,6 @@ config NUC980_CONSOLE
 
 config N32926_CONSOLE
 	bool "N32926 serial port support"
-	depend on N32926
+	depends on N32926
 
 endmenu

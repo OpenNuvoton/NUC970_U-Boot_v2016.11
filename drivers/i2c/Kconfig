@@ -303,20 +303,20 @@ config ENABLE_N32926_I2C
 
 config N32926_I2C_PA
         bool "I2C PIN: SCL-->PA10, SDA-->PA11"
-        depends on ENABLE_N32926_I2C
+        depends on N32926_I2C
 
 config N32926_I2C_PB
         bool "I2C PIN: SCL-->PB13, SDA-->PB14"
-        depends on ENABLE_N32926_I2C
+        depends on N32926_I2C
         default y
 
 config N32926_I2C_PG
         bool "I2C PIN: SCL-->PG2, SDA-->PG5"
-        depends on ENABLE_N32926_I2C
+        depends on N32926_I2C
 
 config N32926_I2C_SPEED
         int "I2C_SPEED(Kbps)"
-        depends on ENABLE_N32926_I2C
+        depends on N32926_I2C
         default "50"
 
 
