@@ -249,5 +249,18 @@ config NUC980_PHY_ADDR
 	int "PHY Address"
 	depends on NUC980_ETH
 
+config N32926_ETH
+	bool "N32926 Ethernet Support"
+	depends on N32926
+
+config N32926_EMAC_NO_MDC
+	bool "N32926 EMAC without MDC support"
+	depends on N32926_ETH
+	help
+	  Select this to not use EMAC MDC interface (if switch directly connected to RMII)
+
+config N32926_PHY_ADDR
+	int "PHY Address"
+	depends on N32926_ETH
 
 endif # NETDEVICES

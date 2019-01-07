@@ -209,6 +209,10 @@ config TARGET_NUC980
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
+config TARGET_N32926
+        bool "Support n32926/n9h26"
+        select CPU_ARM926EJS
+
 config TARGET_ZMX25
 	bool "Support zmx25"
 	select CPU_ARM926EJS
@@ -1011,6 +1015,7 @@ source "board/isee/igep0033/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/nuvoton/nuc970/Kconfig"
 source "board/nuvoton/nuc980/Kconfig"
+source "board/nuvoton/n32926/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/phytec/pcm052/Kconfig"
