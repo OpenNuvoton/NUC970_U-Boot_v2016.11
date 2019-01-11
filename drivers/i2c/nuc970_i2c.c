@@ -142,7 +142,8 @@ static int32_t _i2cSetSpeed(i2c_dev *dev, int32_t sp)
 
 	//if( sp != 100 && sp != 400)
 	//	return(I2C_ERR_NOTTY);
-
+	/* assume speed above 1000 are Hz-specified */
+        if(sp > 1000) sp = sp/1000;
 	if(sp > 400) sp = 400;
 
 	d = I2C_INPUT_CLOCK/(sp * 5) -1;
