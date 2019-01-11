@@ -23,7 +23,7 @@
  */
 #include <common.h>
 #include <asm/io.h>
-
+#include <watchdog.h>
 #include <serial.h>
 
 //#include "serial_nuc970.h"
@@ -161,6 +161,7 @@ int nuc970_serial_getc (void)
 		{
 			return (UART0->x.RBR);
 		}
+		WATCHDOG_RESET();
 	}
 }
 #endif
