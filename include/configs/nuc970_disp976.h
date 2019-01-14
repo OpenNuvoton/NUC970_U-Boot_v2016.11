@@ -47,9 +47,9 @@
 
 /*#define CONFIG_NUC970_HW_CHECKSUM */
 
-#define CONFIG_SYS_USE_SPIFLASH 
+#define CONFIG_SYS_USE_SPIFLASH		1
 #define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
-#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_IS_IN_SPI_FLASH	1
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
@@ -70,7 +70,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE       {115200, 57600, 38400}
 
 /*#define CONFIG_NUC970_EMAC1*/
-#define CONFIG_NUC970_EMAC0_NO_MDC      1
 /*#define CONFIG_CMD_NET */
 #define CONFIG_ETHADDR                  00:00:00:11:66:88
 #define CONFIG_SYS_RX_ETH_BUFFER        16 // default is 4, set to 16 here.
@@ -197,10 +196,8 @@
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"uimage1=selftest.sha\0" \
-	"uimage2=970image.sha\0" \
-	"bootcmd=fatload mmc 0 0x7fc0 ${uimage1}; bootm 0x7fc0; fatload mmc 0 0x7fc0 ${uimage2}; bootm 0x7fc0\0" \
+        "uimage=eth2uart.ub\0" \
+        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0; sf probe 0 18000000; sf read 0x7fc0 0x200000 0x780000; bootm 0x7fc0\0" \
 
 #endif
