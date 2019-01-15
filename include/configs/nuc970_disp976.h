@@ -197,7 +197,6 @@
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-        "uimage=eth2uart.ub\0" \
-        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0; sf probe 0 18000000; sf read 0x7fc0 0x200000 0x780000; bootm 0x7fc0\0" \
+        "bootcmd=sf probe 0 25000000; sf read 0x7fc0 0x200000 0x780000; bootm 0x7fc0\0" \
 
 #endif

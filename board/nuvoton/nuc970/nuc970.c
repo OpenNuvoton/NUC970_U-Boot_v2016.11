@@ -33,6 +33,8 @@
 #define REG_MFP_GPI_H	0xB00000B4
 
 int NUC970_cleanup(void);
+int nuc970_mmc_init(int priv);
+
 extern int spi_flash_reset(void);
 
 DECLARE_GLOBAL_DATA_PTR;
