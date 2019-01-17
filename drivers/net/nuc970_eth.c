@@ -44,7 +44,7 @@ int nuc970_reset_phy(void)
 	writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
 	return(0);
 }
-#else
+#else /* CONFIG_NUC970_EMAC0_NO_MDC */
 int nuc970_eth_mii_write(uchar addr, uchar reg, ushort val)
 {
 
