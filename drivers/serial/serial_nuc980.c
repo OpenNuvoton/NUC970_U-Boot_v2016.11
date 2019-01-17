@@ -28,6 +28,7 @@
 
 //#include "serial_nuc980.h"
 #include <asm/arch/serial_nuc980.h>
+#include <watchdog.h>
 
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -106,6 +107,7 @@ int nuc980_serial_getc (void)
 		if (!(UART0->FSR & (1 << 14))) {
 			return (UART0->x.RBR);
 		}
+		WATCHDOG_RESET();
 	}
 }
 
