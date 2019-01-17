@@ -60,6 +60,7 @@ typedef struct {
 
 #define GCR_BA    0xB0000000 /* Global Control */
 #define REG_MFP_GPF_H	(GCR_BA+0x09C)  /* GPIOF High Byte Multiple Function Control Register */
+#define REG_PCLKEN0     0xB0000218
 #define UART0_BA  0xB0070000 /* UART0 Control (High-Speed UART) */
 #define UART0	   ((UART_TypeDef *)UART0_BA)
 
@@ -72,6 +73,7 @@ u32 ext_clk  = EXT_CLK;
 
 int nuc980_serial_init (void)
 {
+	__raw_writel(__raw_readl(REG_PCLKEN0) | 0x10000, REG_PCLKEN0);  // UART clk on
 	__raw_writel((__raw_readl(REG_MFP_GPF_H) & 0xfff00fff) | 0x11000, REG_MFP_GPF_H); // UART0 multi-function
 
 	/* UART0 line configuration for (115200,n,8,1) */
