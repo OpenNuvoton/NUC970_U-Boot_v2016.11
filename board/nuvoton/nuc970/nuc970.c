@@ -110,7 +110,11 @@ int board_eth_init(bd_t *bis)
     writel(readl(REG_HCLKEN) | 0x10000, REG_HCLKEN);   // EMAC0 clk
     writel(readl(REG_CLKDIVCTL8) | 0x10, REG_CLKDIVCTL8); //MII management interface clock
     //Init multi-function pin for RMII
+#ifdef CONFIG_NUC970_EMAC0_NO_MDC
+    writel(0x11111100, REG_MFP_GPF_L);	// pin F2~F7 for RMII0, F0~F1 stay GPIO
+#else
     writel(0x11111111, REG_MFP_GPF_L);	// pin F0~F7 for RMII0
+#endif /* CONFIG_NUC970_EMAC0_NO_MDC */
     writel((readl(REG_MFP_GPF_H) & ~0xff) | 0x11, REG_MFP_GPF_H);// pin F8~F9 for RMII0
 #else //CONFIG_NUC970_EMAC1
     writel(readl(REG_HCLKEN) | 0x20000, REG_HCLKEN);   // EMAC1 clk

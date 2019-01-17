@@ -104,6 +104,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	writel(readl(REG_MFP_GPB_H) | 0xBBBB0000, REG_MFP_GPB_H);
 #endif
 
+#ifdef CONFIG_NUC970_SPI_Quad
 	//cp = getenv("spimode");
 	if (1) { //(cp) {
 		if (1) { //(*cp == SPI_QUAD_MODE ) {
@@ -116,7 +117,7 @@ int spi_claim_bus(struct spi_slave *slave)
 #endif
 		}
 	}
-
+#endif /* CONFIG_NUC970_SPI_Quad */
 	writel(SPI_8BIT, SPICTL);
 
 	if(ns->mode & SPI_CS_HIGH)
@@ -159,6 +160,7 @@ void spi_release_bus(struct spi_slave *slave)
 	writel(readl(REG_MFP_GPB_H) & ~0xBBBB0000, REG_MFP_GPB_H);
 #endif
 
+#ifdef CONFIG_NUC970_SPI_Quad
 	//cp = getenv("spimode");
 	if (1) { //(cp) {
 		if (1) { //(*cp == SPI_QUAD_MODE ) {
@@ -171,6 +173,7 @@ void spi_release_bus(struct spi_slave *slave)
 #endif
 		}
 	}
+#endif /* CONFIG_NUC970_SPI_Quad */	
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
