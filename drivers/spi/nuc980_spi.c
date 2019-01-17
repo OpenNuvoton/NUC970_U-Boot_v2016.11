@@ -268,6 +268,40 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			writel(0, SPI_PDMACTL);     // disable RX
 			writel((readl(REG_HCLKEN) & ~0x1000), REG_HCLKEN); /* disable PDMA0 clock */
 		}
+	} else if (rx && (len >= 2048)) {
+		u32 count;
+		writel((readl(SPI_CTL) & ~0x1), SPI_CTL); //Disable SPIEN
+		while ((readl(SPI_STATUS) & 0x8000)); //SPIENSTS
+
+		writel((readl(SPI_CTL) & ~0x1F00), SPI_CTL); //Data Width = 32 bit
+		writel((readl(SPI_CTL) & ~0xF0), SPI_CTL); //Suspend interval = 0
+		writel((readl(SPI_CTL) | 0x80000), SPI_CTL); //Byte reorder
+
+		writel(readl(SPI_FIFOCTL) | 0x3, SPI_FIFOCTL); //TX/RX reset
+		while ((readl(SPI_STATUS) & TXRXRST));
+
+		writel((readl(SPI_CTL) | 0x1), SPI_CTL); //Enable SPIEN
+		while (!(readl(SPI_STATUS) & 0x8000)); //SPIENSTS
+
+		writel((readl(REG_HCLKEN) | 0x1000), REG_HCLKEN); /* enable PDMA0 clock */
+		/* initial PDMA channel 0 */
+		writel(0x1, REG_PDMA_CHCTL);
+		writel(21, REG_PDMA_REQSEL0_3);  /* QSPI0 RX */
+
+		count = (len + 3) >> 2;
+		/* set PDMA */
+		writel(SPI_RX, REG_PDMA_DSCT0_SA);
+		writel((unsigned int)rx, REG_PDMA_DSCT0_DA);
+		writel(((count-1)<<TXCNT_Pos)|TXWIDTH_32|SRC_FIXED|TBINTDIS|TX_SINGLE|MODE_BASIC, REG_PDMA_DSCT0_CTL);
+		writel(readl(SPI_PDMACTL)|0x2, SPI_PDMACTL);
+		while(1) {
+			if (readl(REG_PDMA_TDSTS) & 0x1) {
+				writel(0x1, REG_PDMA_TDSTS);
+				break;
+			}
+		}
+		writel(0, SPI_PDMACTL);     // disable RX
+		writel((readl(REG_HCLKEN) & ~0x1000), REG_HCLKEN); /* disable PDMA0 clock */
 	} else {
 		for (i = 0; i < len; i++) {
 			if(tx) {
@@ -298,8 +332,9 @@ out:
 	}
 
 	if (flags & SPI_6WIRE) {
-		writel(readl(SPI_CTL) & ~SPI_QUAD_EN, SPI_CTL);
-		writel(readl(SPI_CTL) & ~(0x80000), SPI_CTL);
+		writel(readl(SPI_CTL) & ~SPI_QUAD_EN, SPI_CTL); //Disable Quad mode
+		writel(readl(SPI_CTL) & ~(0x80000), SPI_CTL); //Disable Byte reorder
+		writel(readl(SPI_CTL) | (0x800), SPI_CTL); //Data length 8 bit
 		writel(readl(REG_MFP_GPD_L) & ~(0x11000000), REG_MFP_GPD_L);
 	}
 

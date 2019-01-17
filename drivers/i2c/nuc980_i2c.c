@@ -210,13 +210,15 @@ static i2c_dev i2c_device[I2C_NUMBER];
   */
 static int32_t _i2cSetSpeed(int32_t sp)
 {
-    uint32_t u32Div;
+	uint32_t u32Div;
 
+	/* assume speed above 1000 are Hz-specified */
+	if(sp > 1000) sp = sp/1000;
 	if(sp > 400) sp = 400;
 
-    u32Div = (uint32_t)(((I2C_INPUT_CLOCK * 10U) / (sp * 4U) + 5U) / 10U - 1U); /* Compute proper divider for I2C clock */
+	u32Div = (uint32_t)(((I2C_INPUT_CLOCK * 10U) / (sp * 4U) + 5U) / 10U - 1U); /* Compute proper divider for I2C clock */
 
-    __raw_writel(u32Div, (I2Cx_BASE + CLKDIV));
+	__raw_writel(u32Div, (I2Cx_BASE + CLKDIV));
 
 	return 0;
 }
@@ -236,77 +238,74 @@ static void _i2cReset(i2c_dev *dev)
 
 void I2C_MasterRx(uint32_t u32Status)
 {
-    if (u32Status == 0x08) {                    /* START has been transmitted and prepare SLA+W */
-        __raw_writel((g_u8DeviceAddr << 1), (I2Cx_BASE + DAT)); /* Write SLA+W to Register I2CDAT */
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
-    } else if (u32Status == 0x18) {             /* SLA+W has been transmitted and ACK has been received */
-        __raw_writel(g_au8TxData[g_u8DataLen++], (I2Cx_BASE + DAT));
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
-    } else if (u32Status == 0x20) {             /* SLA+W has been transmitted and NACK has been received */
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STO | I2C_CTL_SI), (I2Cx_BASE + CTL0));
-    } else if (u32Status == 0x28) {             /* DATA has been transmitted and ACK has been received */
-        if (g_u8DataLen < g_u32AddressLength) {
-            __raw_writel(g_au8TxData[g_u8DataLen++], (I2Cx_BASE + DAT));
-            __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
-        } else {
-            __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STA | I2C_CTL_SI_AA), (I2Cx_BASE + CTL0));
-        }
-    } else if (u32Status == 0x10) {             /* Repeat START has been transmitted and prepare SLA+R */
-        __raw_writel(((g_u8DeviceAddr << 1) | 0x01), (I2Cx_BASE + DAT)); /* Write SLA+R to Register I2CDAT */
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
-    } else if (u32Status == 0x40) {             /* SLA+R has been transmitted and ACK has been received */
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
-    } else if (u32Status == 0x48) {             /* Slave Address NACK */
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_STO_SI, (I2Cx_BASE + CTL0));  /* Clear SI and send STOP */
-    } else if (u32Status == 0x50) {            /* DATA has been received and ACK has been returned */
-        g_u8RxData[g_u32RxDataCount++] = __raw_readl(I2Cx_BASE + DAT);
-         if(g_u32RxDataCount < (g_u32TransferLength - 1u))
-        {
-            __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
-        }
-        else
-        {
-            __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI, (I2Cx_BASE + CTL0));
-        }
-    }else if (u32Status == 0x58) {             /* DATA has been received and NACK has been returned */
-        g_u8RxData[g_u32RxDataCount++] = __raw_readl(I2Cx_BASE + DAT);
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STO | I2C_CTL_SI), (I2Cx_BASE + CTL0));
-        g_u8EndFlag = 1;
-    } else {
-        /* TO DO */
-        printf("Status 0x%x is NOT processed\n", u32Status);
-    }
+	if (u32Status == 0x08) {                    /* START has been transmitted and prepare SLA+W */
+		__raw_writel((g_u8DeviceAddr << 1), (I2Cx_BASE + DAT)); /* Write SLA+W to Register I2CDAT */
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
+	} else if (u32Status == 0x18) {             /* SLA+W has been transmitted and ACK has been received */
+		__raw_writel(g_au8TxData[g_u8DataLen++], (I2Cx_BASE + DAT));
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
+	} else if (u32Status == 0x20) {             /* SLA+W has been transmitted and NACK has been received */
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STO | I2C_CTL_SI), (I2Cx_BASE + CTL0));
+	} else if (u32Status == 0x28) {             /* DATA has been transmitted and ACK has been received */
+		if (g_u8DataLen < g_u32AddressLength) {
+			__raw_writel(g_au8TxData[g_u8DataLen++], (I2Cx_BASE + DAT));
+			__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
+		} else {
+			__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STA | I2C_CTL_SI_AA), (I2Cx_BASE + CTL0));
+		}
+	} else if (u32Status == 0x10) {             /* Repeat START has been transmitted and prepare SLA+R */
+		__raw_writel(((g_u8DeviceAddr << 1) | 0x01), (I2Cx_BASE + DAT)); /* Write SLA+R to Register I2CDAT */
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
+	} else if (u32Status == 0x40) {             /* SLA+R has been transmitted and ACK has been received */
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
+	} else if (u32Status == 0x48) {             /* Slave Address NACK */
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_STO_SI, (I2Cx_BASE + CTL0));  /* Clear SI and send STOP */
+	} else if (u32Status == 0x50) {            /* DATA has been received and ACK has been returned */
+		g_u8RxData[g_u32RxDataCount++] = __raw_readl(I2Cx_BASE + DAT);
+		if(g_u32RxDataCount < (g_u32TransferLength - 1u)) {
+			__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
+		} else {
+			__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI, (I2Cx_BASE + CTL0));
+		}
+	}else if (u32Status == 0x58) {             /* DATA has been received and NACK has been returned */
+		g_u8RxData[g_u32RxDataCount++] = __raw_readl(I2Cx_BASE + DAT);
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STO | I2C_CTL_SI), (I2Cx_BASE + CTL0));
+		g_u8EndFlag = 1;
+	} else {
+		/* TO DO */
+		printf("Status 0x%x is NOT processed\n", u32Status);
+	}
 }
 
 void I2C_MasterTx(uint32_t u32Status)
 {
-    if (u32Status == 0x08) {                    /* START has been transmitted */
-        __raw_writel((g_u8DeviceAddr << 1), (I2Cx_BASE + DAT)); /* Write SLA+W to Register I2CDAT */
+	if (u32Status == 0x08) {                    /* START has been transmitted */
+		__raw_writel((g_u8DeviceAddr << 1), (I2Cx_BASE + DAT)); /* Write SLA+W to Register I2CDAT */
 
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
-    } else if (u32Status == 0x18) {             /* SLA+W has been transmitted and ACK has been received */
-        __raw_writel(g_au8TxData[g_u8DataLen++], (I2Cx_BASE + DAT));
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
+	} else if (u32Status == 0x18) {             /* SLA+W has been transmitted and ACK has been received */
+		__raw_writel(g_au8TxData[g_u8DataLen++], (I2Cx_BASE + DAT));
 
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
-    } else if (u32Status == 0x20) {             /* SLA+W has been transmitted and NACK has been received */
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STA | I2C_CTL_STO | I2C_CTL_SI_AA), I2Cx_BASE + CTL0);
-    } else if (u32Status == 0x28) {             /* DATA has been transmitted and ACK has been received */
-        if (g_u8DataLen != (g_u32TransferLength + g_u32AddressLength)) { // for EEPROM need transfer high-byte and low-byte address
-            __raw_writel(g_au8TxData[g_u8DataLen++], (I2Cx_BASE + DAT));
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | I2C_CTL_SI_AA, (I2Cx_BASE + CTL0));
+	} else if (u32Status == 0x20) {             /* SLA+W has been transmitted and NACK has been received */
+		__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STA | I2C_CTL_STO | I2C_CTL_SI_AA), I2Cx_BASE + CTL0);
+	} else if (u32Status == 0x28) {             /* DATA has been transmitted and ACK has been received */
+		if (g_u8DataLen != (g_u32TransferLength + g_u32AddressLength)) { // for EEPROM need transfer high-byte and low-byte address
+			__raw_writel(g_au8TxData[g_u8DataLen++], (I2Cx_BASE + DAT));
 
-            __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_SI_AA), I2Cx_BASE + CTL0);
-        } else {
-            __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STO | I2C_CTL_SI), I2Cx_BASE + CTL0);
-            g_u8EndFlag = 1;
-        }
-    } else {
-        /* TO DO */
-        printf("Status 0x%x is NOT processed\n", u32Status);
-    }
+			__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_SI_AA), I2Cx_BASE + CTL0);
+		} else {
+			__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STO | I2C_CTL_SI), I2Cx_BASE + CTL0);
+			g_u8EndFlag = 1;
+		}
+	} else {
+		/* TO DO */
+		printf("Status 0x%x is NOT processed\n", u32Status);
+	}
 }
 
 /// @endcond /* HIDDEN_SYMBOLS */
-    
+
 /**
   * @brief This function reset the i2c interface and enable interrupt.
   * @param[in] param is interface number.
@@ -326,7 +325,7 @@ int32_t i2cOpen(uint32_t param)
 
 	if( dev->openflag != 0 )		/* a card slot can open only once */
 		return(I2C_ERR_BUSY);
-			
+
 	/* Enable engine clock */
 	if((uint32_t)param == 0)
 	__raw_writel((__raw_readl(REG_PCLKEN1) | 0x1), REG_PCLKEN1);
@@ -341,7 +340,7 @@ int32_t i2cOpen(uint32_t param)
 
 	if((uint32_t)param == 0)
 		dev->base = I2C0_BA;
-    else if((uint32_t)param == 1)
+	else if((uint32_t)param == 1)
 		dev->base = I2C1_BA;
 	else if((uint32_t)param == 2)
 		dev->base = I2C2_BA;
@@ -351,7 +350,7 @@ int32_t i2cOpen(uint32_t param)
 	_i2cReset(dev);
 
 	dev->openflag = 1;
-	
+
 	return 0;
 }
 
@@ -373,7 +372,7 @@ int32_t i2cClose(int32_t fd)
 
 	dev->openflag = 0;	
 
-    __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ (0x40)), I2Cx_BASE + CTL0); // Disable I2C
+	__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ (0x40)), I2Cx_BASE + CTL0); // Disable I2C
 
 	return 0;
 }
@@ -422,8 +421,7 @@ int32_t i2cInit(int32_t fd)
  */
 static void nuc980_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
-	if (adap->hwadapnr == 0)
-	{
+	if (adap->hwadapnr == 0) {
 		I2CNUM = I2CNUM_0;
 
 		#if defined (CONFIG_ENABLE_NUC980_I2C0)
@@ -436,46 +434,37 @@ static void nuc980_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 		__raw_writel((__raw_readl(REG_SYS_GPA_MFPL) & ~0xff) | 0x33, REG_SYS_GPA_MFPL);
 
 		#endif
-	}
-	else if (adap->hwadapnr == 1)
-	{
+	} else if (adap->hwadapnr == 1) {
 		I2CNUM = I2CNUM_1;
 
 		#if defined (CONFIG_ENABLE_NUC980_I2C1)
 		//NUC980_I2C_SPEED = CONFIG_NUC980_I2C1_SPEED;
 		I2Cx_BASE = I2C1_BA;
 		#endif
-	}
-	else if (adap->hwadapnr == 2)
-	{
+	} else if (adap->hwadapnr == 2) {
 		I2CNUM = I2CNUM_2;
 
 		#if defined (CONFIG_ENABLE_NUC980_I2C2)
 		//NUC980_I2C_SPEED = CONFIG_NUC980_I2C1_SPEED;
 		I2Cx_BASE = I2C2_BA;
 		#endif
-	}
-	else if (adap->hwadapnr == 3)
-	{
+	} else if (adap->hwadapnr == 3) {
 		I2CNUM = I2CNUM_3;
 
 		#if defined (CONFIG_ENABLE_NUC980_I2C3)
 		//NUC980_I2C_SPEED = CONFIG_NUC980_I2C1_SPEED;
 		I2Cx_BASE = I2C3_BA;
 		#endif
-	}
-	else
-	{
+	} else {
 		printf("\n I2C number not cprrect !! \n");
 	}
-
 
 	i2cInit(I2CNUM);
 
 	i2cOpen((uint32_t)I2CNUM);
 
 	_i2cSetSpeed((int32_t)NUC980_I2C_SPEED);
-	
+
 	__raw_writel((__raw_readl(I2Cx_BASE + CTL0) | (0x40)), I2Cx_BASE + CTL0); // Enable I2C
 }
 
@@ -491,63 +480,54 @@ static int nuc980_i2c_probe(struct i2c_adapter *adap, uint8_t addr)
  * Read bytes
  */
 static int  nuc980_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
-			int alen, uchar *buffer, int len)
+                            int alen, uchar *buffer, int len)
 {
-    int i;
-    uint32_t u32Status;
-    uint32_t u32time_out;
+	int i;
+	uint32_t u32Status;
+	uint32_t u32time_out;
 
-    u32time_out = 0;
+	u32time_out = 0;
 
-    g_u8DataLen = 0;
-    g_u8DeviceAddr = chip;
-    g_u32TransferLength = len;
-    
-    g_u32RxDataCount = 0;
+	g_u8DataLen = 0;
+	g_u8DeviceAddr = chip;
+	g_u32TransferLength = len;
 
-    if(len > I2C_MAX_RX_BUF)
-    {
-        printf("\n Rx max. length is %d \n", I2C_MAX_RX_BUF);
-        return 1;
-    }
+	g_u32RxDataCount = 0;
 
-    //for(i = 0 ; i < len; i++)
-    {
-    	g_u8EndFlag = 0;
-    	g_u32AddressLength = 2; // for EEPROM address length is 2 bytes
-    	g_au8TxData[0] = (uint8_t)(((addr) & 0xFF00) >> 8); // High byte address
-        g_au8TxData[1] = (uint8_t)((addr) & 0x00FF);  // Low byte address
+	if(len > I2C_MAX_RX_BUF)
+	{
+		printf("\n Rx max. length is %d \n", I2C_MAX_RX_BUF);
+		return 1;
+	}
 
-    	__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STA), I2Cx_BASE + CTL0);
-    	
-    	while(1)
-    	{
-    		if(__raw_readl(I2Cx_BASE + CTL0) & I2C_CTL_SI)
-        	{
-        		u32time_out = 0;
-                u32Status = __raw_readl(I2Cx_BASE + STATUS0);
-                //printf("\n i2c read status = 0x%x ", u32Status);
-                I2C_MasterRx(u32Status);
-            }
-            
-            if(g_u8EndFlag) 
-            {
-            	for(i = 0 ; i < len; i++)
-            	{
-            	    buffer[i] = g_u8RxData[i];
-            	}
-                break;
-            }
+	g_u8EndFlag = 0;
+	g_u32AddressLength = alen; // address length
+	g_au8TxData[0] = (uint8_t)(((addr) & 0xFF00) >> 8); // High byte address
+	g_au8TxData[1] = (uint8_t)((addr) & 0x00FF);  // Low byte address
 
-            u32time_out++;
-		    if(u32time_out > I2C_TIME_OUT_COUNT)
-		    {
-			    printf("\n i2cWrite Time Out! \n");
-			    return 1; // error
-		    }
-        }
+	__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STA), I2Cx_BASE + CTL0);
 
-    }
+	while(1) {
+		if(__raw_readl(I2Cx_BASE + CTL0) & I2C_CTL_SI) {
+			u32time_out = 0;
+			u32Status = __raw_readl(I2Cx_BASE + STATUS0);
+			//printf("\n i2c read status = 0x%x ", u32Status);
+			I2C_MasterRx(u32Status);
+		}
+
+		if(g_u8EndFlag) {
+			for(i = 0 ; i < len; i++) {
+				buffer[i] = g_u8RxData[i];
+			}
+			break;
+		}
+
+		u32time_out++;
+		if(u32time_out > I2C_TIME_OUT_COUNT) {
+			printf("\n i2cWrite Time Out! \n");
+			return 1; // error
+		}
+	}
 
 	return(0);
 }
@@ -556,59 +536,51 @@ static int  nuc980_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
  * Write bytes
  */
 static int  nuc980_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
-			int alen, uchar *buffer, int len)
+                             int alen, uchar *buffer, int len)
 {
 	int i;
 	uint32_t u32Status;
 	uint32_t u32time_out;
 
-    g_u8DeviceAddr = chip;
-    g_u32TransferLength = len;
+	g_u8DeviceAddr = chip;
+	g_u32TransferLength = len;
 
-	//for(i = 0 ; i < len ; i++)
-	{
-		g_u8DataLen = 0;
-        u32time_out = 0;
+	g_u8DataLen = 0;
+	u32time_out = 0;
 
-        g_u32AddressLength = 2; // for EEPROM address length is 2 bytes
-		g_au8TxData[0] = (uint8_t)(((addr) & 0xFF00) >> 8); // High byte address
-        g_au8TxData[1] = (uint8_t)((addr) & 0x00FF);  // Low byte address
-        
-        if(len > (I2C_MAX_TX_BUF -2))
-        {
-            printf("\n Tx max. length is %d \n", (I2C_MAX_TX_BUF -2));
-            return 1;
-        }
+	g_u32AddressLength = alen; // address length
+	g_au8TxData[0] = (uint8_t)(((addr) & 0xFF00) >> 8); // High byte address
+	g_au8TxData[1] = (uint8_t)((addr) & 0x00FF); // Low byte address
 
-        for(i = 0; i < len; i++)
-            g_au8TxData[2+i] = (uint8_t)(buffer[i]);
+	if(len > (I2C_MAX_TX_BUF -2)) {
+		printf("\n Tx max. length is %d \n", (I2C_MAX_TX_BUF -2));
+		return 1;
+	}
 
-        g_u8EndFlag = 0;
+	for(i = 0; i < len; i++)
+		g_au8TxData[2+i] = (uint8_t)(buffer[i]);
 
-        __raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STA), I2Cx_BASE + CTL0);
+	g_u8EndFlag = 0;
 
-        while(1)
-        {
-        	if(__raw_readl(I2Cx_BASE + CTL0) & I2C_CTL_SI)
-        	{
-        		u32time_out = 0;
-                u32Status = __raw_readl(I2Cx_BASE + STATUS0);
-                //printf("\n i2c write starus: 0x%x ", __raw_readl(I2Cx_BASE + STATUS0));
-                I2C_MasterTx(u32Status);
-            }
-            
-            if(g_u8EndFlag)
-            {
-            	//printf("\n g_u8DataLen = %d ", g_u8DataLen);
-            	break;
-            }
-            u32time_out++;
-		    if(u32time_out > I2C_TIME_OUT_COUNT)
-		    {
-			    printf("\n i2cWrite Time Out! \n");
-			    return 1; // error
-		    }
-        }
+	__raw_writel((__raw_readl(I2Cx_BASE + CTL0) &~ 0x3C) | (I2C_CTL_STA), I2Cx_BASE + CTL0);
+
+	while(1) {
+		if(__raw_readl(I2Cx_BASE + CTL0) & I2C_CTL_SI) {
+			u32time_out = 0;
+			u32Status = __raw_readl(I2Cx_BASE + STATUS0);
+			//printf("\n i2c write starus: 0x%x ", __raw_readl(I2Cx_BASE + STATUS0));
+			I2C_MasterTx(u32Status);
+		}
+
+		if(g_u8EndFlag) {
+			//printf("\n g_u8DataLen = %d ", g_u8DataLen);
+			break;
+		}
+		u32time_out++;
+		if(u32time_out > I2C_TIME_OUT_COUNT) {
+			printf("\n i2cWrite Time Out! \n");
+			return 1; // error
+		}
 	}
 
 	return(0);
