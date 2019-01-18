@@ -421,6 +421,7 @@ config CMD_USB_MASS_STORAGE
 
 config CMD_FPGA
 	bool "fpga"
+	depends on FPGA
 	default y
 	help
 	  FPGA support.

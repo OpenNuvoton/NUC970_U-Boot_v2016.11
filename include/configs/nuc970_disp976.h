@@ -124,9 +124,9 @@
 #ifdef CONFIG_SYS_USE_SPIFLASH
 #define CONFIG_SPI              1
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_OFFSET       0x80000
-#define CONFIG_ENV_SIZE         0x10000
-#define CONFIG_ENV_SECT_SIZE    0x10000
+#define CONFIG_ENV_OFFSET       0x7F000
+#define CONFIG_ENV_SIZE         0x1000
+#define CONFIG_ENV_SECT_SIZE    0x1000
 #define CONFIG_ENV_OVERWRITE
 #endif 
 #endif
@@ -136,8 +136,8 @@
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING		1
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
@@ -175,12 +175,12 @@
 #endif
 
 /* Following block is for EHCI support*/
-#if 1
+#ifdef CONFIG_USB_EHCI_NUC970
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_NUC970
+/*#define CONFIG_USB_EHCI_NUC970*/
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_DOS_PARTITION
 #endif
@@ -197,6 +197,6 @@
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-        "bootcmd=sf probe 0 25000000; sf read 0x7fc0 0x200000 0x780000; bootm 0x7fc0\0" \
+        "bootcmd=sf probe 0 25000000; sf read 0x7fc0 0x80000 0x400000; bootm 0x7fc0\0" \
 
 #endif
