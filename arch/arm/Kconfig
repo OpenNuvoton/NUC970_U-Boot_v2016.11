@@ -201,12 +201,17 @@ config TARGET_NUC970_ETH2UART
 	select CPU_ARM926EJS
 
 config TARGET_NUC980
-	bool "Support nuc980"
+	bool "Support NUC980"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_NUC980_ETH2UART
-	bool "Support nuc980_eth2uart"
+	bool "Support NUC980 Eth2UART"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
+config TARGET_NUC980_IOT
+	bool "Support NUC980 IoT"
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
