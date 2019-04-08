@@ -188,7 +188,7 @@
 /*#define CONFIG_NUC980_SD_PORT0 */
 /*#define CONFIG_NUC980_EMMC */      /* Don't enable eMMC(CONFIG_NUC980_EMMC) and NAND(CONFIG_NAND_NUC980) at the same time! */
 #ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV  1
+#define CONFIG_SYS_MMC_ENV_DEV  0
 #define CONFIG_ENV_OFFSET       0x80000
 #define CONFIG_ENV_SIZE         /*2048*/0x10000
 #define CONFIG_ENV_SECT_SIZE    512
