@@ -235,6 +235,17 @@ void nuc980_nand_enable_hwecc(struct mtd_info *mtd, int mode)
 {
 }
 
+/*
+ * Calculate HW ECC
+ * function called after a write
+ * mtd:        MTD block structure
+ * dat:        raw data (unused)
+ * ecc_code:   buffer for ECC
+ */
+static int nuc980_nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u_char *ecc_code)
+{
+	return 0;
+}
 
 /*
  * HW ECC Correction
@@ -642,6 +653,7 @@ int board_nand_init(struct nand_chip *nand)
 
 	nand->ecc.mode      = NAND_ECC_HW_OOB_FIRST;
 	nand->ecc.hwctl     = nuc980_nand_enable_hwecc;
+	nand->ecc.calculate = nuc980_nand_calculate_ecc;
 	nand->ecc.correct   = nuc980_nand_correct_data;
 	nand->ecc.read_page = nuc980_nand_read_page_hwecc_oob_first;
 	nand->ecc.read_oob  = nuc980_nand_read_oob_hwecc;
