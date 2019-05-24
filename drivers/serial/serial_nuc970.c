@@ -42,29 +42,31 @@ void nuc970_serial_setbrg (void);
 
 typedef struct
 {
-  	union
-  	{
-		volatile unsigned int RBR;		    	        /*!< Offset: 0x0000   Receive Buffer Register			                 */
-		volatile unsigned int THR;			            /*!< Offset: 0x0000   Transmit Holding Register 		                 */
-  	} x;
-  	volatile unsigned int IER;				        /*!< Offset: 0x0004   Interrupt Enable Register 		                 */
-  	volatile unsigned int FCR;				        /*!< Offset: 0x0008   FIFO Control Register 			                 */
-  	volatile unsigned int LCR;				        /*!< Offset: 0x000C   Line Control Register				                 */
-  	volatile unsigned int MCR;			        	/*!< Offset: 0x0010   Modem Control Register 			                 */
-  	volatile unsigned int MSR;				        /*!< Offset: 0x0014   Modem Status Register 			                 */
-  	volatile unsigned int FSR;				        /*!< Offset: 0x0018   FIFO Status Register 				                 */
-  	volatile unsigned int ISR;				        /*!< Offset: 0x001C   Interrupt Status Register 		                 */
-  	volatile unsigned int TOR;				        /*!< Offset: 0x0020   Time Out Register 				                 */
-  	volatile unsigned int BAUD;				        /*!< Offset: 0x0024   Baud Rate Divisor Register		                 */
-  	volatile unsigned int IRCR;				        /*!< Offset: 0x0028   IrDA Control Register 			                 */
-  	volatile unsigned int ALTCON;			            /*!< Offset: 0x002C   Alternate Control/Status Register	                 */
-  	volatile unsigned int FUNSEL;			            /*!< Offset: 0x0030   Function Select Register			                 */
+	union
+	{
+		volatile unsigned int RBR;	/*!< Offset: 0x0000   Receive Buffer Register		*/
+		volatile unsigned int THR;	/*!< Offset: 0x0000   Transmit Holding Register		*/
+	} x;
+	volatile unsigned int IER;		/*!< Offset: 0x0004   Interrupt Enable Register		*/
+	volatile unsigned int FCR;		/*!< Offset: 0x0008   FIFO Control Register		*/
+	volatile unsigned int LCR;		/*!< Offset: 0x000C   Line Control Register		*/
+	volatile unsigned int MCR;		/*!< Offset: 0x0010   Modem Control Register		*/
+	volatile unsigned int MSR;		/*!< Offset: 0x0014   Modem Status Register		*/
+	volatile unsigned int FSR;		/*!< Offset: 0x0018   FIFO Status Register		*/
+	volatile unsigned int ISR;		/*!< Offset: 0x001C   Interrupt Status Register		*/
+	volatile unsigned int TOR;		/*!< Offset: 0x0020   Time Out Register			*/
+	volatile unsigned int BAUD;		/*!< Offset: 0x0024   Baud Rate Divisor Register	*/
+	volatile unsigned int IRCR;		/*!< Offset: 0x0028   IrDA Control Register		*/
+	volatile unsigned int ALTCON;		/*!< Offset: 0x002C   Alternate Control/Status Register	*/
+	volatile unsigned int FUNSEL;		/*!< Offset: 0x0030   Function Select Register		*/
 } UART_TypeDef;
 
-#define GCR_BA    0xB0000000 /* Global Control */
+#define GCR_BA		0xB0000000 /* Global Control */
 #define REG_MFP_GPE_L	(GCR_BA+0x090)  /* GPIOE Low Byte Multiple Function Control Register */
-#define UART0_BA  0xB8000000 /* UART0 Control (High-Speed UART) */
-#define UART0	   ((UART_TypeDef *)UART0_BA) 
+#define UART0_BA	0xB8000000 /* UART0 Control (High-Speed UART) */
+#define UART0		((UART_TypeDef *)UART0_BA)
+#define REG_GPIOE_PUEN	0xB8003120
+#define REG_PCLKEN0	0xB0000218
 
 /*
  * Initialise the serial port with the given baudrate. The settings are always 8n1.
@@ -75,12 +77,14 @@ u32 ext_clk  = EXT_CLK;
 
 int nuc970_serial_init (void)
 {
+	__raw_writel(__raw_readl(REG_PCLKEN0) | 0x10008, REG_PCLKEN0); 		// Enable UART and GPIO clock
+	__raw_writel(__raw_readl(REG_GPIOE_PUEN) | 0x2, REG_GPIOE_PUEN);	// GPE1 (UART0 Rx) pull up
 	__raw_writel((__raw_readl(REG_MFP_GPE_L) & 0xffffff00) | 0x99, REG_MFP_GPE_L); // UART0 multi-function
 
 	/* UART0 line configuration for (115200,n,8,1) */
-	UART0->LCR |=0x07;	
-	UART0->BAUD = 0x30000066; /* 12MHz reference clock input, 115200 */
-	
+	UART0->LCR |=0x07;
+	UART0->BAUD = 0x30000066;	/* 12MHz reference clock input, 115200 */
+	UART0->FCR |=0x02;		// Reset UART0 Rx FIFO
 	return 0;
 }
 
