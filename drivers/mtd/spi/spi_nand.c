@@ -1138,7 +1138,7 @@ int spi_nand_init(void)
 	}
 	memset(info, '0', sizeof(struct ipq40xx_spinand_info));
 
-	flash = spi_flash_probe(0, 0, 1000000, 3);
+	flash = spi_flash_probe(0, 0, 30000000, 3);
 
 	if (!flash) {
 		free(info);
