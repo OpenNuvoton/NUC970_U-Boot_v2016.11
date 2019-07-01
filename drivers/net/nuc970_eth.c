@@ -154,7 +154,7 @@ void init_rx_desc(void)
                 rx_desc[i].status1 = RXfOwnership_DMA;
                 rx_desc[i].buf = (unsigned char *)net_rx_packets[i];
                 rx_desc[i].status2 = 0;
-                rx_desc[i].next = (struct eth_descriptor *)(&rx_desc[(i + 1) % TX_DESCRIPTOR_NUM]);                                
+                rx_desc[i].next = (struct eth_descriptor *)(&rx_desc[(i + 1) % RX_DESCRIPTOR_NUM]);                                
         }
         
         return;
