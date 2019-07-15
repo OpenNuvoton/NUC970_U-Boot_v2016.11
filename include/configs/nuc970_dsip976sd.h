@@ -58,6 +58,9 @@
 
 #define CONFIG_SYS_BOOTM_LEN		0x1000000 /* 16MB max kernel size */
 
+/*#define CONFIG_DISPLAY_CPUINFO */
+
+#define CONFIG_BOOTDELAY	0 
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
@@ -153,6 +156,10 @@
 
 /* Following block is for MMC support */
 #ifdef CONFIG_NUC970_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_FAT
+/*#define CONFIG_MMC */
+/*#define CONFIG_GENERIC_MMC */
 #define CONFIG_DOS_PARTITION
 /*#define CONFIG_MMC_TRACE */
 /*#define CONFIG_NUC970_SD_PORT0 */
