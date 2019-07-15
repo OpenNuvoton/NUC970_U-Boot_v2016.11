@@ -37,7 +37,14 @@ struct eth_descriptor volatile tx_desc[TX_DESCRIPTOR_NUM] __attribute__ ((aligne
 
 struct eth_descriptor volatile *tx_desc_ptr, *rx_desc_ptr;
 
-
+#ifdef CONFIG_NUC970_EMAC0_NO_MDC
+int nuc970_reset_phy(void)
+{
+	/* Just set EMAC to 100Mb Full-duplex */
+	writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
+	return(0);
+}
+#else /* CONFIG_NUC970_EMAC0_NO_MDC */
 int nuc970_eth_mii_write(uchar addr, uchar reg, ushort val)
 {
 
@@ -119,7 +126,7 @@ int nuc970_reset_phy(void)
 #endif
         return(0);
 }
-
+#endif /* CONFIG_NUC970_EMAC0_NO_MDC */
 
 void init_tx_desc(void)
 {
@@ -149,7 +156,7 @@ void init_rx_desc(void)
                 rx_desc[i].status1 = RXfOwnership_DMA;
                 rx_desc[i].buf = (unsigned char *)net_rx_packets[i];
                 rx_desc[i].status2 = 0;
-                rx_desc[i].next = (struct eth_descriptor *)(&rx_desc[(i + 1) % TX_DESCRIPTOR_NUM]);                                
+                rx_desc[i].next = (struct eth_descriptor *)(&rx_desc[(i + 1) % RX_DESCRIPTOR_NUM]);                                
         }
         
         return;

@@ -120,11 +120,11 @@ config NUC980_MMC
 	depends on NUC980
 
 config NUC980_SD_PORT0
-	bool "NUC980 SD port 0 support"
+	bool "NUC980 SD1 support (SD Host Port F)"
 	depends on NUC980_MMC
 
 config NUC980_EMMC
-	bool "NUC980 EMMC support"
+	bool "NUC980 SD0 support (FMI Port C)"
 	depends on NUC980_MMC
 
 endmenu

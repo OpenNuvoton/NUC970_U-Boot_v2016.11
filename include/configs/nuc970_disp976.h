@@ -48,7 +48,7 @@
 /*#define CONFIG_NUC970_HW_CHECKSUM */
 
 #define CONFIG_SYS_USE_SPIFLASH		1
-#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
+//#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
 #define CONFIG_ENV_IS_IN_SPI_FLASH	1
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -58,9 +58,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN		0x1000000 /* 16MB max kernel size */
 
-/*#define CONFIG_DISPLAY_CPUINFO */
-
-#define CONFIG_BOOTDELAY	0 
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
@@ -124,9 +121,9 @@
 #ifdef CONFIG_SYS_USE_SPIFLASH
 #define CONFIG_SPI              1
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_OFFSET       0x7F000
-#define CONFIG_ENV_SIZE         0x1000
-#define CONFIG_ENV_SECT_SIZE    0x1000
+#define CONFIG_ENV_OFFSET       0x70000
+#define CONFIG_ENV_SIZE         0x10000
+#define CONFIG_ENV_SECT_SIZE    0x10000
 #define CONFIG_ENV_OVERWRITE
 #endif 
 #endif
@@ -156,10 +153,6 @@
 
 /* Following block is for MMC support */
 #ifdef CONFIG_NUC970_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_FAT
-/*#define CONFIG_MMC */
-/*#define CONFIG_GENERIC_MMC */
 #define CONFIG_DOS_PARTITION
 /*#define CONFIG_MMC_TRACE */
 /*#define CONFIG_NUC970_SD_PORT0 */

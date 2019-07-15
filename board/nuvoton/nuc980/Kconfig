@@ -1,4 +1,4 @@
-if (TARGET_NUC980 || TARGET_NUC980_TOMATO || TARGET_NUC980_ETH2UART)
+if (TARGET_NUC980 || TARGET_NUC980_TOMATO || TARGET_NUC980_ETH2UART || TARGET_NUC980_IOT)
 
 config SYS_BOARD
 	default "nuc980"
@@ -13,6 +13,7 @@ config SYS_CONFIG_NAME
 	default "nuc980_evb" if TARGET_NUC980
 	default "nuc980_tomato" if TARGET_NUC980_TOMATO
 	default "nuc980_eth2uart" if TARGET_NUC980_ETH2UART
+	default "nuc980_iot" if TARGET_NUC980_IOT
 
 config NUC980
 	bool

@@ -111,7 +111,7 @@ int nuc980_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 
 		if (block_length <= 0x200) {
 			if (blocks < 256)
-				sdcsr |= (blocks << 16);
+				sdcsr = (sdcsr & ~0xFF0000) | (blocks << 16);
 			else
 				printf("NUC980 SD Max block transfer is 255!!\n");
 		}
