@@ -137,6 +137,14 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"W25Q64DW",	   0xef6017, 0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q128FW",	   0xef6018, 0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K},
 #endif
+#ifdef CONFIG_SPI_FLASH_XTX		/* XTX */
+	{"XT25F08BSSIGU",  0x0b4013, 	0x0,	64 * 1024,   16, RD_FULL | WR_QPP | SECT_4K},
+	{"XT25F16BSSIGU",  0x0b4014, 	0x0,	64 * 1024,   32, RD_FULL | WR_QPP | SECT_4K},
+	{"XT25F32BSSIGU",  0x0b4015, 	0x0,	64 * 1024,   64, RD_FULL | WR_QPP | SECT_4K},
+	{"XT25F64BSSIGU",  0x0b4016, 	0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K},
+	{"XT25F128BSSIGU",  0x0b4017, 	0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K},
+	{"XT25F256BSSIGU",  0x0b4018, 	0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K},
+#endif
 #ifdef CONFIG_SPI_NAND_WINBOND		/* WINBOND SPI NAND */
 	{"W25N01GV",	   0xefaa21, 0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 #endif
@@ -147,6 +155,8 @@ const struct spi_flash_params spi_flash_params_table[] = {
 #ifdef CONFIG_SPI_NAND_XTX		/* XTX SPI NAND */
 	{"XT26G01A",	   0x0be1,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"XT26G02A",	   0x0be2,   0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
+	{"XT26G01BWSEGA",  0x0bf1,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+	{"XT26G02BWSIGA",  0x0bf2,   0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 #endif
 #ifdef CONFIG_SPI_NAND_MK		/* MK SPI NAND */
 	{"MKSV1GCL-DE",	   0xd51c,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},

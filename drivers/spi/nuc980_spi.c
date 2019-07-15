@@ -265,6 +265,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 					}
 				}
 			}
+			writel(readl(SPI_CTL) & ~(0x80000), SPI_CTL); //Disable Byte reorder
+			writel((readl(SPI_CTL) & ~0x1F00)| (0x800), SPI_CTL); //Data length 8 bit
 			writel(0, SPI_PDMACTL);     // disable RX
 			writel((readl(REG_HCLKEN) & ~0x1000), REG_HCLKEN); /* disable PDMA0 clock */
 		}
@@ -300,6 +302,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 				break;
 			}
 		}
+		writel(readl(SPI_CTL) & ~(0x80000), SPI_CTL); //Disable Byte reorder
+		writel((readl(SPI_CTL) & ~0x1F00)| (0x800), SPI_CTL); //Data length 8 bit
 		writel(0, SPI_PDMACTL);     // disable RX
 		writel((readl(REG_HCLKEN) & ~0x1000), REG_HCLKEN); /* disable PDMA0 clock */
 	} else {
@@ -333,8 +337,6 @@ out:
 
 	if (flags & SPI_6WIRE) {
 		writel(readl(SPI_CTL) & ~SPI_QUAD_EN, SPI_CTL); //Disable Quad mode
-		writel(readl(SPI_CTL) & ~(0x80000), SPI_CTL); //Disable Byte reorder
-		writel(readl(SPI_CTL) | (0x800), SPI_CTL); //Data length 8 bit
 		writel(readl(REG_MFP_GPD_L) & ~(0x11000000), REG_MFP_GPD_L);
 	}
 
