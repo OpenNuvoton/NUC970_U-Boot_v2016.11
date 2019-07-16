@@ -25,6 +25,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"AT25DF321A",     0x1f4701, 0x0,	64 * 1024,    64, SECT_4K},
 	{"AT25DF321",      0x1f4700, 0x0,	64 * 1024,    64, SECT_4K},
 	{"AT26DF081A",     0x1f4501, 0x0,	64 * 1024,    16, SECT_4K},
+	{"AT25SF161",	   0x1f8601, 0x0,	64 * 1024,    32, SECT_4K},
 #endif
 #ifdef CONFIG_SPI_FLASH_EON		/* EON */
 	{"EN25Q32B",	   0x1c3016, 0x0,	64 * 1024,    64, 0},
