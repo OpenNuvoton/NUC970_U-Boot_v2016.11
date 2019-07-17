@@ -70,8 +70,49 @@ int nuc970_eth_mii_read(uchar addr, uchar reg, ushort *val)
 int nuc970_reset_phy(void)
 {
 #ifdef CONFIG_NUC970_EMAC0_NO_MDC
-        // set to 100Mb FULL 
+        /* set to 100Mb FULL */
         writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
+#elif CONFIG_NUC970_PHY_KSZ8895_MDC
+#define WR_SWITCH_REG(reg, val) nuc970_eth_mii_write(0x06 | (((reg)&0xC0)>>3) | \
+						    (((reg)&0x20)>>5), \
+						    (reg)&0x1f, \
+						    (ushort)((val)&0xff))
+#define RD_SWITCH_REG(reg, val) nuc970_eth_mii_read(0x06 | (((reg)&0xC0)>>3) | \
+						    (((reg)&0x20)>>5), \
+						    (reg)&0x1f, \
+						    (ushort*)&(val))
+	struct ksz8895_reg 
+	{
+		uchar  reg;
+		uchar  val;
+	};
+	/* switch regs, need to set for proper operation */
+	static const struct ksz8895_reg init_regs[] = {
+		/* stop switch operation */
+		{0x01, 0x00},
+		/* fix for rev. A2 silicon errata */
+		{0xac, 0x05}, {0xad, 0x01},
+		/* fix for rev. A3 silicon errata */
+		{0x47, 0x01}, {0x27, 0x00}, {0x37, 0x00}, {0x47, 0x01},
+		{0x27, 0x00}, {0x37, 0x01}, {0x79, 0x00}, 
+		/* reset ports */
+		{0x1d, 0x08}, {0x2d, 0x08}, {0x3d, 0x08}, {0x4d, 0x08},
+		/* start ports */
+		{0x1d, 0x20}, {0x2d, 0x20}, {0x3d, 0x20}, {0x4d, 0x20},
+		/* start switch operations */
+		{0x01, 0x01},
+		/* mark the end of array */
+		{0xff, 0xff}
+	};
+	int i = 0;
+	while (0xff != init_regs[i].reg) {
+	    WR_SWITCH_REG(init_regs[i].reg, init_regs[i].val);
+	    i++;
+	}
+	/* set EMAC to 100Mb FULL */
+	writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
+#undef RD_SWITCH_REG
+#undef WR_SWITCH_REG
 #else
         unsigned short reg;
         int delay;
@@ -84,7 +125,7 @@ int nuc970_reset_phy(void)
                 if((reg & BMCR_RESET) == 0)
                         break;
                 
-        }        
+        }       
         
         if(delay == 0) {
                 printf("Reset phy failed\n");
