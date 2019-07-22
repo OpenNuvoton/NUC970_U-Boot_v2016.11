@@ -23,6 +23,8 @@
 #define    REG_PCLKEN1		(CLK_BA+0x01C)  /*  APB IP Clock Enable Control Register 1 */
 
 #define    REG_MFP_GPG_L	(GCR_BA+0x0A0)  /* GPIOG Low Byte Multiple Function Control Register */
+#define    REG_MFP_GPH_L	(GCR_BA+0x0A8)  /* GPIOH Low Byte Multiple Function Control Register */
+#define    REG_MFP_GPI_L	(GCR_BA+0x0B0)  /* GPIOI Low Byte Multiple Function Control Register */
 
 #define    I2C0_BA   0xB8006000 /* I2C 0 Control */
 #define    I2C1_BA   0xB8006100 /* I2C 1 Control */
@@ -718,6 +720,15 @@ static void nuc970_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 
 		#if defined (CONFIG_ENABLE_NUC970_I2C1)
 		NUC970_I2C_SPEED = CONFIG_NUC970_I2C1_SPEED;
+		#endif
+
+		/* Configure multi function pins to I2C1 */
+		#if defined (CONFIG_NUC970_I2C1_PG)
+		__raw_writel((__raw_readl(REG_MFP_GPG_L) & ~0xff00) | 0x8800, REG_MFP_GPG_L);
+		#elif defined(CONFIG_NUC970_I2C1_PH)
+		__raw_writel((__raw_readl(REG_MFP_GPH_L) & ~0xff00) | 0x8800, REG_MFP_GPH_L);
+		#elif defined(CONFIG_NUC970_I2C1_PI)
+		__raw_writel((__raw_readl(REG_MFP_GPI_L) & ~0xff000) | 0x88000, REG_MFP_GPI_L);
 		#endif
 	}
 

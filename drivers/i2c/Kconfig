@@ -194,7 +194,7 @@ config SYS_I2C
 config SYS_I2C_SPEED
         int
         depends on (NUC970_I2C)
-        default "100"
+        default "100000"
 
 config ENABLE_NUC970_I2C0
 	bool "NUC970/N9H30 I2C0 Enable"
@@ -206,25 +206,41 @@ config NUC970_I2C0_PG
         default y
 
 config NUC970_I2C0_SPEED
-        int "I2C0_SPEED(Kbps)"
+        int "I2C0_SPEED(bps)"
         depends on ENABLE_NUC970_I2C0
-        default "100"
+        default "100000"
 
 
 config ENABLE_NUC970_I2C1
 	bool "NUC970/N9H30 I2C1 Enable"
 	depends on NUC970_I2C
 
-config NUC970_I2C1_PIN_XXX
-        bool "I2C1 PIN: user need define"
-        depends on ENABLE_NUC970_I2C1
-        default y
+if ENABLE_NUC970_I2C1
 
+choice
+	prompt "Select used PIN"
+
+config NUC970_I2C1_PI
+        bool "I2C1 PIN: SCL-->PI3, SDA-->PI4"
+        depends on ENABLE_NUC970_I2C1
+
+config NUC970_I2C1_PG
+        bool "I2C1 PIN: SCL-->PG2, SDA-->PG3"
+        depends on ENABLE_NUC970_I2C1
+
+config NUC970_I2C1_PH
+        bool "I2C1 PIN: SCL-->PH2, SDA-->PH3"
+        depends on ENABLE_NUC970_I2C1
+
+endchoice
 
 config NUC970_I2C1_SPEED
-        int "I2C1_SPEED(Kbps)"
+        int "I2C1_SPEED(bps)"
         depends on ENABLE_NUC970_I2C1
-        default "100"
+        default "100000"
+
+endif # ENABLE_NUC970_I2C1
+
 
 config NUC980_I2C
        bool "NUC980 I2C support"
@@ -295,11 +311,12 @@ config SYS_I2C
 config SYS_I2C_SPEED
         int
         depends on N32926_I2C
-        default "50"
+        default "50000"
 
-config ENABLE_N32926_I2C
-	bool "N32926 I2C Enable"
-	depends on N32926_I2C
+if N32926_I2C
+
+choice
+	prompt "Select used PIN"
 
 config N32926_I2C_PA
         bool "I2C PIN: SCL-->PA10, SDA-->PA11"
@@ -308,16 +325,20 @@ config N32926_I2C_PA
 config N32926_I2C_PB
         bool "I2C PIN: SCL-->PB13, SDA-->PB14"
         depends on N32926_I2C
-        default y
 
 config N32926_I2C_PG
         bool "I2C PIN: SCL-->PG2, SDA-->PG5"
         depends on N32926_I2C
 
+endchoice
+
 config N32926_I2C_SPEED
-        int "I2C_SPEED(Kbps)"
+        int "I2C_SPEED(bps)"
         depends on N32926_I2C
-        default "50"
+        default "50000"
+
+endif # N32926_I2C
+
 
 
 

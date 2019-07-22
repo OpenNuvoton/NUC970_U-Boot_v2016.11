@@ -104,9 +104,9 @@ int nuc970_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 		writel(0xFFFF, REG_SDTMOUT);
 	}
 
-	if (mmc->priv == 0) // SD port 0
+	if (mmc->priv == (void*)0) // SD port 0
 		sdcsr &= ~0x60000000;                    // Select port 0
-	else if (mmc->priv == 1) // SD port 1
+	else if (mmc->priv == (void*)1) // SD port 1
 		sdcsr = (sdcsr & ~0x60000000) | 0x20000000;                    // Select port 1
 
 	sdcsr |= 0x09010000;                    // Set SDNWR and BLK_CNT to 1, update later
@@ -495,10 +495,10 @@ static int _nuc970_sd_init(struct mmc *mmc)
 
 	writel(readl(REG_ECTL) & ~3, REG_ECTL); // SD port 0,1 power enable
 
-	if (mmc->priv == 0) { // SD port 0
+	if (mmc->priv == (void*)0) { // SD port 0
 		writel(readl(REG_SDCSR) & ~0x60000000, REG_SDCSR); // SD port selection : Select SD0
 		writel(readl(REG_SDIER) | 0x40000000, REG_SDIER); // SD port 0 card detect source set to SD0_nCD
-	} else if (mmc->priv == 1) { // SD port 1
+	} else if (mmc->priv == (void*)1) { // SD port 1
 		writel((readl(REG_SDCSR) & ~0x60000000) | 0x20000000, REG_SDCSR); // SD port selection : Select SD1
 		writel(readl(REG_SDIER) | 0x80000000, REG_SDIER); // SD port 0 card detect source set to SD1_nCD
 	}
@@ -538,24 +538,24 @@ static int _nuc970_emmc_init(struct mmc *mmc)
 //int board_mmc_getcd(u8 *cd, struct mmc *mmc)
 int board_mmc_getcd(struct mmc *mmc)
 {
-	u8 cd;
+	u8 cd = 0;
 
-	if ((mmc->priv == 0) || (mmc->priv == 1)) { // SD port 0,1
+	if ((mmc->priv == (void*)0) || (mmc->priv == (void*)1)) { // SD port 0,1
 		//printf("[%s] REG_SDISR = 0x%x\n",__FUNCTION__,readl(REG_SDISR));
 		//printf("[%s] REG_SDIER = 0x%x\n",__FUNCTION__,readl(REG_SDIER));
 
-		if (mmc->priv == 0) { // SD port 0
+		if (mmc->priv == (void*)0) { // SD port 0
 			if (((readl(REG_SDIER) & 0x40000000) >> 30) == 0)  // for DAT3 mode
 				cd = ((readl(REG_SDISR) & (1 << 16)) == (1 << 16)) ? 1 : 0;
 			else
 				cd = ((readl(REG_SDISR) & (1 << 16)) == (1 << 16)) ? 0 : 1;
-		} else if (mmc->priv == 1) { // SD port 1
+		} else if (mmc->priv == (void*)1) { // SD port 1
 			if (((readl(REG_SDIER) & 0x80000000) >> 31) == 0)  // for DAT3 mode
 				cd = ((readl(REG_SDISR) & (1 << 17)) == (1 << 17)) ? 1 : 0;
 			else
 				cd = ((readl(REG_SDISR) & (1 << 17)) == (1 << 17)) ? 0 : 1;
 		}
-	} else if (mmc->priv == 2) { // eMMC
+	} else if (mmc->priv == (void*)2) { // eMMC
 		cd = 1; //CWWeng test
 	}
 
@@ -604,18 +604,18 @@ int nuc970_mmc_init(int priv)
 		nuc970_sd_cfg.ops = &nuc970_sd_ops;
 		nuc970_sd_cfg.f_min = 400000;
 		nuc970_sd_cfg.f_max = 50000000;
-		mmc = mmc_create(&nuc970_sd_cfg, priv);
+		mmc = mmc_create(&nuc970_sd_cfg, (void*)priv);
 		if (mmc == NULL)
 			return -1;
-		mmc->priv = priv;
+		mmc->priv = (void*)priv;
 	} else if (priv == 2) { //eMMC
 		nuc970_emmc_cfg.ops = &nuc970_emmc_ops;
 		nuc970_emmc_cfg.f_min = 300000;
 		nuc970_emmc_cfg.f_max = 20000000;
-		mmc = mmc_create(&nuc970_emmc_cfg, priv);
+		mmc = mmc_create(&nuc970_emmc_cfg, (void*)priv);
 		if (mmc == NULL)
 			return -1;
-		mmc->priv = priv;
+		mmc->priv = (void*)priv;
 	}
 
 	return 0;
