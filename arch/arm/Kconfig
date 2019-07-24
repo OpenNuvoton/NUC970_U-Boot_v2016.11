@@ -212,6 +212,10 @@ config TARGET_NUC970_ETH2UART
 	bool "Support nuc970 Eth2UART"
 	select CPU_ARM926EJS
 
+config TARGET_NUC970_MIN
+	bool "Support nuc970 minimal configuration"
+	select CPU_ARM926EJS
+
 config TARGET_NUC980
 	bool "Support NUC980"
 	select CPU_ARM926EJS

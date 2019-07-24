@@ -119,12 +119,12 @@
 
 
 /*#define CONFIG_SYS_PROMPT		"U-Boot> "*/
-#define CONFIG_SYS_CBSIZE		256
+#define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING		1
-#define CONFIG_AUTO_COMPLETE
+#define CONFIG_AUTO_COMPLETE		1
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 
@@ -171,7 +171,7 @@
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-        "uimage=disp977.ub\0" \
-        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0; sf probe 0 18000000; sf read 0x7fc0 0x200000 0x380000; bootm 0x7fc0\0" \
+        "uimage=lan977.ub\0" \
+        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0\0" 
 
 #endif

@@ -45,12 +45,10 @@
 
 #define CONFIG_CMD_TIMER
 
-/*#define CONFIG_NUC970_HW_CHECKSUM */
 
 #define CONFIG_SYS_USE_SPIFLASH 
 #define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
 #define CONFIG_ENV_IS_IN_SPI_FLASH
-#undef  CONFIG_CMD_IMLS
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
@@ -61,7 +59,7 @@
 
 /*#define CONFIG_DISPLAY_CPUINFO */
 
-#define CONFIG_BOOTDELAY	1 
+#define CONFIG_BOOTDELAY	0 
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
@@ -70,7 +68,6 @@
 #define CONFIG_BAUDRATE         115200
 #define CONFIG_SYS_BAUDRATE_TABLE       {115200, 57600, 38400}
 
-/*#define CONFIG_NUC970_EMAC1*/
 /*#define CONFIG_CMD_NET */
 #define CONFIG_ETHADDR                  00:00:00:11:66:88
 #define CONFIG_SYS_RX_ETH_BUFFER        16 // default is 4, set to 16 here.
@@ -107,6 +104,12 @@
 #define CONFIG_CMD_DHCP		1
 
 
+#ifdef CONFIG_SYS_USE_SPIFLASH
+#undef CONFIG_CMD_IMLS  /*====================> SPI only */
+#undef CONFIG_CMD_JFFS2
+#endif
+
+
 /* SPI flash */
 #ifdef CONFIG_SYS_USE_SPIFLASH
 #define CONFIG_SPI              1
@@ -119,24 +122,20 @@
 #endif
 
 
-/*#define CONFIG_SYS_PROMPT		"U-Boot> "*/
-#define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_MAXARGS		32
+/*#define CONFIG_SYS_PROMPT		"U-Boot> "  */
+#define CONFIG_SYS_CBSIZE		256
+#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
+#define CONFIG_SYS_LONGHELP		1
+#define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 
 /* Following block is for MMC support */
 #ifdef CONFIG_NUC970_MMC
-#ifndef CONFIG_CMD_MMC
 #define CONFIG_CMD_MMC
-#endif
-#ifndef CONFIG_CMD_FAT
 #define CONFIG_CMD_FAT
-#endif
 /*#define CONFIG_MMC */
 /*#define CONFIG_GENERIC_MMC */
 #define CONFIG_DOS_PARTITION
@@ -153,38 +152,18 @@
 #endif
 #endif
 
-/* Following block is for EHCI support*/
-#if 0
-#define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
-#define CONFIG_USB_STORAGE
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_NUC970
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_DOS_PARTITION
-#endif
-
-
 /*#define CONFIG_OF_LIBFDT */
 /*#define CONFIG_FIT */
 
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN	(2*1024*1024) /*ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)  */
+#define CONFIG_SYS_MALLOC_LEN	(1024*1024) /*ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)  */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-        "uimage=disp977.ub\0" \
-	"getmac=i2c read 50 fa 6 7fc0;" \
-	    "setexpr.b mac0 *7fc0;" \
-	    "setexpr.b mac1 *7fc1;" \
-	    "setexpr.b mac2 *7fc2;" \
-	    "setexpr.b mac3 *7fc3;" \
-	    "setexpr.b mac4 *7fc4;" \
-	    "setexpr.b mac5 *7fc5;" \
-	    "setenv ethaddr ${mac0}:${mac1}:${mac2}:${mac3}:${mac4}:${mac5}\0" \
-        "bootcmd=setenv bootargs ${bootargs} ethaddr0=${ethaddr};fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0\0" \
+        "uimage=min977.ub\0" \
+        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0; sf probe 0 18000000; sf read 0x7fc0 0x200000 0x780000; bootm 0x7fc0\0" \
 
 #endif
