@@ -48,7 +48,7 @@
 /*#define CONFIG_NUC970_HW_CHECKSUM */
 
 #define CONFIG_SYS_USE_SPIFLASH		1
-//#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
+#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
 #define CONFIG_ENV_IS_IN_SPI_FLASH	1
 
 #define CONFIG_BOARD_EARLY_INIT_F
