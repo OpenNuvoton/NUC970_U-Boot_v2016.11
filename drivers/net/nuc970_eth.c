@@ -67,12 +67,9 @@ int nuc970_eth_mii_read(uchar addr, uchar reg, ushort *val)
         return(0);
 }
 
-int nuc970_reset_phy(void)
+#ifdef  CONFIG_NUC970_PHY_KSZ8895_MDC
+void nuc970_ksz8895_init(void)
 {
-#ifdef CONFIG_NUC970_EMAC0_NO_MDC
-        /* set to 100Mb FULL */
-        writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
-#elif CONFIG_NUC970_PHY_KSZ8895_MDC
 #define WR_SWITCH_REG(reg, val) nuc970_eth_mii_write(0x06 | (((reg)&0xC0)>>3) | \
 						    (((reg)&0x20)>>5), \
 						    (reg)&0x1f, \
@@ -81,39 +78,67 @@ int nuc970_reset_phy(void)
 						    (((reg)&0x20)>>5), \
 						    (reg)&0x1f, \
 						    (ushort*)&(val))
-	struct ksz8895_reg 
-	{
-		uchar  reg;
-		uchar  val;
-	};
-	/* switch regs, need to set for proper operation */
-	static const struct ksz8895_reg init_regs[] = {
-		/* stop switch operation */
-		{0x01, 0x00},
-		/* fix for rev. A2 silicon errata */
-		{0xac, 0x05}, {0xad, 0x01},
-		/* fix for rev. A3 silicon errata */
-		{0x47, 0x01}, {0x27, 0x00}, {0x37, 0x00}, {0x47, 0x01},
-		{0x27, 0x00}, {0x37, 0x01}, {0x79, 0x00}, 
-		/* reset ports */
-		{0x1d, 0x08}, {0x2d, 0x08}, {0x3d, 0x08}, {0x4d, 0x08},
-		/* start ports */
-		{0x1d, 0x20}, {0x2d, 0x20}, {0x3d, 0x20}, {0x4d, 0x20},
+
+	static int init_once = 0;
+	ushort val;
+
+	/* do not disturb connected devices, touch switch only once */
+	if (0 == init_once) {
+		/* stop switch operations */
+		WR_SWITCH_REG(0x01, 0x00);
+		/* read chip revision */
+		RD_SWITCH_REG(0x89, val);
+		switch (val >> 4) {
+		case 4:
+			/* Rev. A2 errata fix */
+			WR_SWITCH_REG(0xAC, 0x05);
+			WR_SWITCH_REG(0xAD, 0x01);
+			/* fall-through */
+		case 5:
+			/* Rev. A2/A3 errata fix */
+			WR_SWITCH_REG(0x47, 0x01);
+			WR_SWITCH_REG(0x27, 0x00);
+			WR_SWITCH_REG(0x37, 0x00);
+			WR_SWITCH_REG(0x47, 0x01);
+			WR_SWITCH_REG(0x27, 0x00);
+			WR_SWITCH_REG(0x37, 0x01);
+			WR_SWITCH_REG(0x79, 0x00);
+			/* power-down ports 1-4 */
+			WR_SWITCH_REG(0x1D, 0x08);
+			WR_SWITCH_REG(0x2D, 0x08);
+			WR_SWITCH_REG(0x3D, 0x08);
+			WR_SWITCH_REG(0x4D, 0x08);
+			/* power-up ports 1-4 and restart AN */
+			WR_SWITCH_REG(0x1D, 0x20);
+			WR_SWITCH_REG(0x2D, 0x20);
+			WR_SWITCH_REG(0x3D, 0x20);
+			WR_SWITCH_REG(0x4D, 0x20);
+			break;
+		}
+		/* clear interrupt flags */
+		WR_SWITCH_REG(0x7C, 0x1F);
+		/* disable all interrups */
+		WR_SWITCH_REG(0x7D, 0x00);
 		/* start switch operations */
-		{0x01, 0x01},
-		/* mark the end of array */
-		{0xff, 0xff}
-	};
-	int i = 0;
-	while (0xff != init_regs[i].reg) {
-	    WR_SWITCH_REG(init_regs[i].reg, init_regs[i].val);
-	    i++;
+		WR_SWITCH_REG(0x01, 0x01);
+		init_once = 1;
+		printf("KSZ8895 init done..\n");
+
 	}
-	/* set EMAC to 100Mb FULL */
-	writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
 #undef RD_SWITCH_REG
 #undef WR_SWITCH_REG
+}
+#endif  /* CONFIG_NUC970_PHY_KSZ8895_MDC */
+
+int nuc970_reset_phy(void)
+{
+
+#ifdef  CONFIG_NUC970_PHY_KSZ8895_MDC
+	nuc970_ksz8895_init();
+        /* Just set EMAC to 100Mb FDX and nothing more */
+	writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
 #else
+
         unsigned short reg;
         int delay;
 
@@ -164,7 +189,7 @@ int nuc970_reset_phy(void)
                 else
                         writel(readl(MCMDR) & ~(MCMDR_OPMOD | MCMDR_FDUP), MCMDR);
         }
-#endif
+#endif /* CONFIG_NUC970_PHY_KSZ8895_MDC */
         return(0);
 }
 #endif /* CONFIG_NUC970_EMAC0_NO_MDC */
@@ -180,45 +205,45 @@ void init_tx_desc(void)
                 tx_desc[i].status1 = PaddingMode | CRCMode/* | MACTxIntEn*/;
                 tx_desc[i].buf = NULL;
                 tx_desc[i].status2 = 0;
-                tx_desc[i].next = (struct eth_descriptor *)(&tx_desc[(i + 1) % TX_DESCRIPTOR_NUM]);                                
+                tx_desc[i].next = (struct eth_descriptor *)(&tx_desc[(i + 1) % TX_DESCRIPTOR_NUM]);
         }
-        
+
         return;
 }
 
 void init_rx_desc(void)
 {
         int i;
-        
+
         writel((unsigned int)&rx_desc[0], RXDLSA);
         rx_desc_ptr = &rx_desc[0];
-        
+
         for(i = 0; i < RX_DESCRIPTOR_NUM; i++) {
                 rx_desc[i].status1 = RXfOwnership_DMA;
                 rx_desc[i].buf = (unsigned char *)net_rx_packets[i];
                 rx_desc[i].status2 = 0;
-                rx_desc[i].next = (struct eth_descriptor *)(&rx_desc[(i + 1) % RX_DESCRIPTOR_NUM]);                                
+                rx_desc[i].next = (struct eth_descriptor *)(&rx_desc[(i + 1) % RX_DESCRIPTOR_NUM]);
         }
-        
+
         return;
 }
 
 int nuc970_eth_write_hwaddr(struct eth_device *dev)
-{       
-        
+{
+
         writel((dev->enetaddr[0] << 24) |
                (dev->enetaddr[1] << 16) |
                (dev->enetaddr[2] << 8) | 
-               dev->enetaddr[3] , CAM0M);     
-        
-        writel((dev->enetaddr[4] << 24) | 
-               (dev->enetaddr[5] << 16) , CAM0L);           
-        
+               dev->enetaddr[3] , CAM0M);
+
+        writel((dev->enetaddr[4] << 24) |
+               (dev->enetaddr[5] << 16) , CAM0L);
+
         //writel(CAM_ECMP | CAM_AUP, CAMCMR);
 	writel(CAM_ECMP | CAM_AUP | CAM_ABP, CAMCMR); 
         writel(1, CAMEN);
         return(0);
-}    
+}
 
 
 int nuc970_eth_init(struct eth_device *dev, bd_t *bis)
@@ -229,8 +254,8 @@ int nuc970_eth_init(struct eth_device *dev, bd_t *bis)
         init_tx_desc();
         init_rx_desc();
 
-        nuc970_eth_write_hwaddr(dev);  // need to reconfigure hardware address 'cos we just RESET emc...
-        
+        nuc970_eth_write_hwaddr(dev);  // need to reconfigure hardware address 'cos we just RESET emc
+
         writel(MCMDR_SPCRC | MCMDR_RXON | MCMDR_EnMDC | MCMDR_TXON, MCMDR);
         writel(0, RSDR);
         
@@ -251,12 +276,12 @@ int nuc970_eth_recv (struct eth_device *dev)
         while(1) {
                 if(rx_desc_ptr->status1 & RXfOwnership_DMA)
                         break;
-                
+
                 if(rx_desc_ptr->status1 & RXFD_RXGD) {
                         net_process_received_packet(rx_desc_ptr->buf, rx_desc_ptr->status1 & 0xFFFF);
                 }
-                
-                
+
+
                 rx_desc_ptr->status1 = RXfOwnership_DMA;
                 rx_desc_ptr = rx_desc_ptr->next;
         }
@@ -275,36 +300,36 @@ int nuc970_eth_send(struct eth_device *dev, void *packet, int length)
         tx_desc_ptr->status1 |= TXfOwnership_DMA;
 
         writel(0, TSDR);
-        
+
         // wait 'til transfer complete. (e.g. ownership again set to CPU)
-        while(tx_desc_ptr->status1 & TXfOwnership_DMA);  
+        while(tx_desc_ptr->status1 & TXfOwnership_DMA);
 
         tx_desc_ptr = tx_desc_ptr->next;
 
  	return 0 ;
 }
 
-    
+
 
 
 int nuc970_eth_register(void)
 {
         struct eth_device *dev;
-        
+
         dev = malloc(sizeof(*dev));
         if (dev == NULL)
                 return(-1);
-        
+
         memset(dev, 0, sizeof(*dev));
-        sprintf(dev->name, "emac");        
-        
+        sprintf(dev->name, "emac");
+
         dev->init = nuc970_eth_init;
         dev->halt = nuc970_eth_halt;
         dev->send = nuc970_eth_send;
         dev->recv = nuc970_eth_recv;
-        dev->write_hwaddr = nuc970_eth_write_hwaddr;        
-        
+        dev->write_hwaddr = nuc970_eth_write_hwaddr;
+
         eth_register(dev);
 
         return(0);
-}        
+}

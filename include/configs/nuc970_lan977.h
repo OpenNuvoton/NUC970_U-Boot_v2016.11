@@ -60,7 +60,6 @@
 
 /*#define CONFIG_DISPLAY_CPUINFO */
 
-#define CONFIG_BOOTDELAY	0 
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
@@ -130,9 +129,12 @@
 
 /* Following block is for MMC support */
 #ifdef CONFIG_NUC970_MMC
+#ifndef CONFIG_CMD_MMC
 #define CONFIG_CMD_MMC
+#endif
+#ifndef CONFIG_CMD_FAT
 #define CONFIG_CMD_FAT
-/*#define CONFIG_MMC */
+#endif
 /*#define CONFIG_GENERIC_MMC */
 #define CONFIG_DOS_PARTITION
 /*#define CONFIG_MMC_TRACE */
