@@ -309,7 +309,6 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 				case 'A':	/* up arrow */
 					ichar = CTL_CH('p');
 					act = ESC_CONVERTED;
-					printf("up");
 					break;	/* pass off to ^P handler */
 				case 'B':	/* down arrow */
 					ichar = CTL_CH('n');

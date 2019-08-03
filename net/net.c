@@ -233,6 +233,7 @@ static int on_ipaddr(const char *name, const char *value, enum env_op op,
 		return 0;
 
 	net_ip = string_to_ip(value);
+
 	return 0;
 }
 U_BOOT_ENV_CALLBACK(ipaddr, on_ipaddr);
