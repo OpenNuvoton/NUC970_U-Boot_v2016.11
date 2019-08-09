@@ -107,6 +107,14 @@ config NUC970_SD_PORT0
 	bool "NUC970/N9H30 SD port 0 support"
 	depends on NUC970_MMC
 
+config NUC970_SD_PORT0_CD_DAT3
+	bool "NUC970/N9H30 SD port 0 card detect via DAT3 line"
+	depends on NUC970_SD_PORT0
+	default n
+	help
+	  This selects card presense detect method. If selected - DATA3 line used.
+	  If not selected - separate line nCD used
+
 config NUC970_SD_PORT1
 	bool "NUC970/N9H30 SD port 1 support"
 	depends on NUC970_MMC

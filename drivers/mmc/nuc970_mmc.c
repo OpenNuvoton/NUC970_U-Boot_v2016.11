@@ -33,8 +33,11 @@
 int nuc970_sd_check_ready_busy(void)
 {
 	int cnt = 10;
+	int volatile i;
+
 	while(cnt-- > 0) {
 		writel(readl(REG_SDCSR) | CLK8_OE, REG_SDCSR);
+		for(i = 0; i < 10; i++);
 		while(readl(REG_SDCSR) & CLK8_OE);
 		if(readl(REG_SDISR) & SDDAT0)
 			break;
@@ -101,7 +104,7 @@ int nuc970_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 		}
 
 		writel(RITO_IF, REG_SDISR);
-		writel(0xFFFF, REG_SDTMOUT);
+		writel(0x0FFF, REG_SDTMOUT);
 	}
 
 	if (mmc->priv == (void*)0) // SD port 0
@@ -494,10 +497,14 @@ static int _nuc970_sd_init(struct mmc *mmc)
 	writel(DMACEN, REG_DMACCSR);
 
 	writel(readl(REG_ECTL) & ~3, REG_ECTL); // SD port 0,1 power enable
-
+	for(i = 0; i < 50; i++); // Short delay for power-on
 	if (mmc->priv == (void*)0) { // SD port 0
 		writel(readl(REG_SDCSR) & ~0x60000000, REG_SDCSR); // SD port selection : Select SD0
+#ifdef CONFIG_NUC970_SD_PORT0_CD_DAT3
+		writel(readl(REG_SDIER) & ~0x40000000, REG_SDIER); // SD port 0 card detect source set to SD0_DAT3
+#else
 		writel(readl(REG_SDIER) | 0x40000000, REG_SDIER); // SD port 0 card detect source set to SD0_nCD
+#endif
 	} else if (mmc->priv == (void*)1) { // SD port 1
 		writel((readl(REG_SDCSR) & ~0x60000000) | 0x20000000, REG_SDCSR); // SD port selection : Select SD1
 		writel(readl(REG_SDIER) | 0x80000000, REG_SDIER); // SD port 0 card detect source set to SD1_nCD
