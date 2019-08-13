@@ -37,6 +37,7 @@ struct eth_descriptor volatile tx_desc[TX_DESCRIPTOR_NUM] __attribute__ ((aligne
 
 struct eth_descriptor volatile *tx_desc_ptr, *rx_desc_ptr;
 
+
 #ifdef CONFIG_NUC970_EMAC0_NO_MDC
 int nuc970_reset_phy(void)
 {

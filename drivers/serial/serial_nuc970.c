@@ -83,7 +83,7 @@ int nuc970_serial_init (void)
 
 	/* UART0 line configuration for (115200,n,8,1) */
 	UART0->LCR |=0x07;
-	UART0->BAUD = 0x30000066;	/* 12MHz reference clock input, 115200 */
+	UART0->BAUD = 0x30000065;	/* 12MHz reference clock input, 115200 */
 	UART0->FCR |=0x02;		// Reset UART0 Rx FIFO
 	return 0;
 }

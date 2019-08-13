@@ -121,7 +121,7 @@
 #ifdef CONFIG_SYS_USE_SPIFLASH
 #define CONFIG_SPI              1
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_OFFSET       0x80000
+#define CONFIG_ENV_OFFSET       0x1F0000
 #define CONFIG_ENV_SIZE         0x10000
 #define CONFIG_ENV_SECT_SIZE    0x10000
 #define CONFIG_ENV_OVERWRITE
@@ -175,7 +175,7 @@
 
 
 /*#define CONFIG_OF_LIBFDT */
-/*#define CONFIG_FIT */
+#define CONFIG_FIT 
 
 /*
  * Size of malloc() pool

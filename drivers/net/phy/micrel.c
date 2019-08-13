@@ -114,13 +114,11 @@ static void ksz8895_write_smireg(struct phy_device *phydev, int smireg, int val)
 						smireg_to_reg(smireg), val);
 }
 
-#if 0
 static int ksz8895_read_smireg(struct phy_device *phydev, int smireg)
 {
 	return phydev->bus->read(phydev->bus, smireg_to_phy(smireg),
 					MDIO_DEVAD_NONE, smireg_to_reg(smireg));
 }
-#endif
 
 int ksz8895_config(struct phy_device *phydev)
 {
@@ -130,6 +128,35 @@ int ksz8895_config(struct phy_device *phydev)
 	phydev->duplex = DUPLEX_FULL;
 	phydev->speed = SPEED_100;
 
+	/* Stop switch */
+	ksz8895_write_smireg(phydev, 1, 0);
+	/* Apply errata fixes */
+	switch (ksz8895_read_smireg(phydev, 0x89) & 0xF0) {
+	case 0x40:
+	    /* Rev. A2/B2 */
+	    ksz8895_write_smireg(phydev, 0xAC, 0x05);
+	    ksz8895_write_smireg(phydev, 0xAD, 0x01);
+	    /* intentional break-through */
+	case 0x50:
+	    /* Rev. A3/B3 */
+	    ksz8895_write_smireg(phydev, 0x47, 0x01);
+	    ksz8895_write_smireg(phydev, 0x27, 0x00);
+	    ksz8895_write_smireg(phydev, 0x37, 0x00);
+	    ksz8895_write_smireg(phydev, 0x47, 0x01);
+	    ksz8895_write_smireg(phydev, 0x27, 0x00);
+	    ksz8895_write_smireg(phydev, 0x37, 0x01);
+	    ksz8895_write_smireg(phydev, 0x79, 0x00);
+	    /* re-link each PHY port */
+	    ksz8895_write_smireg(phydev, 0x1D, 0x08);
+	    ksz8895_write_smireg(phydev, 0x1D, 0x00);
+	    ksz8895_write_smireg(phydev, 0x2D, 0x08);
+	    ksz8895_write_smireg(phydev, 0x2D, 0x00);
+	    ksz8895_write_smireg(phydev, 0x3D, 0x08);
+	    ksz8895_write_smireg(phydev, 0x3D, 0x00);
+	    ksz8895_write_smireg(phydev, 0x4D, 0x08);
+	    ksz8895_write_smireg(phydev, 0x4D, 0x00);
+	    break;
+	}
 	/* Force the switch to start */
 	ksz8895_write_smireg(phydev, 1, 1);
 
@@ -143,8 +170,8 @@ static int ksz8895_startup(struct phy_device *phydev)
 
 static struct phy_driver ksz8895_driver = {
 	.name = "Micrel KSZ8895/KSZ8864",
-	.uid  = 0x221450,
-	.mask = 0xffffe1,
+	.uid  = 0x00221450,
+	.mask = 0x00ffffe1,
 	.features = PHY_BASIC_FEATURES,
 	.config   = &ksz8895_config,
 	.startup  = &ksz8895_startup,

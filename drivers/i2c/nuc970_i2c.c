@@ -816,11 +816,12 @@ static int  nuc970_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 /*
  * Register soft i2c adapters
  */
+#if defined (CONFIG_ENABLE_NUC970_I2C0)
 U_BOOT_I2C_ADAP_COMPLETE(I2CNUM_0, nuc970_i2c_init, nuc970_i2c_probe,
 			 nuc970_i2c_read, nuc970_i2c_write, NULL/* _set_speed */,
 			 CONFIG_NUC970_I2C0_SPEED, CONFIG_SYS_I2C_SLAVE,
 			 0)
-
+#endif
 #if defined (CONFIG_ENABLE_NUC970_I2C1)
 U_BOOT_I2C_ADAP_COMPLETE(I2CNUM_1, nuc970_i2c_init, nuc970_i2c_probe,
 			 nuc970_i2c_read, nuc970_i2c_write, NULL,

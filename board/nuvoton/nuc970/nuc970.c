@@ -96,9 +96,7 @@ int board_early_init_f(void)
 {
 	writel(readl(REG_PCLKEN0) | 0x10000, REG_PCLKEN0);   // UART clk
 	writel(readl(REG_PCLKEN0) | 0x100, REG_PCLKEN0);   // Timer clk
-#ifdef CONFIG_NUC970_GPIO
 	writel(readl(REG_PCLKEN0) | 0x8, REG_PCLKEN0);   // GPIO clk
-#endif
 	return 0;
 }
 
@@ -162,7 +160,9 @@ int board_mmc_init(bd_t *bd)
 
 #ifdef CONFIG_NUC970_SD_PORT0
     writel(0x66666666, REG_MFP_GPD_L);   // Set GPD for SD0
-
+#ifdef CONFIG_NUC970_SD_PORT0_CD_DAT3
+    writel(readl(REG_GPIOD_PDEN) | (1<<5), REG_GPIOD_PDEN); // Set pulldown on DAT3
+#endif
     nuc970_mmc_init(0); // init for SD port 0
 #endif
 #ifdef CONFIG_NUC970_SD_PORT1
