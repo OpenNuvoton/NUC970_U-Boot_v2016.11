@@ -37,7 +37,7 @@
 #define CONFIG_SYS_MEMTEST_END           0xB00000
 
 #define CONFIG_ARCH_CPU_INIT
-#undef  CONFIG_USE_IRQ               
+#undef  CONFIG_USE_IRQ
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
@@ -45,10 +45,21 @@
 
 #define CONFIG_CMD_TIMER
 
+#ifdef  CONFIG_SYS_I2C
+#ifndef CONFIG_SYS_I2C_SPEED
+#define CONFIG_SYS_I2C_SPEED		50000
+#endif
+#endif
+
+#ifdef CONFIG_SYS_I2C_SOFT
+#define CONFIG_SOFT_I2C_GPIO_SCL	GPIO_PG0
+#define CONFIG_SOFT_I2C_GPIO_SDA	GPIO_PG1
+#endif
+
 /*#define CONFIG_NUC970_HW_CHECKSUM */
 
-#define CONFIG_SYS_USE_SPIFLASH 
-#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
+#define CONFIG_SYS_USE_SPIFLASH
+#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #undef  CONFIG_CMD_IMLS
 
@@ -61,7 +72,7 @@
 
 /*#define CONFIG_DISPLAY_CPUINFO */
 
-#define CONFIG_BOOTDELAY	1 
+#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
@@ -79,7 +90,7 @@
 
 /*#undef CONFIG_SYS_ICACHE_OFF */
 /*#undef CONFIG_SYS_DCACHE_OFF */
-/*#define CONFIG_SYS_ICACHE_OFF*/
+#define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 
 /*
@@ -111,21 +122,21 @@
 #ifdef CONFIG_SYS_USE_SPIFLASH
 #define CONFIG_SPI              1
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_OFFSET       0x80000
+#define CONFIG_ENV_OFFSET       0x1F0000
 #define CONFIG_ENV_SIZE         0x10000
 #define CONFIG_ENV_SECT_SIZE    0x10000
 #define CONFIG_ENV_OVERWRITE
-#endif 
+#endif
 #endif
 
 
 /*#define CONFIG_SYS_PROMPT		"U-Boot> "*/
-#define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_MAXARGS		32
+#define CONFIG_SYS_CBSIZE		512
+#define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
+#define CONFIG_SYS_LONGHELP		1
+#define CONFIG_CMDLINE_EDITING		1
+#define CONFIG_AUTO_COMPLETE		1
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 
@@ -137,7 +148,6 @@
 #ifndef CONFIG_CMD_FAT
 #define CONFIG_CMD_FAT
 #endif
-/*#define CONFIG_MMC */
 /*#define CONFIG_GENERIC_MMC */
 #define CONFIG_DOS_PARTITION
 /*#define CONFIG_MMC_TRACE */
@@ -171,20 +181,12 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN	(2*1024*1024) /*ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)  */
+#define CONFIG_SYS_MALLOC_LEN	(1024*1024) /*ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)  */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "uimage=disp977.ub\0" \
-	"getmac=i2c read 50 fa 6 7fc0;" \
-	    "setexpr.b mac0 *7fc0;" \
-	    "setexpr.b mac1 *7fc1;" \
-	    "setexpr.b mac2 *7fc2;" \
-	    "setexpr.b mac3 *7fc3;" \
-	    "setexpr.b mac4 *7fc4;" \
-	    "setexpr.b mac5 *7fc5;" \
-	    "setenv ethaddr ${mac0}:${mac1}:${mac2}:${mac3}:${mac4}:${mac5}\0" \
-        "bootcmd=setenv bootargs ${bootargs} ethaddr0=${ethaddr};fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0\0" \
+        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0\0"
 
 #endif

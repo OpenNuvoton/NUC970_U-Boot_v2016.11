@@ -37,14 +37,13 @@
 #define CONFIG_SYS_MEMTEST_END           0xB00000
 
 #define CONFIG_ARCH_CPU_INIT
-#undef  CONFIG_USE_IRQ               
+#undef  CONFIG_USE_IRQ
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
 #define CONFIG_CMD_TIMER
-
 
 #ifdef  CONFIG_SYS_I2C
 #ifndef CONFIG_SYS_I2C_SPEED
@@ -59,9 +58,10 @@
 
 /*#define CONFIG_NUC970_HW_CHECKSUM */
 
-#define CONFIG_SYS_USE_SPIFLASH 
-#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash 
+#define CONFIG_SYS_USE_SPIFLASH
+#define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash
 #define CONFIG_ENV_IS_IN_SPI_FLASH
+#undef  CONFIG_CMD_IMLS
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
@@ -72,6 +72,7 @@
 
 /*#define CONFIG_DISPLAY_CPUINFO */
 
+#define CONFIG_BOOTDELAY	1
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
@@ -125,7 +126,7 @@
 #define CONFIG_ENV_SIZE         0x10000
 #define CONFIG_ENV_SECT_SIZE    0x10000
 #define CONFIG_ENV_OVERWRITE
-#endif 
+#endif
 #endif
 
 
@@ -175,7 +176,7 @@
 
 
 /*#define CONFIG_OF_LIBFDT */
-#define CONFIG_FIT 
+/*#define CONFIG_FIT */
 
 /*
  * Size of malloc() pool
@@ -186,6 +187,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
         "uimage=lan977.ub\0" \
-        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0\0" 
+        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0\0"
 
 #endif

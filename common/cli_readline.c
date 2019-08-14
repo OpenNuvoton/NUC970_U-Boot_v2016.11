@@ -442,7 +442,6 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			char *hline;
 
 			esc_len = 0;
-
 			if (ichar == CTL_CH('p'))
 				hline = hist_prev();
 			else
