@@ -302,9 +302,11 @@ enum {
 
 #define IH_ENCRPT_NONE		0	/*  No	 Encryption Used	*/
 #define IH_ENCRPT_AES		1	/*  AES	 Encryption Used	*/
+#define IH_ENCRPT_HMAC		2	/*  HMAC SHA-1 signature	*/
 
 #define IH_CHECKSUM_CRC32	0	/*  checksum by crc32		*/
 #define IH_CHECKSUM_SHA1	1	/*  checksum by SHA-1		*/
+
 
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
 #define IH_NMLEN		32	/* Image Name Length		*/

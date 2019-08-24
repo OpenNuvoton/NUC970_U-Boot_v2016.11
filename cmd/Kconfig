@@ -281,7 +281,7 @@ config CMD_MEMORY
 	bool "md, mm, nm, mw, cp, cmp, base, loop"
 	default y
 	help
-	  Memeory commands.
+	  Memory commands.
 	    md - memory display
 	    mm - memory modify (auto-incrementing address)
 	    nm - memory modify (constant address)

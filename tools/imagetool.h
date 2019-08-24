@@ -43,6 +43,7 @@ struct image_tool_params {
 	int dflag;
 	int eflag;
 	int fflag;
+	int hflag;
 	int iflag;
 	int kflag;
 	int lflag;

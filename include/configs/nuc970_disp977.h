@@ -56,7 +56,7 @@
 #define CONFIG_SOFT_I2C_GPIO_SDA	GPIO_PG1
 #endif
 
-/*#define CONFIG_NUC970_HW_CHECKSUM */
+#undef CONFIG_CMD_MEMORY
 
 #define CONFIG_SYS_USE_SPIFLASH
 #define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash
@@ -72,7 +72,7 @@
 
 /*#define CONFIG_DISPLAY_CPUINFO */
 
-#define CONFIG_BOOTDELAY	1
+/*#define CONFIG_BOOTDELAY	1*/
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
@@ -186,7 +186,13 @@
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-        "uimage=disp977.ub\0" \
-        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0\0"
+	"uimage=disp977.ub\0" \
+	"oimage=disp977.bak\0" \
+	"ethact=emac\0" \
+	"bootdelay=1\0" \
+	"addpanel=if env exists panelid; then setenv bootargs ${bootargs} tftpanel=${panelid}; fi\0" \
+	"addmac=setenv bootargs ${bootargs} ethaddr0=${ethaddr}\0" \
+	"bootargs=root=/dev/ram0 console=ttyS0,115200n8 rdinit=/sbin/init mem=64M\0" \
+	"bootcmd=run addmac; run addpanel; fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0; fatload mmc 0 0x7fc0 ${oimage}; bootm 0x7fc0\0"
 
 #endif

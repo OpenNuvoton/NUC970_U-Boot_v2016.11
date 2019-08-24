@@ -56,7 +56,8 @@
 #define CONFIG_SOFT_I2C_GPIO_SDA	GPIO_PG1
 #endif
 
-/*#define CONFIG_NUC970_HW_CHECKSUM */
+#undef CONFIG_CMD_MEMORY
+/*#define CONFIG_NUC970_HW_CHECKSUM*/
 
 #define CONFIG_SYS_USE_SPIFLASH
 #define CONFIG_SYS_NO_FLASH    // that is, no *NOR* flash
@@ -186,7 +187,12 @@
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-        "uimage=lan977.ub\0" \
-        "bootcmd=fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0\0"
+	"uimage=lan977.ub\0" \
+	"oimage=lan977.bak\0" \
+	"ethact=emac\0" \
+	"bootdelay=1\0" \
+	"addmac=setenv bootargs ${bootargs} ethaddr0=${ethaddr}\0" \
+	"bootargs=root=/dev/ram0 console=ttyS0,115200n8 rdinit=/sbin/init mem=64M\0" \
+	"bootcmd=run addmac; fatload mmc 0 0x7fc0 ${uimage}; bootm 0x7fc0; fatload mmc 0 0x7fc0 ${oimage}; bootm 0x7fc0\0"
 
 #endif

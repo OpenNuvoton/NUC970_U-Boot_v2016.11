@@ -512,7 +512,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_XILINX
 	phy_xilinx_init();
 #endif
-
+#ifdef CONFIG_PHY_ICPLUS
+	phy_icplus_init();
+#endif
 	return 0;
 }
 

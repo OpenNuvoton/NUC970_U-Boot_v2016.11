@@ -7,10 +7,11 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <watchdog.h>
+#include <i2c.h>
 
 #define REG_HCLKEN      0xB0000210
 #define REG_PCLKEN0     0xB0000218
-#define REG_SDIC_SIZE0  0xB0001810   
+#define REG_SDIC_SIZE0  0xB0001810
 #define REG_SDIC_SIZE1  0xB0001814
 #define REG_CLKDIVCTL8  0xB0000240
 #define REG_WDT_CTL	0xB8001800
@@ -36,6 +37,10 @@ int NUC970_cleanup(void);
 int nuc970_mmc_init(int priv);
 
 extern int spi_flash_reset(void);
+
+#ifdef CONFIG_NUC970_ETHADDR_FROM_EEPROM
+static int i2c_read_mac(uchar *buffer);
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -231,9 +236,19 @@ int board_init(void)
 
 int board_late_init(void)
 {
-#ifdef CONFIG_HW_WATCHDOG
-    hw_watchdog_init();
+#ifdef CONFIG_NUC970_ETHADDR_FROM_EEPROM
+      uchar mac_id[6];
+
+      if (!eth_getenv_enetaddr("ethaddr", mac_id) && !i2c_read_mac(mac_id)) {
+		eth_setenv_enetaddr("ethaddr", mac_id);
+		printf("ethaddr from EEPROM: %pM\n", mac_id);
+      }
 #endif
+
+#ifdef CONFIG_HW_WATCHDOG
+      hw_watchdog_init();
+#endif
+
 	return 0;
 }
 
@@ -317,3 +332,23 @@ int checkboard(void)
 void lowlevel_init(void) {}
 
 
+#ifdef CONFIG_NUC970_ETHADDR_FROM_EEPROM
+/* Read MAC-address from 24AA02E48 EEPROM */
+static int i2c_read_mac(uchar *buffer)
+{
+	u8 buf = 0xff;
+
+	i2c_read(CONFIG_NUC970_ETHADDR_EEPROM_I2C_ADDR,
+		 CONFIG_NUC970_ETHADDR_EEPROM_OFFSET,
+		 1, &buf, 1);
+
+	if (0 == (buf & 3)) {
+		/* first byte seems valid, use address */
+		i2c_read(CONFIG_NUC970_ETHADDR_EEPROM_I2C_ADDR,
+			 CONFIG_NUC970_ETHADDR_EEPROM_OFFSET,
+			 1, buffer, 6);
+		return (0);
+	}
+	return -1;
+}
+#endif

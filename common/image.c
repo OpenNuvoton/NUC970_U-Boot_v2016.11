@@ -68,15 +68,15 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #define CONFIG_SYS_BARGSIZE 512
 #endif
 
-#ifdef CONFIG_NUC970_HW_CHECKSUM
+#if defined(CONFIG_NUC970_HW_CHECKSUM) || defined(CONFIG_NUC970_HW_CHECKSUM_HMAC) || defined(CONFIG_NUC970_HW_CHECKSUM_SHA256) || (CONFIG_NUC970_DECRYPT_AES)
 #include <nuc970_crypto.h>
 #endif
 
-#ifdef CONFIG_N9H30_HW_CHECKSUM
+#if defined(CONFIG_N9H30_HW_CHECKSUM) || defined(CONFIG_N9H30_HW_CHECKSUM_HMAC)
 #include <n9h30_crypto.h>
 #endif
 
-#ifdef CONFIG_NUC980_HW_CHECKSUM
+#if defined(CONFIG_NUC980_HW_CHECKSUM) || defined(CONFIG_NUC980_HW_CHECKSUM_HMAC) || defined(CONFIG_NUC980_DECRYPT_AES)
 #include <nuc980_crypto.h>
 #endif
 
@@ -237,9 +237,153 @@ int image_check_dcrc(const image_header_t *hdr)
 {
 	ulong data = image_get_data(hdr);
 	ulong len = image_get_data_size(hdr);
-#if defined(CONFIG_NUC970_HW_CHECKSUM) || defined(CONFIG_NUC980_HW_CHECKSUM)
-	//use SHA-1
         ulong dcrc;
+#if defined(CONFIG_NUC970_DECRYPT_AES) || defined(CONFIG_NUC980_DECRYPT_AES)
+	/* Decrypt kernel image with MTP key before checking checksum */
+	*(volatile u32 *)REG_PCLKEN1 |= 0x04000000; //MTP clk
+	*(volatile u32 *)REG_HCLKEN |= 0x800000; //Crypto clk
+	/* Sequence to unlock MTP */
+	MTP->REGLCTL = 0x59;
+	MTP->REGLCTL = 0x16;
+	MTP->REGLCTL = 0x88;
+	MTP->KEYEN = MTP_KEYEN_KEYEN;
+	while (0 == (MTP->STATUS & MTP_STATUS_MTPEN)) {};
+	if (!(MTP->STATUS & MTP_STATUS_KEYVALID))
+		 return 0;
+	MTP->CTL = MTP_CTL_OP_IDLE;
+
+        SECURE->IPSEC_INT_EN = SECURE_INT_EN_AES | SECURE_INT_EN_AES_ERR;
+	/* place plaintext over ciphertext */
+	SECURE->AES_SADR = (UINT32)data;
+	SECURE->AES_DADR = (UINT32)data;
+	SECURE->AES_CNT  = len;
+	SECURE->AES_IV0	 = 0;
+	SECURE->AES_IV1	 = 0;
+	SECURE->AES_IV2	 = 0;
+	SECURE->AES_IV3	 = 0;
+        asm volatile("": : :"memory");
+	SECURE->AES_CTL = SECURE_AES_CTL_CHANNEL_0	|
+			  SECURE_AES_CTL_IN_TRANS	|
+			  SECURE_AES_CTL_OUT_TRANS	|
+			  SECURE_AES_CTL_DECRYPT	|
+			  SECURE_AES_CTL_OP_ECB		|
+			  SECURE_AES_CTL_DMA_EN		|
+			  SECURE_AES_CTL_LAST		|
+			  SECURE_AES_CTL_EXT_KEY	|
+			  SECURE_AES_CTL_KEY_SIZE_256	|
+			  SECURE_AES_CTL_START;
+	while (1) {
+                volatile unsigned int int_flag;
+                int_flag = (volatile unsigned int)(SECURE->IPSEC_INT_FLAG);
+                if (int_flag & SECURE_INT_FLAG_AES_DONE ) {
+                        SECURE->IPSEC_INT_FLAG = SECURE_INT_FLAG_AES_DONE;
+                        break;
+                }
+                else if (int_flag & SECURE_INT_FLAG_AES_ERR) {
+                        SECURE->IPSEC_INT_FLAG = SECURE_INT_FLAG_AES_ERR;
+                        break;
+		}
+	}
+        while ((volatile unsigned int)(SECURE->AES_FLAG) & SECURE_AES_FLAG_BUSY);
+//	printf("Image first word: 0x%08x\n", *(unsigned int*)data);
+
+	MTP->KEYEN = 0;
+        *(volatile u32 *)REG_HCLKEN &= ~0x800000; //Crypto clk
+	*(volatile u32 *)REG_PCLKEN1 &= ~0x04000000; //MTP clk
+#endif
+
+#if defined(CONFIG_NUC970_HW_CHECKSUM_HMAC) || 	defined(CONFIG_NUC980_HW_CHECKSUM_HMAC)
+	/* use HMAC-SHA1,  20 bytes of signature are appended to image data */
+	const unsigned long hmac_key[] = {0x00112233, 0x44556677, 0x8899AABB, 0xCCDDEEFF};
+	int i;
+	ulong *dig;
+	*(volatile u32 *)REG_HCLKEN |= 0x800000; //Crypto clk
+        SECURE->IPSEC_INT_EN = SECURE_INT_EN_HMAC | SECURE_INT_EN_HMAC_ERR;
+	/* process key */
+        SECURE->HMAC_DMA_CNT = sizeof(hmac_key);
+	SECURE->HMAC_KEY_CNT = sizeof(hmac_key);
+        SECURE->HMAC_SADR = (UINT32)hmac_key;
+        asm volatile("": : :"memory");
+        SECURE->HMAC_CTL |= SECURE_HMAC_IN_TRANSFORM | SECURE_HMAC_OUT_TRANSFORM | SECURE_HMAC_EN | SECURE_HMAC_DMA_EN | SECURE_HMAC_START;
+	while (1) {
+                volatile unsigned int int_flag;
+                int_flag = (volatile unsigned int)(SECURE->IPSEC_INT_FLAG);
+                if (int_flag & SECURE_INT_FLAG_HMAC_DONE ) {
+                        SECURE->IPSEC_INT_FLAG = SECURE_INT_FLAG_HMAC_DONE;
+                        break;
+                }
+                else if (int_flag & SECURE_INT_FLAG_HMAC_ERR) {
+                        SECURE->IPSEC_INT_FLAG = SECURE_INT_FLAG_HMAC_ERR;
+                        break;
+                }
+	}
+	/* process data */
+        SECURE->HMAC_DMA_CNT = len - 20; /* skip signature bytes */
+        SECURE->HMAC_SADR = (UINT32)data;
+        asm volatile("": : :"memory");
+        SECURE->HMAC_CTL |= SECURE_HMAC_LAST | SECURE_HMAC_START;
+	while (1) {
+                volatile unsigned int int_flag;
+                int_flag = (volatile unsigned int)(SECURE->IPSEC_INT_FLAG);
+                if (int_flag & SECURE_INT_FLAG_HMAC_DONE ) {
+                        SECURE->IPSEC_INT_FLAG = SECURE_INT_FLAG_HMAC_DONE;
+                        break;
+                }
+                else if (int_flag & SECURE_INT_FLAG_HMAC_ERR) {
+                        SECURE->IPSEC_INT_FLAG = SECURE_INT_FLAG_HMAC_ERR;
+                        break;
+                }
+	}
+        while ((volatile unsigned int)(SECURE->HMAC_FLAG) & SECURE_HMAC_BUSY);
+	/* compare result */
+	dig = (ulong *)(data + len - 20);
+	dcrc = 1;
+	for (i = 0; i < 5; i++)	{
+		if (dig[i] != (&SECURE->HMAC_H0)[i]) {
+			dcrc = 0;
+		}
+	}
+        *(volatile u32 *)REG_HCLKEN &= ~0x800000; //Crypto clk
+	return dcrc;
+#elif defined(CONFIG_NUC970_HW_CHECKSUM_SHA256) || defined(CONFIG_NUC980_HW_CHECKSUM_SHA256)
+	// use sha-256
+	int i;
+	ulong *dig;
+        *(volatile u32 *)REG_HCLKEN |= 0x800000; //Crypto clk
+        SECURE->IPSEC_INT_EN = SECURE_INT_EN_HMAC | SECURE_INT_EN_HMAC_ERR;
+        SECURE->HMAC_DMA_CNT = len - 32;
+        SECURE->HMAC_SADR = (UINT32)data;
+        asm volatile("": : :"memory");
+        SECURE->HMAC_CTL |= SECURE_HMAC_IN_TRANSFORM | SECURE_HMAC_OUT_TRANSFORM | SECURE_HMAC_OP_SHA256 | SECURE_HMAC_DMA_EN | SECURE_HMAC_LAST | SECURE_HMAC_START;
+
+        while (1) {
+                volatile unsigned int int_flag;
+                int_flag = (volatile unsigned int)(SECURE->IPSEC_INT_FLAG);
+                if (int_flag & SECURE_INT_FLAG_HMAC_DONE ) {
+                        SECURE->IPSEC_INT_FLAG = SECURE_INT_FLAG_HMAC_DONE;
+                        break;
+                }
+                else if (int_flag & SECURE_INT_FLAG_HMAC_ERR) {
+                        SECURE->IPSEC_INT_FLAG = SECURE_INT_FLAG_HMAC_ERR;
+                        break;
+                }
+        }
+
+        while ((volatile unsigned int)(SECURE->HMAC_FLAG) & SECURE_HMAC_BUSY);
+	/* compare result */
+	dig = (ulong *)(data + len - 32);
+	dcrc = 1;
+//	printf("Digest:\n");
+	for (i = 0; i < 8; i++)	{
+//		printf("Img: 0x%08x - Calc: 0x%08x\n", dig[i], (&SECURE->HMAC_H0)[i]);
+		if (dig[i] != (&SECURE->HMAC_H0)[i]) {
+			dcrc = 0;
+		}
+	}
+        *(volatile u32 *)REG_HCLKEN &= ~0x800000; //Crypto clk
+	return dcrc;
+#elif defined(CONFIG_NUC970_HW_CHECKSUM) || defined(CONFIG_NUC980_HW_CHECKSUM)
+	//use SHA-1
 
         *(volatile u32 *)REG_HCLKEN |= 0x800000; //Crypto clk
         SECURE->IPSEC_INT_EN = SECURE_INT_EN_HMAC | SECURE_INT_EN_HMAC_ERR;
@@ -266,9 +410,8 @@ int image_check_dcrc(const image_header_t *hdr)
         dcrc = SECURE->HMAC_H0;
 
         *(volatile u32 *)REG_HCLKEN &= ~0x800000; //Crypto clk
-
 #else	// software crc
-	ulong dcrc = crc32_wd(0, (unsigned char *)data, len, CHUNKSZ_CRC32);
+	dcrc = crc32_wd(0, (unsigned char *)image_get_data(hdr), image_get_data_size(hdr), CHUNKSZ_CRC32);
 #endif
 
 	return (dcrc == image_get_dcrc(hdr));

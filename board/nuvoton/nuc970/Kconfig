@@ -22,15 +22,50 @@ config NUC970
 	bool
 	default y
 
-config NUC970_HW_CHECKSUM
+config NUC970_CMD_CRYPTO
 	bool
+	default n
+
+config NUC970_HW_CHECKSUM
+	bool "Use HW SHA1 for kernel checksum"
 	default y if TARGET_NUC970_TOMATO
 
-config NUC970_EMAC0_NO_MDC
-	bool
-	default y if (TARGET_NUC970_DISP976 || TARGET_NUC970_DISP977 || TARGET_NUC970_MIN)
+config NUC970_HW_CHECKSUM_HMAC
+	bool "Use HW engine HMAC to validate kernel"
+	help
+	  Use HW engine to check and validate kernel
 
-config NUC970_PHY_KSZ8895_MDC
-	bool
-	default y if TARGET_NUC970_LAN977
+config NUC970_DECRYPT_AES
+	bool "Decrypt kernel image with MTP key"
+	default y if (TARGET_NUC970_DISP977 || TARGET_NUC970_LAN977)
+	help
+	  Use MTP AES key to decrypt kernel image
+
+config NUC970_HW_CHECKSUM_SHA256
+	bool "Use HW SHA256 for kernel checksum"
+	default y if (TARGET_NUC970_DISP977 || TARGET_NUC970_LAN977)
+
+config NUC970_ETHADDR_FROM_EEPROM
+	bool "MAC address come from EEPROM"
+	depends on NUC970 && (NUC970_I2C || SYS_I2C_SOFT)
+	default y if (TARGET_NUC970_DISP976 || TARGET_NUC970_DISP977 || TARGET_NUC970_LAN977)
+	help
+	  Select, if MAC address need to be read from I2C EEPROM chip, like 24AA02E48
+
+config NUC970_ETHADDR_EEPROM_I2C_ADDR
+	hex "Address of 24AA02E48 chip on the I2C bus"
+	depends on NUC970_ETHADDR_FROM_EEPROM
+	range 0x50 0x57
+	default 0x50
+	help
+	  Set I2C bus address for MAC EEPROM
+
+config NUC970_ETHADDR_EEPROM_OFFSET
+	hex "Offset within EEPROM, where MAC stored"
+	depends on NUC970_ETHADDR_FROM_EEPROM
+	default 0xFA
+	help
+	  Set byte offset within EEPROM, where MAC address starts
+
+
 endif

@@ -149,7 +149,7 @@ static void process_args(int argc, char **argv)
 	int opt;
 
 	while ((opt = getopt(argc, argv,
-			     "a:A:b:c:C:d:D:e:Ef:G:H:Fk:i:K:ln:p:O:rR:S:qsT:vVx")) != -1) {
+			     "a:A:b:c:C:d:D:e:Ef:G:h:H:Fk:i:K:ln:p:O:rR:S:qsT:vVx")) != -1) {
 		switch (opt) {
 		case 'a':
 			params.addr = strtoull(optarg, &ptr, 16);
@@ -214,6 +214,11 @@ static void process_args(int argc, char **argv)
 			 */
 			params.type = IH_TYPE_FLATDT;
 			params.fflag = 1;
+			break;
+		case 'h': /* lightelf76 2019/08/23 add */
+			params.keyfile = optarg;
+			params.kflag = 1;
+			params.hflag = 1;
 			break;
 		case 'G': /* CWWeng 2014/4/29 add */
 			if ((params.encrypt = genimg_get_encrypt_id (optarg)) < 0) 
@@ -347,7 +352,7 @@ static void _read_key(char *cmdname, char *keyfile)
 
 	/* Parsing key */
         for (line = 0; line < 8; line++)
-                read(kfd, buf[line], 11);
+                (void)read(kfd, buf[line], 11);
 
         /* Trim off 0x and '\0' */
         for (line = 0; line < 8; line++)
@@ -647,7 +652,6 @@ int main(int argc, char **argv)
 			params.cmdname, params.imagefile, strerror(errno));
 		exit (EXIT_FAILURE);
 	}
-	params.file_size = sbuf.st_size;
 
 	/* CWWeng 2014/5/28 : append 0 to the end of image
 	 * aes_encrypt() encrypt one 128 bit block
@@ -660,6 +664,14 @@ int main(int argc, char **argv)
 		if (sbuf.st_size % 16)
 			write(ifd,ch, 16 - (sbuf.st_size % 16));
 	}
+	/* lightelf76 2019/8/23 : round to dword and append 20 empty 
+	 * bytes for HMAC-SHA1 signature */
+	if (params.encrypt == IH_ENCRPT_HMAC) {
+		char ch[24] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		lseek(ifd, 0, SEEK_END);
+		sbuf.st_size += write(ifd, ch, 20+(sbuf.st_size % 4));
+	}
+	params.file_size = sbuf.st_size;
 
 	ptr = mmap(0, sbuf.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, ifd, 0);
 	if (ptr == MAP_FAILED) {
@@ -719,7 +731,11 @@ int main(int argc, char **argv)
 			aes_blockno++;
 		} while (imagelen > 0);
 	}
-
+	/* lightelf76 2019/8/23 : round to dword and append 20 empty 
+	 * bytes for HMAC-SHA1 signature */
+	if (params.encrypt == IH_ENCRPT_HMAC) {
+		sha1_hmac((unsigned char *)otp_key, 32, (unsigned char *)ptr + 64, sbuf.st_size-20,(unsigned char *) ptr + 64 -20 + sbuf.st_size);
+	}
 	(void) munmap((void *)ptr, sbuf.st_size);
 
 	/* We're a bit of paranoid */
