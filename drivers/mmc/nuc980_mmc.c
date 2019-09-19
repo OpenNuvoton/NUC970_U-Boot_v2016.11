@@ -138,6 +138,7 @@ int nuc980_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 	//printf("arg: %x\n", cmd->cmdarg);
 	writel(sdcsr, REG_SDCSR);
 
+	//printf("%x\n",readl(REG_SDCSR));
 	while (readl(REG_SDCSR) & CO_EN); //wait 'til command out complete
 
 	if(mmc_resp_type(cmd) != MMC_RSP_NONE) {
@@ -445,8 +446,6 @@ static int _nuc980_sd_init(struct mmc *mmc)
 	writel(SD_EN, REG_SDH_GCTL);
 	writel(DMACEN, REG_DMACCSR);
 
-	writel(readl(REG_ECTL) & ~3, REG_ECTL); // SD port 0,1 power enable
-
 	/*
 		printf("[%s]REG_SDH_GCTL = 0x%x\n",__FUNCTION__,readl(REG_SDH_GCTL));
 	        printf("[%s]REG_SDCSR = 0x%x\n",__FUNCTION__,readl(REG_SDCSR));
@@ -539,15 +538,15 @@ int nuc980_mmc_init(int priv)
 	//mmc->priv = host;
 	if (priv == 0) { // SD
 		nuc980_sd_cfg.ops = &nuc980_sd_ops;
-		nuc980_sd_cfg.f_min = 400000;
-		nuc980_sd_cfg.f_max = 50000000;
+		nuc980_sd_cfg.f_min = 200000;
+		nuc980_sd_cfg.f_max = 20000000;
 		mmc = mmc_create(&nuc980_sd_cfg, priv);
 		if (mmc == NULL)
 			return -1;
 		mmc->priv = priv;
 	} else if (priv == 1) { //eMMC
 		nuc980_emmc_cfg.ops = &nuc980_emmc_ops;
-		nuc980_emmc_cfg.f_min = 300000;
+		nuc980_emmc_cfg.f_min = 200000;
 		nuc980_emmc_cfg.f_max = 20000000;
 		mmc = mmc_create(&nuc980_emmc_cfg, priv);
 		if (mmc == NULL)

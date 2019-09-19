@@ -75,7 +75,6 @@
 #define REG_SDRSP1              (SDH_BA+0x834)   /* SD receive response token register 1 */
 #define REG_SDBLEN              (SDH_BA+0x838)   /* SD block length register */
 #define REG_SDTMOUT             (SDH_BA+0x83C)   /* SD Response/Data-in timeout register */
-#define REG_ECTL                (SDH_BA+0x840)   /* SD Host extend control register */
 
 #define REG_CLKDIVCTL3             0xB000022C
 #define REG_CLKDIVCTL9             0xB0000244
