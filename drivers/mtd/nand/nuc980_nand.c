@@ -123,23 +123,28 @@ static void nuc980_nand_command_lp(struct mtd_info *mtd, unsigned int command, i
 
 	writel(command & 0xff, REG_SMCMD);
 
-	if (column != -1 || page_addr != -1) {
-		if (column != -1) {
-			writel(column&0xFF, REG_SMADDR);
-			if ( page_addr != -1 )
-				writel(column >> 8, REG_SMADDR);
-			else
-				writel((column >> 8) | ENDADDR, REG_SMADDR);
-		}
+	if (command == NAND_CMD_READID) {
+		writel(ENDADDR, REG_SMADDR);
+	} else {
 
-		if (page_addr != -1) {
-			writel(page_addr&0xFF, REG_SMADDR);
+		if (column != -1 || page_addr != -1) {
+			if (column != -1) {
+				writel(column&0xFF, REG_SMADDR);
+				if ( page_addr != -1 )
+					writel(column >> 8, REG_SMADDR);
+				else
+					writel((column >> 8) | ENDADDR, REG_SMADDR);
+			}
 
-			if ( chip->chipsize > (128 << 20) ) {
-				writel((page_addr >> 8)&0xFF, REG_SMADDR);
-				writel(((page_addr >> 16)&0xFF)|ENDADDR, REG_SMADDR);
-			} else {
-				writel(((page_addr >> 8)&0xFF)|ENDADDR, REG_SMADDR);
+			if (page_addr != -1) {
+				writel(page_addr&0xFF, REG_SMADDR);
+
+				if ( chip->chipsize > (128 << 20) ) {
+					writel((page_addr >> 8)&0xFF, REG_SMADDR);
+					writel(((page_addr >> 16)&0xFF)|ENDADDR, REG_SMADDR);
+				} else {
+					writel(((page_addr >> 8)&0xFF)|ENDADDR, REG_SMADDR);
+				}
 			}
 		}
 	}

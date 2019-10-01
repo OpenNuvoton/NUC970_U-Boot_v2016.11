@@ -132,23 +132,27 @@ static void nuc970_nand_command_lp(struct mtd_info *mtd, unsigned int command, i
 
 	writel(command & 0xff, REG_SMCMD);
 
-	if (column != -1 || page_addr != -1) {
-		if (column != -1) {
-			writel(column&0xFF, REG_SMADDR);
-			if ( page_addr != -1 )
-				writel(column >> 8, REG_SMADDR);
-			else
-				writel((column >> 8) | ENDADDR, REG_SMADDR);
-		}
+	if (command == NAND_CMD_READID) {
+		writel(ENDADDR, REG_SMADDR);
+	} else {
+		if (column != -1 || page_addr != -1) {
+			if (column != -1) {
+				writel(column&0xFF, REG_SMADDR);
+				if ( page_addr != -1 )
+					writel(column >> 8, REG_SMADDR);
+				else
+					writel((column >> 8) | ENDADDR, REG_SMADDR);
+			}
 
-		if (page_addr != -1) {
-			writel(page_addr&0xFF, REG_SMADDR);
+			if (page_addr != -1) {
+				writel(page_addr&0xFF, REG_SMADDR);
 
-			if ( chip->chipsize > (128 << 20) ) {
-				writel((page_addr >> 8)&0xFF, REG_SMADDR);
-				writel(((page_addr >> 16)&0xFF)|ENDADDR, REG_SMADDR);
-			} else {
-				writel(((page_addr >> 8)&0xFF)|ENDADDR, REG_SMADDR);
+				if ( chip->chipsize > (128 << 20) ) {
+					writel((page_addr >> 8)&0xFF, REG_SMADDR);
+					writel(((page_addr >> 16)&0xFF)|ENDADDR, REG_SMADDR);
+				} else {
+					writel(((page_addr >> 8)&0xFF)|ENDADDR, REG_SMADDR);
+				}
 			}
 		}
 	}
@@ -780,10 +784,9 @@ int board_nand_init(struct nand_chip *nand)
 	nuc970_layout_oob_table(&nuc970_nand_oob,mtd->oobsize,g_i32ParityNum[nuc970_nand->m_ePageSize][nuc970_nand->eBCHAlgo]);
 
 	/* check power on setting */
-	if ((readl(REG_PWRON) & 0xc0) != 0xc0) 
-	{ /* page size */
-		switch ((readl(REG_PWRON) & 0xc0)) 
-		{
+	if ((readl(REG_PWRON) & 0xc0) != 0xc0) {
+		/* page size */
+		switch ((readl(REG_PWRON) & 0xc0)) {
 		case 0x00: // 2KB
 			mtd->writesize = 2048;
 			writel( (readl(REG_SMCSR)&(~0x30000)) + 0x10000, REG_SMCSR);
@@ -813,8 +816,8 @@ int board_nand_init(struct nand_chip *nand)
 		}
 	}
 
-	if ((readl(REG_PWRON) & 0x300) != 0x300) 
-	{ /* ECC */
+	if ((readl(REG_PWRON) & 0x300) != 0x300) {
+		/* ECC */
 		switch ((readl(REG_PWRON) & 0x300)) {
 		case 0x000: // T12
 			nuc970_nand->eBCHAlgo = 2;
