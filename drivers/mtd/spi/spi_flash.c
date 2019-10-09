@@ -1250,7 +1250,7 @@ int spi_flash_scan(struct spi_flash *flash)
 
 
 #ifdef CONFIG_SPI_NAND
-	if (jedec == 0xaa21) { // treat SPI NAND seperately
+	if ((jedec == 0xaa21) || (jedec == 0xab21)) { // treat SPI NAND seperately
 		flash->read = spi_nand_read_raw;
 		flash->write = spi_nand_write_raw;
 		flash->erase = spi_nand_erase_raw;

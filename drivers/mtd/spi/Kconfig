@@ -113,6 +113,12 @@ config SPI_NAND_MK
 
 endchoice
 
+config WINBOND_MULTIDIE
+	bool "Winbond Multi-die SPI NAND flash support"
+	help
+	  Add support for Winbond Multi-die SPI NAND flash
+	  For instance, W25N02G
+
 endif
 
 config SPI_FLASH_USE_4K_SECTORS
