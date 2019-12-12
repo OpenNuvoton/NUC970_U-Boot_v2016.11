@@ -255,21 +255,6 @@ static int spi_nand_erase(struct mtd_info *mtd, struct erase_info *instr)
 		goto out;
 	}
 
-#ifdef CONFIG_WINBOND_MULTIDIE
-	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
-	cmd[1] = dieid;
-	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
-	if (ret) {
-		printf("%s  failed for die select :\n", __func__);
-		goto out;
-	}
-	ret = spinand_waitfunc(mtd, 0x01, &status);
-	if (ret) {
-		printf("Operation timeout\n");
-		goto out;
-	}
-#endif
-
 	cmd[0] = IPQ40XX_SPINAND_CMD_ERASE;
 	cmd[1] = (u8)(page >> 16);
 	cmd[2] = (u8)(page >> 8);
@@ -412,20 +397,6 @@ static int spinand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,  
 		goto out;
 	}
 
-#ifdef CONFIG_WINBOND_MULTIDIE
-	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
-	cmd[1] = dieid;
-	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
-	if (ret) {
-		printf("%s  failed for die select :\n", __func__);
-		goto out;
-	}
-	ret = spinand_waitfunc(mtd, 0x01, &status);
-	if (ret) {
-		printf("Operation timeout\n");
-		goto out;
-	}
-#endif
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
 	cmd[1] = (u8)(column >> 8);
@@ -438,20 +409,6 @@ static int spinand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,  
 		goto out;
 	}
 
-#ifdef CONFIG_WINBOND_MULTIDIE
-	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
-	cmd[1] = dieid;
-	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
-	if (ret) {
-		printf("%s  failed for die select :\n", __func__);
-		goto out;
-	}
-	ret = spinand_waitfunc(mtd, 0x01, &status);
-	if (ret) {
-		printf("Operation timeout\n");
-		goto out;
-	}
-#endif
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_PROG;
 	cmd[1] = (u8)(page >> 16);
@@ -654,6 +611,7 @@ static int spi_nand_read_std(struct mtd_info *mtd, loff_t from, struct mtd_oob_o
 		/* Read Data */
 		if (bytes) {
 			cmd[0] = IPQ40XX_SPINAND_CMD_NORM_READ;
+			cmd[1] = 0;
 			cmd[2] = 0;
 			cmd[3] = 0;
 			ret = spi_flash_cmd_read(flash->spi, cmd, 4, ops->datbuf, bytes);
@@ -772,20 +730,6 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 			goto out;
 		}
 
-#ifdef CONFIG_WINBOND_MULTIDIE
-		cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
-		cmd[1] = dieid;
-		ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
-		if (ret) {
-			printf("%s  failed for die select :\n", __func__);
-			goto out;
-		}
-		ret = spinand_waitfunc(mtd, 0x01, &status);
-		if (ret) {
-			printf("Operation timeout\n");
-			goto out;
-		}
-#endif
 
 		/* buffer to be transmittted here */
 		cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
@@ -796,21 +740,6 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 			printf("%s: write command failed\n", __func__);
 			goto out;
 		}
-
-#ifdef CONFIG_WINBOND_MULTIDIE
-		cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
-		cmd[1] = dieid;
-		ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
-		if (ret) {
-			printf("%s  failed for die select :\n", __func__);
-			goto out;
-		}
-		ret = spinand_waitfunc(mtd, 0x01, &status);
-		if (ret) {
-			printf("Operation timeout\n");
-			goto out;
-		}
-#endif
 
 		cmd[0] = IPQ40XX_SPINAND_CMD_PROG;
 		cmd[1] = (u8)(page >> 16);
@@ -1043,6 +972,7 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 		/* Read Data only, ignore OOB */
 		if (bytes) {
 			cmd[0] = quad == 0 ? IPQ40XX_SPINAND_CMD_NORM_READ : IPQ40XX_SPINAND_CMD_FAST_READ_QUAD;
+			cmd[1] = 0;
 			cmd[2] = 0;
 			cmd[3] = 0;
 			spi->quad_enable = quad;

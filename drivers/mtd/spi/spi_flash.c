@@ -1250,30 +1250,19 @@ int spi_flash_scan(struct spi_flash *flash)
 
 
 #ifdef CONFIG_SPI_NAND
-	if ((jedec == 0xaa21) || (jedec == 0xab21)) { // treat SPI NAND seperately
-		flash->read = spi_nand_read_raw;
-		flash->write = spi_nand_write_raw;
-		flash->erase = spi_nand_erase_raw;
-		flash->page_size = 2048;		// 2kB per page
-		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+	flash->read = spi_nand_read_raw;
+	flash->write = spi_nand_write_raw;
+	flash->erase = spi_nand_erase_raw;
+	flash->page_size = 2048;		// 2kB per page
+	flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+	spinand_enable_internal_ecc(flash);
+	if ((jedec == 0x0be1) || (jedec == 0x0bf1) ||
+	    (jedec == 0xc212) || (jedec == 0xd511) ||
+	    (jedec == 0xd51c) || (jedec == 0xaa21)) {
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
-		spinand_enable_internal_ecc(flash);
-	} else if ((jedec == 0x0be1) || (jedec == 0x0bf1) || (jedec == 0xc212) || (jedec == 0xd511) || (jedec == 0xd51c)) {
-		flash->read = spi_nand_read_raw;
-		flash->write = spi_nand_write_raw;
-		flash->erase = spi_nand_erase_raw;
-		flash->page_size = 2048;		// 2kB per page
-		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
-		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
-		spinand_enable_internal_ecc(flash);
-	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) || (jedec == 0xc222)) {
-		flash->read = spi_nand_read_raw;
-		flash->write = spi_nand_write_raw;
-		flash->erase = spi_nand_erase_raw;
-		flash->page_size = 2048;		// 2kB per page
-		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) ||
+		   (jedec == 0xc222) || (jedec == 0xab21)) {
 		flash->size = 2048 * 64 * 2048;		// 2048 sectors per chip
-		spinand_enable_internal_ecc(flash);
 	} else {
 #else
 	if(1) {
