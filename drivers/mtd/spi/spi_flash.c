@@ -1076,7 +1076,9 @@ int spi_flash_scan(struct spi_flash *flash)
 		}
 	}
 #endif
-#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) || defined(CONFIG_SPI_NAND_MK) || defined(CONFIG_SPI_NAND_ATO)
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) ||\
+    defined(CONFIG_SPI_NAND_MK) || defined(CONFIG_SPI_NAND_ATO) ||\
+    defined(CONFIG_SPI_NAND_MICRON)
 	if (!params->name) {
 		jedec = idcode[1] << 8 | idcode[2];
 		ext_jedec = 0x00;
@@ -1261,7 +1263,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	    (jedec == 0xd51c) || (jedec == 0xaa21) || (jedec == 0x9b12)) {
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
 	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) ||
-		   (jedec == 0xc222) || (jedec == 0xab21)) {
+		   (jedec == 0xc222) || (jedec == 0xab21) || (jedec == 0x2c24)) {
 		flash->size = 2048 * 64 * 2048;		// 2048 sectors per chip
 	} else {
 #else

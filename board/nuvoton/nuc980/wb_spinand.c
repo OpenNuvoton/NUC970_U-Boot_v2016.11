@@ -161,8 +161,11 @@ uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address)
 	  return 1;															// Check ECC status and return fail if (ECC-1, ECC0) = (1,0) or (1, 1)
 		  }
 	*/
-
+#ifdef CONFIG_SPI_NAND_MICRON
+	WB_Serial_NAND_Normal_Read(0x8 | (page_address & (1 << 6) ? (1 << 4) : 0), 0x0, &read_buf, 1);
+#else
 	WB_Serial_NAND_Normal_Read(0x8, 0x0, &read_buf, 1);	// Read bad block mark at 0x800 update at v.1.0.8
+#endif
 	if(read_buf != 0xFF) {	// update at v.1.0.7
 		return 1;
 	}
@@ -174,8 +177,11 @@ uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address)
 	  return 1;															// Check ECC status and return fail if (ECC-1, ECC0) = (1,0) or (1, 1)
 		  }
 	*/
-
+#ifdef CONFIG_SPI_NAND_MICRON
+	WB_Serial_NAND_Normal_Read(0x8 | ((page_address+1) & (1 << 6) ? (1 << 4) : 0), 0x0, &read_buf, 1);
+#else
 	WB_Serial_NAND_Normal_Read(0x8, 0x0, &read_buf, 1);	// Read bad block mark at 0x800 update at v.1.0.8
+#endif
 	if(read_buf != 0xFF) {	// update at v.1.0.7
 		return 1;
 	}

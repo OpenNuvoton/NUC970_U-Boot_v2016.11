@@ -342,7 +342,9 @@ static int spi_nand_block_isbad(struct mtd_info *mtd, loff_t offs)
 		printf("Operation timeout\n");
 		goto out;
 	}
-
+#ifdef CONFIG_SPI_NAND_MICRON
+	column |= page & (1 << 6) ? (1 << 12) : 0;	// This bit is used as plane selection
+#endif
 	info->params->norm_read_cmd(cmd, column);
 	ret = spi_flash_cmd_read(flash->spi, cmd, 4, &value, 1);
 	if (ret) {
@@ -399,7 +401,11 @@ static int spinand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,  
 
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
+#ifdef CONFIG_SPI_NAND_MICRON
+	cmd[1] = (u8)(column >> 8) | (page & (1 << 6) ? (1 << 4) : 0);	// This bit is used as plane selection
+#else
 	cmd[1] = (u8)(column >> 8);
+#endif
 	cmd[2] = (u8)(column);
 
 	ret = spi_flash_cmd_write(flash->spi, cmd, 3, wbuf, 2);
@@ -611,7 +617,11 @@ static int spi_nand_read_std(struct mtd_info *mtd, loff_t from, struct mtd_oob_o
 		/* Read Data */
 		if (bytes) {
 			cmd[0] = IPQ40XX_SPINAND_CMD_NORM_READ;
+#ifdef CONFIG_SPI_NAND_MICRON
+			cmd[1] = page & (1 << 6) ? (1 << 4) : 0;	// This bit is used as plane selection
+#else
 			cmd[1] = 0;
+#endif
 			cmd[2] = 0;
 			cmd[3] = 0;
 			ret = spi_flash_cmd_read(flash->spi, cmd, 4, ops->datbuf, bytes);
@@ -733,7 +743,11 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 		/* buffer to be transmittted here */
 		cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
+#ifdef CONFIG_SPI_NAND_MICRON
+		cmd[1] = page & (1 << 6) ? (1 << 4) : 0;	// This bit is used as plane selection
+#else
 		cmd[1] = 0;
+#endif
 		cmd[2] = 0;
 		ret = spi_flash_cmd_write(flash->spi, cmd, 3, wbuf, bytes);
 		if (ret) {
@@ -825,7 +839,11 @@ int spi_nand_write_raw(struct spi_flash *flash, u32 offset, size_t len, const vo
 
 		/* buffer to be transmitted here */
 		cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
+#ifdef CONFIG_SPI_NAND_MICRON
+		cmd[1] = page & (1 << 6) ? (1 << 4) : 0;	// This bit is used as plane selection
+#else
 		cmd[1] = 0;
+#endif
 		cmd[2] = 0;
 		ret = spi_flash_cmd_write(flash->spi, cmd, 3, wbuf, bytes);
 		if (ret) {
@@ -972,7 +990,11 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 		/* Read Data only, ignore OOB */
 		if (bytes) {
 			cmd[0] = quad == 0 ? IPQ40XX_SPINAND_CMD_NORM_READ : IPQ40XX_SPINAND_CMD_FAST_READ_QUAD;
+#ifdef CONFIG_SPI_NAND_MICRON
+			cmd[1] = page & (1 << 6) ? (1 << 4) : 0;	// This bit is used as plane selection
+#else
 			cmd[1] = 0;
+#endif
 			cmd[2] = 0;
 			cmd[3] = 0;
 			spi->quad_enable = quad;

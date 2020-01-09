@@ -166,6 +166,9 @@ const struct spi_flash_params spi_flash_params_table[] = {
 #ifdef CONFIG_SPI_NAND_ATO		/* ATO SPI NAND */
 	{"ATO25D1GA",	   0x9b12,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 #endif
+#ifdef CONFIG_SPI_NAND_MICRON		/* MICRON SPI NAND */
+	{"MT29F2G01",	   0x2c24,   0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
+#endif
 	{},	/* Empty entry to terminate the list */
 	/*
 	 * Note:

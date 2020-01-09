@@ -51,8 +51,11 @@ static int spinand_read_page(struct mtd_info *mtd, int block, int page, uchar *d
 	real_page = block * (mtd->erasesize / mtd->writesize) + page;
 
 	WB_Serial_NAND_PageDataRead(real_page/0x100, real_page%0x100);
+#ifdef CONFIG_SPI_NAND_MICRON
+	WB_Serial_NAND_Normal_Read(real_page & (1 << 6) ? (1 << 4) : 0, 0, dst, mtd->writesize);
+#else
 	WB_Serial_NAND_Normal_Read(0, 0, dst, mtd->writesize);
-
+#endif
 	return 0;
 }
 
