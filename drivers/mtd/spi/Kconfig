@@ -117,6 +117,9 @@ config SPI_NAND_ATO
 config SPI_NAND_MICRON
 	bool "MICRON SPI NAND flash support"
 
+config SPI_NAND_GD
+	bool "GigaDevice SPI NAND flash support"
+
 endchoice
 
 config WINBOND_MULTIDIE

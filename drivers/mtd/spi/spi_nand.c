@@ -46,7 +46,7 @@ void gigadevice_norm_read_cmd(u8 *cmd, int column);
 void macronix_norm_read_cmd(u8 *cmd, int column);
 void winbond_norm_read_cmd(u8 *cmd, int column);
 extern int spi_nand_flash_cmd_wait_ready(struct spi_flash *flash, u8 status_bit, u8 *status,
-                unsigned long timeout);
+        unsigned long timeout);
 int nand_register(int devnum, struct mtd_info *mtd);
 #define mtd_to_ipq_info(m)	((struct nand_chip *)((m)->priv))->priv
 
@@ -89,6 +89,20 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 		.name = "MX35LFxGE4AB",
 	},
 #endif
+#ifdef CONFIG_SPI_NAND_GD
+	{
+		.id = { 0xc8, 0xb1, 0x48, 0xc8 },
+		.page_size = 2048,
+		.erase_size = 0x00020000,
+		.pages_per_sector = 64,
+		.nr_sectors = 1024,
+		.oob_size = 64,
+		.protec_bpx = 0xC7,
+		.norm_read_cmd = gigadevice_norm_read_cmd,
+		.verify_ecc = verify_3bit_ecc,
+		.name = "GD5F1GQ4XC",
+	},
+#else
 	{
 		.id = { 0xff, 0xef, 0xaa, 0x21 },	// First byte dummy. SPI NAND high-Z, weak pull high in 970
 		.page_size = 2048,
@@ -101,6 +115,7 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 		.verify_ecc = verify_2bit_ecc,
 		.name = "W25N01GV",
 	},
+#endif
 };
 
 const struct spi_nand_flash_params *params;
@@ -393,12 +408,13 @@ static int spinand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,  
 	}
 #endif
 
+#ifndef CONFIG_SPI_NAND_GD
 	ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
 	if (ret) {
 		printf("Write enable failed in %s\n", __func__);
 		goto out;
 	}
-
+#endif
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
 #ifdef CONFIG_SPI_NAND_MICRON
@@ -415,6 +431,13 @@ static int spinand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,  
 		goto out;
 	}
 
+#ifdef CONFIG_SPI_NAND_GD
+	ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
+	if (ret) {
+		printf("Write enable failed in %s\n", __func__);
+		goto out;
+	}
+#endif
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_PROG;
 	cmd[1] = (u8)(page >> 16);
@@ -530,7 +553,7 @@ int verify_2bit_ecc(int status)
 	int ecc_status = (status & SPINAND_2BIT_ECC_MASK);
 
 	if ((ecc_status == SPINAND_2BIT_ECC_ERROR) ||
-	    (ecc_status == SPINAND_2BIT_ECC_MASK))
+	        (ecc_status == SPINAND_2BIT_ECC_MASK))
 		return ECC_ERR;
 	else if (ecc_status == SPINAND_2BIT_ECC_CORRECTED)
 		return ECC_CORRECTED;
@@ -700,7 +723,7 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 	/* Check whether page is aligned */
 	if (((to & (mtd->writesize -1)) !=0) ||
-	    ((len & (mtd->writesize -1)) != 0)) {
+	        ((len & (mtd->writesize -1)) != 0)) {
 		printf("Attempt to write to non page aligned data\n");
 		return -EINVAL;
 	}
@@ -734,12 +757,13 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 		}
 #endif
 
+#ifndef CONFIG_SPI_NAND_GD
 		ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
 		if (ret) {
 			printf("Write enable failed\n");
 			goto out;
 		}
-
+#endif
 
 		/* buffer to be transmittted here */
 		cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
@@ -754,6 +778,14 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 			printf("%s: write command failed\n", __func__);
 			goto out;
 		}
+
+#ifdef CONFIG_SPI_NAND_GD
+		ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
+		if (ret) {
+			printf("Write enable failed\n");
+			goto out;
+		}
+#endif
 
 		cmd[0] = IPQ40XX_SPINAND_CMD_PROG;
 		cmd[1] = (u8)(page >> 16);
@@ -825,11 +857,13 @@ int spi_nand_write_raw(struct spi_flash *flash, u32 offset, size_t len, const vo
 	while (1) {
 		wbuf = buf;
 
+#ifndef CONFIG_SPI_NAND_GD
 		ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
 		if (ret) {
 			printf("Write enable failed\n");
 			goto out;
 		}
+#endif
 
 		ret = spi_nand_flash_cmd_wait_ready(flash, 0x01, &status, TIMEOUT);
 		if (ret) {
@@ -850,6 +884,14 @@ int spi_nand_write_raw(struct spi_flash *flash, u32 offset, size_t len, const vo
 			printf("%s: write command failed\n", __func__);
 			goto out;
 		}
+
+#ifdef CONFIG_SPI_NAND_GD
+		ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
+		if (ret) {
+			printf("Write enable failed\n");
+			goto out;
+		}
+#endif
 
 		cmd[0] = IPQ40XX_SPINAND_CMD_PROG;
 		cmd[1] = (u8)(page >> 16);
@@ -896,7 +938,7 @@ out:
 
 static void spinand_set_quad(struct spi_flash *flash, int enable)
 {
-#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) || defined(CONFIG_SPI_NAND_MK) || defined(CONFIG_SPI_NAND_ATO)
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) || defined(CONFIG_SPI_NAND_MK) || defined(CONFIG_SPI_NAND_ATO) || defined(CONFIG_SPI_NAND_GD)
 	u8 status;
 	int ret;
 	u8 cmd[3];
@@ -975,7 +1017,11 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 			goto out;
 		}
 
+#ifdef CONFIG_SPI_NAND_GD
+		ret = verify_3bit_ecc(status);
+#else
 		ret = verify_2bit_ecc(status);
+#endif
 
 		if (ret == ECC_ERR) {
 			printf("ecc err(0x%x) for page read\n", status);
@@ -997,6 +1043,10 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 #endif
 			cmd[2] = 0;
 			cmd[3] = 0;
+#ifdef CONFIG_SPI_NAND_GD
+			if (cmd[0] == IPQ40XX_SPINAND_CMD_FAST_READ_QUAD)
+				cmd[4] = 0;
+#endif
 			spi->quad_enable = quad;
 
 			if (quad)
@@ -1342,7 +1392,7 @@ int spi_nand_init(void)
 	int ret;
 
 	info = (struct ipq40xx_spinand_info *)malloc(
-	               sizeof(struct ipq40xx_spinand_info));
+	           sizeof(struct ipq40xx_spinand_info));
 	if (!info) {
 		printf ("Error in allocating mem\n");
 		return -ENOMEM;
@@ -1359,7 +1409,7 @@ int spi_nand_init(void)
 
 	//mtd = nand_info[0];
 	mtd = (struct mtd_info *)malloc(
-	              sizeof(struct mtd_info));
+	          sizeof(struct mtd_info));
 	if (!mtd) {
 		printf ("Error in allocating mem\n");
 		return -ENOMEM;

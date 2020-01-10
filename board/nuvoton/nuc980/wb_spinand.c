@@ -417,9 +417,14 @@ void WB_Serial_NAND_Normal_Read(uint8_t addh, uint8_t addl, uint8_t* buff, uint3
 	uint32_t i = 0;
 	WB_CS_LOW();
 	SPIin(0x03);
+#ifdef	CONFIG_SPI_NAND_GD
+	SPIin(0x00); // dummy
+#endif
 	SPIin(addh);
 	SPIin(addl);
+#ifndef	CONFIG_SPI_NAND_GD
 	SPIin(0x00); // dummy
+#endif
 	for( i = 0; i < count; i++) {
 		*(buff+i) = SPIin(0x00);
 	}
