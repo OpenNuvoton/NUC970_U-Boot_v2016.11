@@ -161,8 +161,8 @@
 #define CONFIG_SPI              1
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET       0x80000
-#define CONFIG_ENV_SIZE         0x10000
-#define CONFIG_ENV_SECT_SIZE    0x10000
+#define CONFIG_ENV_SIZE         0x20000
+#define CONFIG_ENV_SECT_SIZE    0x20000
 #define CONFIG_ENV_OVERWRITE
 #endif
 #endif
