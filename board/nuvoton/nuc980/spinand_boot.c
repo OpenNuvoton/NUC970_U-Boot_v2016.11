@@ -26,7 +26,7 @@ void board_init_f(unsigned long bootflag);
 
 extern void nuc980_spi_init(void);
 extern uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address);
-extern void WB_Serial_NAND_PageDataRead(uint8_t PA_H, uint8_t PA_L);
+extern void WB_Serial_NAND_PageDataRead(uint8_t addr2, uint8_t addr1, uint8_t addr0);
 extern void WB_Serial_NAND_Normal_Read(uint8_t addh, uint8_t addl, uint8_t* buff, uint32_t count);
 extern int nuc980_serial_init (void);
 extern void sysprintf(char* pcStr,...);
@@ -50,7 +50,7 @@ static int spinand_read_page(struct mtd_info *mtd, int block, int page, uchar *d
 
 	real_page = block * (mtd->erasesize / mtd->writesize) + page;
 
-	WB_Serial_NAND_PageDataRead(real_page/0x100, real_page%0x100);
+	WB_Serial_NAND_PageDataRead((real_page >> 16) & 0xFF, (real_page >> 8) & 0xFF, real_page & 0xFF);
 #ifdef CONFIG_SPI_NAND_MICRON
 	WB_Serial_NAND_Normal_Read(real_page & (1 << 6) ? (1 << 4) : 0, 0, dst, mtd->writesize);
 #else

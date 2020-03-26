@@ -153,7 +153,9 @@ uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address)
 {
 	uint8_t read_buf;
 	//uint8_t EPR_status;
-	WB_Serial_NAND_PageDataRead(page_address/0x100, page_address%0x100);    // Read the first page of a block
+	WB_Serial_NAND_PageDataRead((page_address >> 16) & 0xFF,
+				    (page_address >> 8) & 0xFF,
+				     page_address & 0xFF);    // Read the first page of a block
 
 	/* if build-in ECC algorithm enable
 	EPR_status = WB_Check_Embedded_ECC_Flag();
@@ -169,7 +171,9 @@ uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address)
 	if(read_buf != 0xFF) {	// update at v.1.0.7
 		return 1;
 	}
-	WB_Serial_NAND_PageDataRead((page_address+1)/0x100, (page_address+1)%0x100);	// Read the second page of a block
+	WB_Serial_NAND_PageDataRead(((page_address + 1) >> 16) & 0xFF,
+				    ((page_address + 1) >> 8) & 0xFF,
+				     (page_address+1) & 0xFF);	// Read the second page of a block
 
 	/* if build-in ECC algorithm enable
 	EPR_status = WB_Check_Embedded_ECC_Flag();
@@ -393,13 +397,13 @@ PA_H, page address
 PA_L, page address
 return:
 *********************/
-void WB_Serial_NAND_PageDataRead(uint8_t PA_H, uint8_t PA_L)
+void WB_Serial_NAND_PageDataRead(uint8_t addr2, uint8_t addr1, uint8_t addr0)
 {
 	WB_CS_LOW();
 	SPIin(0x13); //
-	SPIin(0x00); // dummy
-	SPIin(PA_H); // Page address
-	SPIin(PA_L); // Page address
+	SPIin(addr2); // Page address
+	SPIin(addr1); // Page address
+	SPIin(addr0); // Page address
 	WB_CS_HIGH();
 	WB_Serial_NAND_ReadyBusy_Check(); // Need to wait for the data transfer.
 	return;

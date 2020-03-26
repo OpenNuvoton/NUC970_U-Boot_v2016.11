@@ -43,7 +43,7 @@ void WB_Unprotect(void);
 void WB_Serial_NAND_LUT_Set(uint16_t LBA, uint16_t PBA);
 
 /* read function */
-void WB_Serial_NAND_PageDataRead(uint8_t PA_H, uint8_t PA_L);
+void WB_Serial_NAND_PageDataRead(uint8_t addr2, uint8_t addr1, uint8_t addr0);
 void WB_Serial_NAND_Normal_Read(uint8_t addh, uint8_t addl, uint8_t* buff, uint32_t count);
 void WB_Serial_NAND_Continuous_Normal_Read(uint8_t* buff, uint32_t count);
 
