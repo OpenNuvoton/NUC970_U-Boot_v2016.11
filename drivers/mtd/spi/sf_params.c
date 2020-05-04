@@ -131,6 +131,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"W25Q64CV",	   0xef4017, 0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q128BV",	   0xef4018, 0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q256",	   0xef4019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K},
+	{"W25Q256JV",	   0xef7019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q80BW",	   0xef5014, 0x0,	64 * 1024,    16, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q16DW",	   0xef6015, 0x0,	64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q32DW",	   0xef6016, 0x0,	64 * 1024,    64, RD_FULL | WR_QPP | SECT_4K},
