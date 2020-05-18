@@ -204,6 +204,11 @@ config TARGET_NUC970_DISP977
 	bool "Support nuc970 disp977 board"
 	select CPU_ARM926EJS
 
+config TARGET_NUC970_BIODISP
+	bool "Support nuc970 biodisp board"
+	select CPU_ARM926EJS
+
+
 config TARGET_NUC970_LAN977
 	bool "Support nuc970 lan977 board"
 	select CPU_ARM926EJS
