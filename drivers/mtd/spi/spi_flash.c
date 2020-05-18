@@ -1076,7 +1076,9 @@ int spi_flash_scan(struct spi_flash *flash)
 		}
 	}
 #endif
-#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) || defined(CONFIG_SPI_NAND_MK)
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) ||\
+    defined(CONFIG_SPI_NAND_MK) || defined(CONFIG_SPI_NAND_ATO) ||\
+    defined(CONFIG_SPI_NAND_MICRON) || defined(CONFIG_SPI_NAND_GD)
 	if (!params->name) {
 		jedec = idcode[1] << 8 | idcode[2];
 		ext_jedec = 0x00;
@@ -1113,7 +1115,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	 * The uniform sector erase command has no effect on parameter sectors.
 	 */
 	if ((jedec == 0x0219 || (jedec == 0x0220)) &&
-	    (ext_jedec & 0xff00) == 0x4d00) {
+	        (ext_jedec & 0xff00) == 0x4d00) {
 		int ret;
 		u8 id[6];
 
@@ -1136,8 +1138,8 @@ int spi_flash_scan(struct spi_flash *flash)
 #endif
 	/* Flash powers up read-only, so clear BP# bits */
 	if (idcode[0] == SPI_FLASH_CFI_MFR_ATMEL ||
-	    idcode[0] == SPI_FLASH_CFI_MFR_MACRONIX ||
-	    idcode[0] == SPI_FLASH_CFI_MFR_SST)
+	        idcode[0] == SPI_FLASH_CFI_MFR_MACRONIX ||
+	        idcode[0] == SPI_FLASH_CFI_MFR_SST)
 		write_sr(flash, 0);
 
 	/* Assign spi data */
@@ -1250,38 +1252,28 @@ int spi_flash_scan(struct spi_flash *flash)
 
 
 #ifdef CONFIG_SPI_NAND
-	if (jedec == 0xaa21) { // treat SPI NAND seperately
-		flash->read = spi_nand_read_raw;
-		flash->write = spi_nand_write_raw;
-		flash->erase = spi_nand_erase_raw;
-		flash->page_size = 2048;		// 2kB per page
-		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+	flash->read = spi_nand_read_raw;
+	flash->write = spi_nand_write_raw;
+	flash->erase = spi_nand_erase_raw;
+	flash->page_size = 2048;		// 2kB per page
+	flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+	spinand_enable_internal_ecc(flash);
+	if ((jedec == 0x0be1) || (jedec == 0x0bf1) ||
+	        (jedec == 0xc212) || (jedec == 0xd511) ||
+	        (jedec == 0xd51c) || (jedec == 0xaa21) || (jedec == 0x9b12) ||
+	        (jedec == 0xb148) || (jedec == 0xa148)) {
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
-		spinand_enable_internal_ecc(flash);
-	} else if ((jedec == 0x0be1) || (jedec == 0x0bf1) || (jedec == 0xc212) || (jedec == 0xd511) || (jedec == 0xd51c)) {
-		flash->read = spi_nand_read_raw;
-		flash->write = spi_nand_write_raw;
-		flash->erase = spi_nand_erase_raw;
-		flash->page_size = 2048;		// 2kB per page
-		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
-		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
-		spinand_enable_internal_ecc(flash);
-	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) || (jedec == 0xc222)) {
-		flash->read = spi_nand_read_raw;
-		flash->write = spi_nand_write_raw;
-		flash->erase = spi_nand_erase_raw;
-		flash->page_size = 2048;		// 2kB per page
-		flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
+	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) ||
+	           (jedec == 0xc222) || (jedec == 0xab21) || (jedec == 0x2c24)) {
 		flash->size = 2048 * 64 * 2048;		// 2048 sectors per chip
-		spinand_enable_internal_ecc(flash);
 	} else {
 #else
 	if(1) {
 #endif
 		/* Set the quad enable bit - only for quad commands */
 		if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
-		    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
-		    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
+		        (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
+		        (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
 			ret = set_quad_mode(flash, idcode[0]);
 			if (ret) {
 				debug("SF: Fail to set QEB for %02x\n", idcode[0]);
@@ -1341,9 +1333,9 @@ int spi_flash_scan(struct spi_flash *flash)
 
 #ifndef CONFIG_SPI_FLASH_BAR
 	if (((flash->dual_flash == SF_SINGLE_FLASH) &&
-	     (flash->size > SPI_FLASH_16MB_BOUN)) ||
-	    ((flash->dual_flash > SF_SINGLE_FLASH) &&
-	     (flash->size > SPI_FLASH_16MB_BOUN << 1))) {
+	        (flash->size > SPI_FLASH_16MB_BOUN)) ||
+	        ((flash->dual_flash > SF_SINGLE_FLASH) &&
+	         (flash->size > SPI_FLASH_16MB_BOUN << 1))) {
 		puts("SF: Warning - Only lower 16MiB accessible,");
 		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
 	}

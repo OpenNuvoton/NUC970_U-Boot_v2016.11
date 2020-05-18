@@ -132,6 +132,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"W25Q64CV",	   0xef4017, 0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q128BV",	   0xef4018, 0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q256",	   0xef4019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K},
+	{"W25Q256JV",	   0xef7019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q80BW",	   0xef5014, 0x0,	64 * 1024,    16, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q16DW",	   0xef6015, 0x0,	64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K},
 	{"W25Q32DW",	   0xef6016, 0x0,	64 * 1024,    64, RD_FULL | WR_QPP | SECT_4K},
@@ -148,6 +149,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 #endif
 #ifdef CONFIG_SPI_NAND_WINBOND		/* WINBOND SPI NAND */
 	{"W25N01GV",	   0xefaa21, 0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+	{"W25M02GV",	   0xefab21, 0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 #endif
 #ifdef CONFIG_SPI_NAND_MACRONIX		/* MACRONIX SPI NAND */
 	{"MX35LF1GE4AB",   0xc212,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
@@ -162,6 +164,16 @@ const struct spi_flash_params spi_flash_params_table[] = {
 #ifdef CONFIG_SPI_NAND_MK		/* MK SPI NAND */
 	{"MKSV1GCL-DE",	   0xd51c,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"MKSV1GCW-BE",	   0xd511,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+#endif
+#ifdef CONFIG_SPI_NAND_ATO		/* ATO SPI NAND */
+	{"ATO25D1GA",	   0x9b12,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+#endif
+#ifdef CONFIG_SPI_NAND_GD              /* GigaDevice SPI NAND */
+	{"GD5F1GQ4UCxxG",  0xc8b148,   0x0,     64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+	{"GD5F1GQ4RCxxG",  0xc8a148,   0x0,     64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+#endif
+#ifdef CONFIG_SPI_NAND_MICRON		/* MICRON SPI NAND */
+	{"MT29F2G01",	   0x2c24,   0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 #endif
 	{},	/* Empty entry to terminate the list */
 	/*

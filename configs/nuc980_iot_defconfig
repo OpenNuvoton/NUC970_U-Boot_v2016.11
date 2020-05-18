@@ -337,7 +337,7 @@ CONFIG_CMD_LOADS=y
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_ARMFLASH is not set
 # CONFIG_CMD_MMC is not set
-# CONFIG_CMD_NAND is not set
+CONFIG_CMD_NAND=y
 CONFIG_CMD_SF=y
 CONFIG_CMD_SPI=y
 # CONFIG_CMD_I2C is not set
@@ -506,7 +506,7 @@ CONFIG_BOOTP_VCI_STRING="U-Boot.arm"
 # CONFIG_NAND_VF610_NFC is not set
 # CONFIG_NAND_PXA3XX is not set
 # CONFIG_NAND_ARASAN is not set
-# CONFIG_NAND_NUC980 is not set
+CONFIG_NAND_NUC980=y
 
 #
 # Generic NAND options

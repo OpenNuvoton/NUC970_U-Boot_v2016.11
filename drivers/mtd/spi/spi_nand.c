@@ -46,7 +46,7 @@ void gigadevice_norm_read_cmd(u8 *cmd, int column);
 void macronix_norm_read_cmd(u8 *cmd, int column);
 void winbond_norm_read_cmd(u8 *cmd, int column);
 extern int spi_nand_flash_cmd_wait_ready(struct spi_flash *flash, u8 status_bit, u8 *status,
-                unsigned long timeout);
+        unsigned long timeout);
 int nand_register(int devnum, struct mtd_info *mtd);
 #define mtd_to_ipq_info(m)	((struct nand_chip *)((m)->priv))->priv
 
@@ -89,6 +89,20 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 		.name = "MX35LFxGE4AB",
 	},
 #endif
+#ifdef CONFIG_SPI_NAND_GD
+	{
+		.id = { 0xc8, 0xb1, 0x48, 0xc8 },
+		.page_size = 2048,
+		.erase_size = 0x00020000,
+		.pages_per_sector = 64,
+		.nr_sectors = 1024,
+		.oob_size = 64,
+		.protec_bpx = 0xC7,
+		.norm_read_cmd = gigadevice_norm_read_cmd,
+		.verify_ecc = verify_3bit_ecc,
+		.name = "GD5F1GQ4XC",
+	},
+#else
 	{
 		.id = { 0xff, 0xef, 0xaa, 0x21 },	// First byte dummy. SPI NAND high-Z, weak pull high in 970
 		.page_size = 2048,
@@ -101,6 +115,7 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 		.verify_ecc = verify_2bit_ecc,
 		.name = "W25N01GV",
 	},
+#endif
 };
 
 const struct spi_nand_flash_params *params;
@@ -226,6 +241,25 @@ static int spi_nand_erase(struct mtd_info *mtd, struct erase_info *instr)
 		return ret;
 	}
 
+#ifdef CONFIG_WINBOND_MULTIDIE
+	u8 dieid;///die #0, #1
+	dieid = (int)(page>>16);
+
+
+	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+	cmd[1] = dieid;
+	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+	if (ret) {
+		printf("%s  failed for die select :\n", __func__);
+		goto out;
+	}
+	ret = spinand_waitfunc(mtd, 0x01, &status);
+	if (ret) {
+		printf("Operation timeout\n");
+		goto out;
+	}
+#endif
+
 	ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
 	if (ret) {
 		printf ("Write enable failed %s\n", __func__);
@@ -290,6 +324,24 @@ static int spi_nand_block_isbad(struct mtd_info *mtd, loff_t offs)
 		return -1;
 	}
 
+#ifdef CONFIG_WINBOND_MULTIDIE
+	u8 dieid;///die #0, #1
+	dieid = (int)(page>>16);
+
+
+	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+	cmd[1] = dieid;
+	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+	if (ret) {
+		printf("%s  failed for die select :\n", __func__);
+		goto out;
+	}
+	ret = spinand_waitfunc(mtd, 0x01, &status);
+	if (ret) {
+		printf("Operation timeout\n");
+		goto out;
+	}
+#endif
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_READ;
 	cmd[1] = (u8)(page >> 16);
@@ -305,7 +357,9 @@ static int spi_nand_block_isbad(struct mtd_info *mtd, loff_t offs)
 		printf("Operation timeout\n");
 		goto out;
 	}
-
+#ifdef CONFIG_SPI_NAND_MICRON
+	column |= page & (1 << 6) ? (1 << 12) : 0;	// This bit is used as plane selection
+#endif
 	info->params->norm_read_cmd(cmd, column);
 	ret = spi_flash_cmd_read(flash->spi, cmd, 4, &value, 1);
 	if (ret) {
@@ -336,14 +390,38 @@ static int spinand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,  
 	wbuf = chip->oob_poi;
 	column = mtd->writesize;
 
+#ifdef CONFIG_WINBOND_MULTIDIE
+	u8 dieid;///die #0, #1
+	dieid = (int)(page>>16);
+
+	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+	cmd[1] = dieid;
+	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+	if (ret) {
+		printf("%s  failed for die select :\n", __func__);
+		goto out;
+	}
+	ret = spinand_waitfunc(mtd, 0x01, &status);
+	if (ret) {
+		printf("Operation timeout\n");
+		goto out;
+	}
+#endif
+
+#ifndef CONFIG_SPI_NAND_GD
 	ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
 	if (ret) {
 		printf("Write enable failed in %s\n", __func__);
 		goto out;
 	}
+#endif
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
+#ifdef CONFIG_SPI_NAND_MICRON
+	cmd[1] = (u8)(column >> 8) | (page & (1 << 6) ? (1 << 4) : 0);	// This bit is used as plane selection
+#else
 	cmd[1] = (u8)(column >> 8);
+#endif
 	cmd[2] = (u8)(column);
 
 	ret = spi_flash_cmd_write(flash->spi, cmd, 3, wbuf, 2);
@@ -352,6 +430,14 @@ static int spinand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,  
 		ret = 1;
 		goto out;
 	}
+
+#ifdef CONFIG_SPI_NAND_GD
+	ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
+	if (ret) {
+		printf("Write enable failed in %s\n", __func__);
+		goto out;
+	}
+#endif
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_PROG;
 	cmd[1] = (u8)(page >> 16);
@@ -467,7 +553,7 @@ int verify_2bit_ecc(int status)
 	int ecc_status = (status & SPINAND_2BIT_ECC_MASK);
 
 	if ((ecc_status == SPINAND_2BIT_ECC_ERROR) ||
-	    (ecc_status == SPINAND_2BIT_ECC_MASK))
+	        (ecc_status == SPINAND_2BIT_ECC_MASK))
 		return ECC_ERR;
 	else if (ecc_status == SPINAND_2BIT_ECC_CORRECTED)
 		return ECC_CORRECTED;
@@ -504,6 +590,25 @@ static int spi_nand_read_std(struct mtd_info *mtd, loff_t from, struct mtd_oob_o
 		return -1;
 	}
 	while (1) {
+
+#ifdef CONFIG_WINBOND_MULTIDIE
+		u8 dieid;///die #0, #1
+		dieid = (int)(page>>16);
+
+		cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+		cmd[1] = dieid;
+		ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+		if (ret) {
+			printf("%s  failed for die select :\n", __func__);
+			goto out;
+		}
+		ret = spinand_waitfunc(mtd, 0x01, &status);
+		if (ret) {
+			printf("Operation timeout\n");
+			goto out;
+		}
+#endif
+
 		cmd[0] = IPQ40XX_SPINAND_CMD_READ;
 		cmd[1] = (u8)(page >> 16);
 		cmd[2] = (u8)(page >> 8);
@@ -535,6 +640,11 @@ static int spi_nand_read_std(struct mtd_info *mtd, loff_t from, struct mtd_oob_o
 		/* Read Data */
 		if (bytes) {
 			cmd[0] = IPQ40XX_SPINAND_CMD_NORM_READ;
+#ifdef CONFIG_SPI_NAND_MICRON
+			cmd[1] = page & (1 << 6) ? (1 << 4) : 0;	// This bit is used as plane selection
+#else
+			cmd[1] = 0;
+#endif
 			cmd[2] = 0;
 			cmd[3] = 0;
 			ret = spi_flash_cmd_read(flash->spi, cmd, 4, ops->datbuf, bytes);
@@ -613,7 +723,7 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 	/* Check whether page is aligned */
 	if (((to & (mtd->writesize -1)) !=0) ||
-	    ((len & (mtd->writesize -1)) != 0)) {
+	        ((len & (mtd->writesize -1)) != 0)) {
 		printf("Attempt to write to non page aligned data\n");
 		return -EINVAL;
 	}
@@ -629,21 +739,53 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 	while (1) {
 		wbuf = buf;
 
+#ifdef CONFIG_WINBOND_MULTIDIE
+		u8 dieid;///die #0, #1
+		dieid = (int)(page>>16);
+
+		cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+		cmd[1] = dieid;
+		ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+		if (ret) {
+			printf("%s  failed for die select :\n", __func__);
+			goto out;
+		}
+		ret = spinand_waitfunc(mtd, 0x01, &status);
+		if (ret) {
+			printf("Operation timeout\n");
+			goto out;
+		}
+#endif
+
+#ifndef CONFIG_SPI_NAND_GD
 		ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
 		if (ret) {
 			printf("Write enable failed\n");
 			goto out;
 		}
+#endif
 
 		/* buffer to be transmittted here */
 		cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
+#ifdef CONFIG_SPI_NAND_MICRON
+		cmd[1] = page & (1 << 6) ? (1 << 4) : 0;	// This bit is used as plane selection
+#else
 		cmd[1] = 0;
+#endif
 		cmd[2] = 0;
 		ret = spi_flash_cmd_write(flash->spi, cmd, 3, wbuf, bytes);
 		if (ret) {
 			printf("%s: write command failed\n", __func__);
 			goto out;
 		}
+
+#ifdef CONFIG_SPI_NAND_GD
+		ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
+		if (ret) {
+			printf("Write enable failed\n");
+			goto out;
+		}
+#endif
 
 		cmd[0] = IPQ40XX_SPINAND_CMD_PROG;
 		cmd[1] = (u8)(page >> 16);
@@ -715,11 +857,13 @@ int spi_nand_write_raw(struct spi_flash *flash, u32 offset, size_t len, const vo
 	while (1) {
 		wbuf = buf;
 
+#ifndef CONFIG_SPI_NAND_GD
 		ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
 		if (ret) {
 			printf("Write enable failed\n");
 			goto out;
 		}
+#endif
 
 		ret = spi_nand_flash_cmd_wait_ready(flash, 0x01, &status, TIMEOUT);
 		if (ret) {
@@ -729,13 +873,25 @@ int spi_nand_write_raw(struct spi_flash *flash, u32 offset, size_t len, const vo
 
 		/* buffer to be transmitted here */
 		cmd[0] = IPQ40XX_SPINAND_CMD_PLOAD;
+#ifdef CONFIG_SPI_NAND_MICRON
+		cmd[1] = page & (1 << 6) ? (1 << 4) : 0;	// This bit is used as plane selection
+#else
 		cmd[1] = 0;
+#endif
 		cmd[2] = 0;
 		ret = spi_flash_cmd_write(flash->spi, cmd, 3, wbuf, bytes);
 		if (ret) {
 			printf("%s: write command failed\n", __func__);
 			goto out;
 		}
+
+#ifdef CONFIG_SPI_NAND_GD
+		ret = spi_flash_cmd(flash->spi, IPQ40XX_SPINAND_CMD_WREN, NULL, 0);
+		if (ret) {
+			printf("Write enable failed\n");
+			goto out;
+		}
+#endif
 
 		cmd[0] = IPQ40XX_SPINAND_CMD_PROG;
 		cmd[1] = (u8)(page >> 16);
@@ -782,7 +938,7 @@ out:
 
 static void spinand_set_quad(struct spi_flash *flash, int enable)
 {
-#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) || defined(CONFIG_SPI_NAND_MK)
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) || defined(CONFIG_SPI_NAND_MK) || defined(CONFIG_SPI_NAND_ATO) || defined(CONFIG_SPI_NAND_GD)
 	u8 status;
 	int ret;
 	u8 cmd[3];
@@ -861,7 +1017,11 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 			goto out;
 		}
 
+#ifdef CONFIG_SPI_NAND_GD
+		ret = verify_3bit_ecc(status);
+#else
 		ret = verify_2bit_ecc(status);
+#endif
 
 		if (ret == ECC_ERR) {
 			printf("ecc err(0x%x) for page read\n", status);
@@ -876,8 +1036,17 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 		/* Read Data only, ignore OOB */
 		if (bytes) {
 			cmd[0] = quad == 0 ? IPQ40XX_SPINAND_CMD_NORM_READ : IPQ40XX_SPINAND_CMD_FAST_READ_QUAD;
+#ifdef CONFIG_SPI_NAND_MICRON
+			cmd[1] = page & (1 << 6) ? (1 << 4) : 0;	// This bit is used as plane selection
+#else
+			cmd[1] = 0;
+#endif
 			cmd[2] = 0;
 			cmd[3] = 0;
+#ifdef CONFIG_SPI_NAND_GD
+			if (cmd[0] == IPQ40XX_SPINAND_CMD_FAST_READ_QUAD)
+				cmd[4] = 0;
+#endif
 			spi->quad_enable = quad;
 
 			if (quad)
@@ -1049,6 +1218,21 @@ static int spinand_unlock_protect(struct mtd_info *mtd)
 		return -1;
 	}
 
+#ifdef CONFIG_WINBOND_MULTIDIE
+	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+	cmd[1] = 0x00;
+	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+	if (ret) {
+		printf("%s  failed for die select :\n", __func__);
+		goto out;
+	}
+	ret = spinand_waitfunc(mtd, 0x01, &status);
+	if (ret) {
+		printf("Operation timeout\n");
+		goto out;
+	}
+#endif
+
 	cmd[0] = IPQ40XX_SPINAND_CMD_GETFEA;
 	cmd[1] = IPQ40XX_SPINAND_PROTEC_REG;
 
@@ -1068,6 +1252,29 @@ static int spinand_unlock_protect(struct mtd_info *mtd)
 		printf("Failed to unblock sectors #0\n");
 	}
 
+#ifdef CONFIG_WINBOND_MULTIDIE
+	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+	cmd[1] = 0x01;
+	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+	if (ret) {
+		printf("%s  failed for die select :\n", __func__);
+		goto out;
+	}
+	ret = spinand_waitfunc(mtd, 0x01, &status);
+	if (ret) {
+		printf("Operation timeout\n");
+		goto out;
+	}
+#endif
+
+	status &= (info->params->protec_bpx);
+	cmd[0] = IPQ40XX_SPINAND_CMD_SETFEA;
+	cmd[1] = IPQ40XX_SPINAND_PROTEC_REG;
+	cmd[2] = (u8)status;
+	ret = spi_flash_cmd_write(flash->spi, cmd, 3, NULL, 0);
+	if (ret) {
+		printf("Failed to unblock sectors #0\n");
+	}
 
 out:
 	spi_release_bus(flash->spi);
@@ -1087,6 +1294,21 @@ void spinand_internal_ecc(struct mtd_info *mtd, int enable)
 		printf ("Write enable failed %s %d\n", __func__, __LINE__);
 		return;
 	}
+
+#ifdef CONFIG_WINBOND_MULTIDIE
+	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+	cmd[1] = 0x00;
+	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+	if (ret) {
+		printf("%s  failed for die select :\n", __func__);
+		goto out;
+	}
+	ret = spinand_waitfunc(mtd, 0x01, &status);
+	if (ret) {
+		printf("Operation timeout\n");
+		goto out;
+	}
+#endif
 
 	cmd[0] = IPQ40XX_SPINAND_CMD_GETFEA;
 	cmd[1] = IPQ40XX_SPINAND_FEATURE_REG;
@@ -1112,6 +1334,45 @@ void spinand_internal_ecc(struct mtd_info *mtd, int enable)
 		printf("Internal ECC enable failed\n");
 	}
 
+#ifdef CONFIG_WINBOND_MULTIDIE
+	cmd[0] = IPQ40XX_SPINAND_CMD_DIESELECT;
+	cmd[1] = 0x01;
+	ret = spi_flash_cmd_write(flash->spi, cmd, 2, NULL, 0);
+	if (ret) {
+		printf("%s  failed for die select :\n", __func__);
+		goto out;
+	}
+	ret = spinand_waitfunc(mtd, 0x01, &status);
+	if (ret) {
+		printf("Operation timeout\n");
+		goto out;
+	}
+#endif
+
+	cmd[0] = IPQ40XX_SPINAND_CMD_GETFEA;
+	cmd[1] = IPQ40XX_SPINAND_FEATURE_REG;
+
+	ret = spi_flash_cmd_read(flash->spi, cmd, 2, &status, 1);
+	if (ret) {
+		printf("%s: read data failed\n", __func__);
+		goto out;
+	}
+
+	//printf("####debug die 1 SR: %X,",status);
+
+	cmd[0] = IPQ40XX_SPINAND_CMD_SETFEA;
+	cmd[1] = IPQ40XX_SPINAND_FEATURE_REG;
+	if (enable) {
+		cmd[2] = status | IPQ40XX_SPINAND_FEATURE_ECC_EN;
+	} else {
+		cmd[2] = status & ~(IPQ40XX_SPINAND_FEATURE_ECC_EN);
+	}
+	//printf(" SRafter:%X \n", cmd[2]);
+	ret = spi_flash_cmd_write(flash->spi, cmd, 3, NULL, 0);
+	if (ret) {
+		printf("Internal ECC enable failed\n");
+	}
+
 out:
 	spi_release_bus(flash->spi);
 	return;
@@ -1131,7 +1392,7 @@ int spi_nand_init(void)
 	int ret;
 
 	info = (struct ipq40xx_spinand_info *)malloc(
-	               sizeof(struct ipq40xx_spinand_info));
+	           sizeof(struct ipq40xx_spinand_info));
 	if (!info) {
 		printf ("Error in allocating mem\n");
 		return -ENOMEM;
@@ -1148,7 +1409,7 @@ int spi_nand_init(void)
 
 	//mtd = nand_info[0];
 	mtd = (struct mtd_info *)malloc(
-	              sizeof(struct mtd_info));
+	          sizeof(struct mtd_info));
 	if (!mtd) {
 		printf ("Error in allocating mem\n");
 		return -ENOMEM;

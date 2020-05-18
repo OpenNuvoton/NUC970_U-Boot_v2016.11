@@ -153,10 +153,13 @@ int board_eth_init(bd_t *bis)
 #define SDH_BA          0xB0018000 /* SD Host */
 #define REG_SDH_GCTL    (SDH_BA+0x800)   /* Global Control and Status Register */
 #define REG_ECTL        (SDH_BA+0x840)   /* SD Host extend control register */
+#define REG_SDCSR       (SDH_BA+0x820)   /* SD control and status register */
 #define REG_FMICTL      (FMI_BA+0x800)  /* FMI control and status register */
+#define REG_EMMCCTL     (FMI_BA+0x820)  /* eMMC control register */
 #define GCTL_RST        0x1
 #define SD_EN           0x2
 #define EMMC_EN         0x2
+#define CLK74_OE        0x20
 
 int board_mmc_init(bd_t *bd)
 {
@@ -168,13 +171,15 @@ int board_mmc_init(bd_t *bd)
 #endif
 #if defined(CONFIG_NUC980_SD_PORT0)
 	writel((readl(REG_CLKDIVCTL9) & ~0x18), REG_CLKDIVCTL9); //Set SDH clock source from XIN
-	writel((readl(REG_CLKDIVCTL9) & ~0xFF00) | (0x1d << 8), REG_CLKDIVCTL9); //Set SDH clock divider => 400 KHz
+	//writel((readl(REG_CLKDIVCTL9) & ~0xFF00) | (0x1d << 8), REG_CLKDIVCTL9); //Set SDH clock divider => 400 KHz
+	writel((readl(REG_CLKDIVCTL9) & ~0xFF00) | (0x3b << 8), REG_CLKDIVCTL9); //Set SDH clock divider => 200 KHz
 
 	writel(GCTL_RST, REG_SDH_GCTL);
 	for(i = 0; i < 10; i++);        // Need few clock delay 'til SW_RST auto cleared.
 	writel(SD_EN, REG_SDH_GCTL);
 
-	writel(readl(REG_ECTL) & ~3, REG_ECTL); // SD port 0 power enable
+	writel(readl(REG_SDCSR) | CLK74_OE, REG_SDCSR);
+	while(readl(REG_SDCSR) & CLK74_OE);
 #endif
 
 #ifdef CONFIG_NUC980_SD_PORT0
@@ -191,8 +196,11 @@ int board_mmc_init(bd_t *bd)
 
 	writel(readl(REG_HCLKEN) | 0x00700000, REG_HCLKEN);   // eMMC & NAND & FMI clk
 	writel((readl(REG_CLKDIVCTL3) & ~0x18), REG_CLKDIVCTL3); //Set eMMC clock source from XIN
-	writel((readl(REG_CLKDIVCTL3) & ~0xFF00) | (0x28 << 8), REG_CLKDIVCTL3); //Set eMMC clock divider => 300 KHz
+	writel((readl(REG_CLKDIVCTL3) & ~0xFF00) | (0x3b << 8), REG_CLKDIVCTL3); //Set eMMC clock divider => 200 KHz
 	writel(SD_EN, REG_FMICTL);
+
+	writel(readl(REG_EMMCCTL) | CLK74_OE, REG_EMMCCTL);
+	while(readl(REG_EMMCCTL) & CLK74_OE);
 
 	// Set MFP the same port as NAND according to power-on setting register
 	writel((readl(REG_MFP_GPC_L) & ~0xfff00000) | 0x66600000, REG_MFP_GPC_L); // pin C5~C7 for eMMC0

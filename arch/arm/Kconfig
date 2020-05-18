@@ -235,6 +235,10 @@ config TARGET_N32926_DISP
 	bool "Support n32926/n9h26"
 	select CPU_ARM926EJS
 
+config TARGET_NUC980_CHILI
+	bool "Support NUC980 CHILI"
+	select CPU_ARM926EJS
+
 config TARGET_ZMX25
 	bool "Support zmx25"
 	select CPU_ARM926EJS
