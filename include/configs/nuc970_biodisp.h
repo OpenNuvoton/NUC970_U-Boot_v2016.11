@@ -186,8 +186,8 @@
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"uimage=disp977.ub\0" \
-	"oimage=disp977.bak\0" \
+	"uimage=biodisp.ub\0" \
+	"oimage=biodisp.bak\0" \
 	"ethact=emac\0" \
 	"bootdelay=1\0" \
 	"addpanel=if env exists panelid; then setenv bootargs ${bootargs} tftpanel=${panelid}; fi\0" \
