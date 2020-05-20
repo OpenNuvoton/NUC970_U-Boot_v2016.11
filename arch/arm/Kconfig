@@ -215,6 +215,11 @@ config TARGET_NUC980_IOT
 	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
+config TARGET_NUC980_LORAG
+	bool "Support NUC980 LORAG"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL	
+	
 config TARGET_NUC980_CHILI
 	bool "Support NUC980 CHILI"
 	select CPU_ARM926EJS
