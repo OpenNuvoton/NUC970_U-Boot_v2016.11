@@ -59,7 +59,7 @@ static int nuc970_eth_mii_read(uchar addr, uchar reg, ushort *val)
 }
 
 
-#ifdef CONFIG_NUC970_EMAC0_NO_MDC
+#ifdef CONFIG_NUC970_PHY_KSZ8863_I2C
 /* KSZ8863 Switch */
 static int nuc970_reset_phy(void)
 {
@@ -67,7 +67,14 @@ static int nuc970_reset_phy(void)
 	writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
 	return(0);
 }
-
+#elif CONFIG_NUC970_PHY_IP175L_MDC
+/* IP175L Switch */
+static int nuc970_reset_phy(void)
+{
+	/* set EMAC0 to 100Mb Full-duplex */
+	writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
+	return(0);
+}
 #elif CONFIG_NUC970_PHY_KSZ8895_MDC
 /* Micrel KSZ8895 Switch */
 static void ksz8895_write(u8 reg, u8 val)
@@ -129,6 +136,7 @@ static int nuc970_reset_phy(void)
 	writel(readl(MCMDR) | MCMDR_OPMOD | MCMDR_FDUP, MCMDR);
 	return (0);
 }
+
 
 #else
 /* any other PHY */
