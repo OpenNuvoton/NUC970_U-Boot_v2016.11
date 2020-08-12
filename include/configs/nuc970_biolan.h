@@ -73,7 +73,7 @@
 
 /*#define CONFIG_DISPLAY_CPUINFO */
 
-#define CONFIG_BOOTDELAY	1
+/*#define CONFIG_BOOTDELAY	1*/
 
 #define CONFIG_SYS_SDRAM_BASE   0
 #define CONFIG_NR_DRAM_BANKS    2     /* there are 2 sdram banks for nuc970 */
