@@ -44,6 +44,7 @@ extern void sysprintf(char* pcStr,...);
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
 static ulong base_address[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIST;
 
+static int aes_mtp_decrypt(unsigned int image_addr, int image_size);
 
 static int nand_is_bad_block(struct mtd_info *mtd, int block)
 {
@@ -145,6 +146,8 @@ void board_init_f(unsigned long bootflag)
 	nand_load(mtd, CONFIG_SYS_NAND_U_BOOT_OFFS, CONFIG_SYS_NAND_U_BOOT_SIZE,
 	          (uchar *)CONFIG_SYS_NAND_U_BOOT_DST);
 
+	aes_mtp_decrypt((unsigned int)CONFIG_SYS_NAND_U_BOOT_DST, CONFIG_SYS_NAND_U_BOOT_SIZE);
+
 #ifdef CONFIG_NAND_ENV_DST
 	nand_load(mtd, CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
 	          (uchar *)CONFIG_NAND_ENV_DST);
@@ -177,3 +180,115 @@ void hang(void)
 	/* Loop forever */
 	while (1) ;
 }
+
+
+
+/*-------------------------------------------------------------------*/
+/*  AES decrypt image with MTP NAND-boot key                         */
+/*  Return value:                                                    */
+/*  0:  Is secure boot with AES encrypted. uboot decrypted success.  */
+/*  -1: Crypto H/W error                                             */
+/*  -2: Is not secure boot with AES encrypted.                       */
+/*  -3: Register unlock failed                                       */
+/*-------------------------------------------------------------------*/
+
+#define REG_MTP_KEYEN		0xB800C000
+#define REG_MTP_USERDATA	0xB800C00C
+#define REG_MTP_STATUS		0xB800C040
+#define REG_MTP_REGLCTL		0xB800C050
+#define REG_CRPT_INTEN		0xB000F000
+#define REG_CRPT_INTSTS		0xB000F004
+
+static int aes_mtp_decrypt(unsigned int image_addr, int image_size)
+{
+	int ret;
+	int volatile loop;
+	
+	int  i;
+	unsigned char  *ptr = (unsigned char *)image_addr;
+	
+	/* enable OTP */
+	__raw_writel(__raw_readl(REG_PCLKEN1)|(1 << 26), REG_PCLKEN1);
+	__raw_writel(0x59, REG_MTP_REGLCTL);
+	__raw_writel(0x16, REG_MTP_REGLCTL);
+	__raw_writel(0x88, REG_MTP_REGLCTL);
+
+	if (__raw_readl(REG_MTP_REGLCTL) != 0x1) {
+		ret = -3;
+		goto ret_out;
+	}
+		
+	__raw_writel(__raw_readl(REG_MTP_KEYEN)|0x1, REG_MTP_KEYEN);
+	
+	/* check if secure boot */
+	for (loop = 0; loop < 0x100000; loop++)
+	{
+		if ((__raw_readl(REG_MTP_STATUS) & 0x3) == 0x3)
+		{
+			if ((__raw_readl(REG_MTP_USERDATA) & 0x3) == 0x1)
+			{
+				printk("Is AES encrypt.\n");
+				
+				/* initial CRYPTO engine */
+				__raw_writel(__raw_readl(REG_HCLKEN)|(1<<23), REG_HCLKEN);
+				__raw_writel(0x3, REG_CRPT_INTEN);
+				__raw_writel(0, REG_CRPT_AES_IV0);
+				__raw_writel(0, REG_CRPT_AES_IV1);
+				__raw_writel(0, REG_CRPT_AES_IV2);
+				__raw_writel(0, REG_CRPT_AES_IV3);
+				
+				__raw_writel(image_addr, REG_CRPT_AES_SADR);
+				__raw_writel(image_addr, REG_CRPT_AES_DADR);
+				__raw_writel(image_size, REG_CRPT_AES_CNT);
+
+				/* clear interrupt flag */
+				__raw_writel(0x3, REG_CRPT_INTSTS);
+
+				__raw_writel(0x00C000B9, REG_CRPT_AES_CTL);
+
+				while ((__raw_readl(REG_CRPT_INTSTS) & 0x3) == 0);
+				
+				if (__raw_readl(REG_CRPT_INTSTS) & 0x2) {
+					ret = -1;
+					goto ret_out;
+				}
+	
+				__raw_writel(0x3, REG_CRPT_INTSTS);
+				
+				ret = 0;
+				goto ret_out;
+
+			}
+			else {
+				ret = -2;
+				goto ret_out;
+			}
+		}
+
+		/* No Key */
+		if ((__raw_readl(REG_MTP_STATUS) & 0x5) == 0x5) {
+			// dbg_printf("No Key\n");
+			ret = -2;
+			goto ret_out;
+		}
+	}
+
+ret_out:
+	__raw_writel(0, REG_CRPT_AES_CTL);
+	__raw_writel(0, REG_CRPT_INTEN);
+	__raw_writel(__raw_readl(REG_HCLKEN)& ~(1<<23), REG_HCLKEN);
+
+	__raw_writel(__raw_readl(REG_MTP_KEYEN)& ~0x1, REG_MTP_KEYEN);
+	__raw_writel(__raw_readl(REG_PCLKEN1)& ~(1 << 26), REG_PCLKEN1);
+
+	return ret;
+}
+
+
+
+
+
+
+
+
+
