@@ -1264,7 +1264,8 @@ int spi_flash_scan(struct spi_flash *flash)
 	        (jedec == 0xb148) || (jedec == 0xa148)) {
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
 	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) ||
-	           (jedec == 0xc222) || (jedec == 0xab21) || (jedec == 0x2c24)) {
+		(jedec == 0xab21) || (jedec == 0xaa22) ||
+		(jedec == 0xc222) || (jedec == 0x2c24)) {
 		flash->size = 2048 * 64 * 2048;		// 2048 sectors per chip
 	} else {
 #else
