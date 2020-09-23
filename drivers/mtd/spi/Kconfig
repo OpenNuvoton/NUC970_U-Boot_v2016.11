@@ -84,6 +84,27 @@ config SPI_FLASH_WINBOND
 	help
 	  Add support for various Winbond SPI flash chips (W25xxx)
 
+config SPI_FLASH_W74M
+	bool "Winbond RPMC SPI flash support"
+	depends on SPI_FLASH_WINBOND
+	help
+	  Add support for various Winbond RPMC SPI flash chips (W74xx)
+
+config RPMC_KEY_INDEX
+	int "Specify Key Index"
+	range 1 4
+	default 1
+	depends on SPI_FLASH_W74M
+	help
+	  Specify the key index
+
+config RPMC_ROOTKEY_TAG
+	string "Specify Rootkey Tag"
+	default "Nuvoton"
+	depends on SPI_FLASH_W74M
+	help
+	  Specify 32 characters input tag for creating rootkey.
+
 config SPI_FLASH_XTX
 	bool "XTX SPI flash support"
 	help
