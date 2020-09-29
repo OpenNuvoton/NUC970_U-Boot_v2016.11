@@ -106,7 +106,9 @@ void nuc970_serial_puts (const char *s)
 	}
 }
 
-
+#ifdef CONFIG_CMD_JPEG
+extern void JPEG_TRIGGER(void);
+#endif
 #ifdef CONFIG_KPI_NUC970
 
 unsigned int u32KPI_value = 0;
@@ -150,7 +152,7 @@ int nuc970_serial_and_kpi_getc (void)
 		    	if(u32KPI_value == KEY_R_ROW0_COL1)
  			    	return (0x34);
             }
-			
+
 	    }
 
 	}
@@ -165,6 +167,9 @@ int nuc970_serial_getc (void)
 		{
 			return (UART0->x.RBR);
 		}
+#ifdef CONFIG_CMD_JPEG
+		JPEG_TRIGGER();
+#endif
 		WATCHDOG_RESET();
 	}
 }
@@ -172,6 +177,9 @@ int nuc970_serial_getc (void)
 
 int nuc970_serial_tstc (void)
 {
+#ifdef CONFIG_CMD_JPEG
+	JPEG_TRIGGER();
+#endif
 	return (!((__raw_readl(UART0_BASE + REG_COM_MSR) & RX_FIFO_EMPTY)>>14));
 }
 
@@ -205,4 +213,3 @@ __weak struct serial_device *default_serial_console(void)
 {
         return &nuc970_serial_drv;
 }
-

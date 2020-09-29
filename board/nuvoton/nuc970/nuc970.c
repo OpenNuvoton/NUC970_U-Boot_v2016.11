@@ -10,7 +10,7 @@
 
 #define REG_HCLKEN      0xB0000210
 #define REG_PCLKEN0     0xB0000218
-#define REG_SDIC_SIZE0  0xB0001810   
+#define REG_SDIC_SIZE0  0xB0001810
 #define REG_SDIC_SIZE1  0xB0001814
 #define REG_CLKDIVCTL8  0xB0000240
 #define REG_WDT_CTL	0xB8001800
@@ -314,5 +314,3 @@ int checkboard(void)
 
 /* Lowlevel init isn't used on nuc970, so just provide a dummy one here */
 void lowlevel_init(void) {}
-
-
