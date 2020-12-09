@@ -151,6 +151,8 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"W25N02KV",	   0xefaa22, 0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 	{"W25M02GV",	   0xefab21, 0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 	{"GD5F1GQ4xExxG",  0xc8d1c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K}, //suppurt GD & WB in one uboot
+	{"GD5F1GQ5xExxG",  0xc851c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K}, //suppurt GD & WB in one uboot
+	{"TC58CVG0S3HRAIJ",  0x98e240, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},//suppurt GD & WB & KIOXIA in one uboot
 #endif
 #ifdef CONFIG_SPI_NAND_MACRONIX		/* MACRONIX SPI NAND */
 	{"MX35LF1GE4AB",   0xc212,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
