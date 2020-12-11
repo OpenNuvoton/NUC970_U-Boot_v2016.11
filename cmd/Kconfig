@@ -618,9 +618,24 @@ config CMD_QFW
 
 config CMD_JPEG
 	bool "jpeg"
+	depends on NUC970_LCD
 	help
 	  JPEG decode command support
 
+choice
+	prompt "JPEG decode output format"
+	default JPEG_OUT_RGB565
+	depends on CMD_JPEG
+	help
+	  This select the JPEG output format. Could be ether RGB888 or RGB565.
+
+	config JPEG_OUT_RGB565
+        bool "RGB565"
+
+	config JPEG_OUT_RGB888
+        bool "RGB888"
+
+endchoice
 endmenu
 
 config CMD_BOOTSTAGE
