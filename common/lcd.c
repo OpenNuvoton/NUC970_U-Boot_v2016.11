@@ -741,8 +741,9 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 
 static void lcd_logo(void)
 {
+#ifndef CONFIG_CMD_JPEG
 	lcd_logo_plot(0, 0);
-
+#endif
 #ifdef CONFIG_LCD_INFO
 	lcd_set_col(LCD_INFO_X / VIDEO_FONT_WIDTH);
 	lcd_set_row(LCD_INFO_Y / VIDEO_FONT_HEIGHT);

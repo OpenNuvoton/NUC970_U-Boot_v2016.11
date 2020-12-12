@@ -209,10 +209,12 @@ static char* get_cpuinfo (void)
 
 void lcd_show_board_info(void)
 {
+#ifndef CONFIG_CMD_JPEG
         lcd_printf ("%s\n", U_BOOT_VERSION);
         lcd_printf ("(C) 2016 Nuvoton Technology Corp.\n");
         lcd_printf ("%s Evaluation Board\n", get_cpuinfo());
-
+#endif
 }
+
 #endif /* CONFIG_LCD_INFO */
 

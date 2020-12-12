@@ -331,7 +331,6 @@ int checkboard(void)
 /* Lowlevel init isn't used on nuc970, so just provide a dummy one here */
 void lowlevel_init(void) {}
 
-
 #ifdef CONFIG_NUC970_ETHADDR_FROM_EEPROM
 /* Read MAC-address from 24AA02E48 EEPROM */
 static int i2c_read_mac(uchar *buffer)

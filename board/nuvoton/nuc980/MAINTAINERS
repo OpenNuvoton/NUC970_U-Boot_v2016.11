@@ -1,6 +1,6 @@
-MX25PDK BOARD
-M:	Fabio Estevam <fabio.estevam@nxp.com>
+NUC980 BOARD
+M:	Chi-Wen Weng <cwweng@nuvoton.com>
 S:	Maintained
-F:	board/freescale/mx25pdk/
-F:	include/configs/mx25pdk.h
-F:	configs/mx25pdk_defconfig
+F:	board/nuvoton/nuc980/
+F:	include/configs/nuc980_evb.h
+F:	configs/nuc980_defconfig

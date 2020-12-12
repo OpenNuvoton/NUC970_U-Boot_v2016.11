@@ -30,6 +30,10 @@
 #include <mmc.h>
 #include "nuc970_mmc.h"
 
+#ifdef CONFIG_CMD_JPEG
+extern void JPEG_TRIGGER(void);
+#endif
+
 int nuc970_sd_check_ready_busy(void)
 {
 	int cnt = 10;
@@ -240,7 +244,9 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 		if(nuc970_emmc_check_ready_busy() < 0)
 			return(-ETIMEDOUT);
 
-
+#ifdef CONFIG_CMD_JPEG
+	JPEG_TRIGGER();
+#endif
 	if(mmc_resp_type(cmd) != MMC_RSP_NONE) {
 		if(mmc_resp_type(cmd) == MMC_RSP_R2) {
 			emmcctl |= R2_EN;
@@ -284,14 +290,18 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 		block_length = 0;
 		blocks = 0;
 	}
-
+#ifdef CONFIG_CMD_JPEG
+	JPEG_TRIGGER();
+#endif
 
 	writel(cmd->cmdarg, REG_EMMCCMD);
 	//printf("arg: %x\n", cmd->cmdarg);
 	writel(emmcctl, REG_EMMCCTL);
 	udelay(300);
 	while (readl(REG_EMMCCTL) & CO_EN); //wait 'til command out complete
-
+#ifdef CONFIG_CMD_JPEG
+	JPEG_TRIGGER();
+#endif
 
 
 	if(mmc_resp_type(cmd) != MMC_RSP_NONE) {
@@ -331,18 +341,22 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 
 	}
 
-
+#ifdef CONFIG_CMD_JPEG
+	JPEG_TRIGGER();
+#endif
 	if (data) {
 		if (data->flags & MMC_DATA_READ) {
 			//printf("R\n");
 			//printf("**** %x %x %x %x\n", readl(REG_DMACCSR), readl(REG_DMACSAR2), readl(REG_DMACBCR), readl(REG_DMACISR));
 			//writel(readl(REG_EMMCCTL) | DI_EN, REG_EMMCCTL);
-
-
+#ifdef CONFIG_CMD_JPEG
+			while(!(readl(REG_EMMCINTSTS) & BLKD_IF))
+				JPEG_TRIGGER();
+#else
 			while(!(readl(REG_EMMCINTSTS) & BLKD_IF));
-
+#endif
 			writel(BLKD_IF, REG_EMMCINTSTS);
-			//while(1);
+
 
 		} else if (data->flags & MMC_DATA_WRITE) {
 			while(!(readl(REG_EMMCINTSTS) & BLKD_IF));
@@ -627,4 +641,3 @@ int nuc970_mmc_init(int priv)
 
 	return 0;
 }
-

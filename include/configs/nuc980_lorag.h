@@ -1,8 +1,8 @@
 /*
- * (C) Copyright 2018
+ * (C) Copyright 2020
  * Nuvoton Technology Corp. <www.nuvoton.com>
  *
- * Configuation settings for the NUC980 Eth2Uart Board.
+ * Configuation settings for the NUC980 EV Board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -69,9 +69,7 @@
 #define CONFIG_ETHADDR                  00:00:00:11:66:88
 #define CONFIG_SYS_RX_ETH_BUFFER        16 // default is 4, set to 16 here.
 
-/*#undef CONFIG_SYS_ICACHE_OFF */
-/*#undef CONFIG_SYS_DCACHE_OFF */
-#define CONFIG_SYS_ICACHE_OFF
+#undef CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
 
 /*
@@ -88,12 +86,7 @@
 /*
  * Command line configuration.
  */
-#if 0
-#include <config_cmd_default.h>
 
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_SOURCE
-#endif
 
 #ifdef CONFIG_SYS_USE_SPIFLASH
 #undef CONFIG_CMD_IMLS  /*====================> SPI only */
@@ -176,45 +169,11 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 
-/* Following block is for MMC support */
-#ifdef CONFIG_NUC980_MMC
-#define CONFIG_CMD_FAT
-/*#define CONFIG_MMC */
-/*#define CONFIG_GENERIC_MMC */
-#define CONFIG_DOS_PARTITION
-/*#define CONFIG_MMC_TRACE */
-/*#define CONFIG_NUC980_SD_PORT0 */
-/*#define CONFIG_NUC980_EMMC */      /* Don't enable eMMC(CONFIG_NUC980_EMMC) and NAND(CONFIG_NAND_NUC980) at the same time! */
-#ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV  1
-#define CONFIG_ENV_OFFSET       0x80000
-#define CONFIG_ENV_SIZE         /*2048*/0x10000
-#define CONFIG_ENV_SECT_SIZE    512
-#define CONFIG_ENV_OVERWRITE
-#endif
-#endif
-
-/* Following block is for EHCI support*/
-#if 1
-/*#define CONFIG_CMD_USB*/
-/*#define CONFIG_CMD_FAT*/
-/*#define CONFIG_USB_STORAGE*/
-/*#define CONFIG_USB_EHCI*/
-/*#define CONFIG_USB_EHCI_NUC980*/
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_DOS_PARTITION
-#endif
-
-
-/*#define CONFIG_OF_LIBFDT */
-/*#define CONFIG_FIT */
-
 /*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(1024*1024) /*ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)  */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
-
 
 #endif
