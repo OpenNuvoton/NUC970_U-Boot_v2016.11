@@ -125,9 +125,9 @@ void JPEG_TRIGGER(void)
 		return;
 	t = get_timer(0);
 	jpegInit();
-#ifdef CONFIG_JPEG_OUT_RGB565
+#ifdef CONFIG_CMD_JPEG_RGB565
 	jpegSetDecodeMode(JPEG_DEC_PRIMARY_PACKET_RGB565);
-#elif defined (CONFIG_JPEG_OUT_RGB888)
+#elif defined (CONFIG_CMD_JPEG_RGB888)
 	jpegSetDecodeMode(JPEG_DEC_PRIMARY_PACKET_RGB888);
 #endif
 	JPEG_SET_YADDR((u32)gd->fb_base);
@@ -156,9 +156,9 @@ int do_jpeg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	t = get_timer(0);
 
 	jpegInit();
-#ifdef CONFIG_JPEG_OUT_RGB565
+#ifdef CONFIG_CMD_JPEG_RGB565
 	jpegSetDecodeMode(JPEG_DEC_PRIMARY_PACKET_RGB565);
-#elif defined (CONFIG_JPEG_OUT_RGB888)
+#elif defined (CONFIG_CMD_JPEG_RGB888)
 	jpegSetDecodeMode(JPEG_DEC_PRIMARY_PACKET_RGB888);
 #endif
 	JPEG_SET_YADDR((u32)gd->fb_base);
