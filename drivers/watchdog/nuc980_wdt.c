@@ -52,13 +52,13 @@ void hw_watchdog_init(void)
 			enable = 0;
 
 	if (enable) {
+		writel(readl(REG_PCLKEN0) | 1, REG_PCLKEN0);   // Enable WDT clock
+		writel(readl((REG_CLKDIVCTL8) & ~0x300) | 0x200, REG_CLKDIVCTL8);   // Set WDT clock source from PCLK/4096
+
 		/* Enable 26 seconds watchdog timer */
 		NUC980_UnLock();
 		writel((readl(REG_WDT_CTL) & ~0xF00) | 0x882, REG_WDT_CTL);   // Set time-out interval and enable WDT & RSTEN
 		NUC980_Lock();
-
-		writel(readl(REG_PCLKEN0) | 1, REG_PCLKEN0);   // Enable WDT clock
-		writel(readl((REG_CLKDIVCTL8) & ~0x300) | 0x200, REG_CLKDIVCTL8);   // Set WDT clock source from PCLK/4096
 	} else {
 		/* Disable watchdog timer */
 		NUC980_UnLock();
