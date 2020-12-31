@@ -90,8 +90,6 @@
 
 
 // MAC MII Management Data Control and Address Register(MIIDA)
-#define MDCCR    0x00a00000  // MDC clock rating
-//#define PHYAD    0x00000000  // PHY Address
 #define PHYWR    0x00010000  // Write Operation
 #define PHYBUSY  0x00020000  // Busy Bit
 #define PHYPreSP 0x00040000  // Preamble Suppress
