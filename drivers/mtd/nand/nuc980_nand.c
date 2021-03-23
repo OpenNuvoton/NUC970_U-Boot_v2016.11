@@ -689,11 +689,15 @@ int board_nand_init(struct nand_chip *nand)
 
 	/* Detect NAND chips */
 	/* first scan to find the device and get the page size */
+#ifndef CONFIG_SPI_NAND
 	if (nand_scan_ident(mtd, 1, NULL)) { //CWWeng 2017.2.14
 		printf("NAND Flash not found !\n");
 //        return -1;
 	}
-
+#else
+	//printf("SPI NAND skip check the NAND interface \n");
+	return -1;
+#endif 
 	//Set PSize bits of SMCSR register to select NAND card page size
 	switch (mtd->writesize) {
 	case 2048:

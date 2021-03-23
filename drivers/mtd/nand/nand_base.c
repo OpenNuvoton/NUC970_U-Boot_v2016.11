@@ -4265,10 +4265,11 @@ EXPORT_SYMBOL(nand_scan_tail);
 int nand_scan(struct mtd_info *mtd, int maxchips)
 {
 	int ret;
-
+#ifndef CONFIG_SPI_NAND
 	ret = nand_scan_ident(mtd, maxchips, NULL);
 	if (!ret)
 		ret = nand_scan_tail(mtd);
+#endif
 	return ret;
 }
 EXPORT_SYMBOL(nand_scan);

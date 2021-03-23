@@ -630,10 +630,10 @@ choice
 	help
 	  This select the JPEG output format. Could be ether RGB888 or RGB565.
 
-	config JPEG_OUT_RGB565
+	config CMD_JPEG_RGB565
         bool "RGB565"
 
-	config JPEG_OUT_RGB888
+	config CMD_JPEG_RGB888
         bool "RGB888"
 
 endchoice

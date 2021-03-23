@@ -42,7 +42,7 @@ int nuc980_eth_mii_write(uchar addr, uchar reg, ushort val)
 {
 
 	writel(val, MIID);
-	writel((addr << 8) | reg | PHYBUSY | PHYWR | MDCCR, MIIDA);
+	writel((addr << 8) | reg | PHYBUSY | PHYWR, MIIDA);
 
 	while (readl(MIIDA) & PHYBUSY);
 
@@ -52,7 +52,7 @@ int nuc980_eth_mii_write(uchar addr, uchar reg, ushort val)
 
 int nuc980_eth_mii_read(uchar addr, uchar reg, ushort *val)
 {
-	writel((addr << 8) | reg | PHYBUSY | MDCCR, MIIDA);
+	writel((addr << 8) | reg | PHYBUSY, MIIDA);
 	while (readl(MIIDA) & PHYBUSY);
 
 	*val = (ushort)readl(MIID);
