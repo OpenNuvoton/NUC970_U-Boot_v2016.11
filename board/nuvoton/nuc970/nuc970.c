@@ -237,19 +237,25 @@ int board_init(void)
 int board_late_init(void)
 {
 #ifdef CONFIG_NUC970_ETHADDR_FROM_EEPROM
-      uchar mac_id[6];
 
-      if (!eth_getenv_enetaddr("ethaddr", mac_id) && !i2c_read_mac(mac_id)) {
-		eth_setenv_enetaddr("ethaddr", mac_id);
-		printf("ethaddr from EEPROM: %pM\n", mac_id);
-      }
+#ifdef CONFIG_NUC970_I2C_PG_PU
+      /* Workaround for board errata */
+    writel(readl(REG_GPIOG_PDEN) & 0xfffffffc, REG_GPIOG_PDEN); 
+    writel(readl(REG_GPIOG_PUEN) | 3, REG_GPIOG_PUEN); 
+#endif
+    uchar mac_id[6];
+
+    if (!eth_getenv_enetaddr("ethaddr", mac_id) && !i2c_read_mac(mac_id)) {
+	eth_setenv_enetaddr("ethaddr", mac_id);
+	printf("ethaddr from EEPROM: %pM\n", mac_id);
+    }
 #endif
 
 #ifdef CONFIG_HW_WATCHDOG
-      hw_watchdog_init();
+    hw_watchdog_init();
 #endif
 
-	return 0;
+    return 0;
 }
 
 int NUC970_cleanup(void)
