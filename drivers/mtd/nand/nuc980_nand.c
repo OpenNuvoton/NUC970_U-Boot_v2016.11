@@ -422,7 +422,8 @@ int fmiSMCorrectData (struct mtd_info *mtd, unsigned long uDAddr )
 					uErrorCnt = (uStatus >> 2) & 0x1F;
 					fmiSM_CorrectData_BCH(jj*4+ii, uErrorCnt, (u8 *)uDAddr);
 
-					break;
+					uStatus >>= 8;
+					continue;
 				} else { // uncorrectable error or ECC error
 					printf("uncorrectable!\n");
 					return -1;
@@ -566,7 +567,7 @@ static int nuc980_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct na
 	int eccsize = chip->ecc.size;
 	uint8_t *p = buf;
 	char * ptr= (char *)REG_SMRA0;
-	int volatile i;
+	//int volatile i;
 
 	//debug("nuc980_nand_read_page_hwecc_oob_first\n");
 	/* At first, read the OOB area  */
