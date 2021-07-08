@@ -91,12 +91,6 @@ int nuc970_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 		printf("========================================================\n");
 	*/
 
-	if((readl(REG_SDCSR) & 0xF) != 0)
-		if(nuc970_sd_check_ready_busy() < 0) {
-			if ((readl(REG_SDISR) & SDDAT0) == 0)
-				return(-ETIMEDOUT);
-		}
-
 	if(mmc_resp_type(cmd) != MMC_RSP_NONE) {
 		if(mmc_resp_type(cmd) == MMC_RSP_R2) {
 			sdcsr |= R2_EN;
@@ -149,7 +143,6 @@ int nuc970_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 	}
 
 	writel(cmd->cmdarg, REG_SDARG);
-	//printf("arg: %x\n", cmd->cmdarg);
 	writel(sdcsr, REG_SDCSR);
 
 	while (readl(REG_SDCSR) & CO_EN); //wait 'til command out complete
@@ -168,16 +161,23 @@ int nuc970_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 				                   ((tmp[i + 1] & 0xff000000) >> 24);
 		} else {
 			while (1) {
-				if (!(readl(REG_SDCSR) & RI_EN))
+				if (!(readl(REG_SDCSR) & RI_EN)) {
+
+					if (readl(REG_SDISR) & RITO_IF) {
+						writel(RITO_IF, REG_SDISR);
+						writel(readl(REG_SDCSR)|(1<<14), REG_SDCSR);
+						writel(0, REG_SDTMOUT);
+						return(-ETIMEDOUT);
+					}
 					break;
+				}
 				if (readl(REG_SDISR) & RITO_IF) {
 					writel(RITO_IF, REG_SDISR);
+					writel(readl(REG_SDCSR)|(1<<14), REG_SDCSR);
 					writel(0, REG_SDTMOUT);
 					return(-ETIMEDOUT);
 				}
 			}
-			//printf("=>%x %x %x %x\n", sdcsr, readl(REG_SDBLEN), readl(REG_SDRSP0), readl(REG_SDRSP1));
-			//printf("[xxxx]REG_SDISR = 0x%x\n",readl(REG_SDISR));
 			cmd->response[0] = (readl(REG_SDRSP0) << 8) | (readl(REG_SDRSP1) & 0xff);
 			cmd->response[1] = cmd->response[2] = cmd->response[3] = 0;
 		}
@@ -194,16 +194,10 @@ int nuc970_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 
 	if (data) {
 		if (data->flags & MMC_DATA_READ) {
-			//printf("R\n");
-			//printf("**** %x %x %x %x\n", readl(REG_DMACCSR), readl(REG_DMACSAR2), readl(REG_DMACBCR), readl(REG_DMACISR));
-			//writel(readl(REG_SDCSR) | DI_EN, REG_SDCSR);
-
 			while(!(readl(REG_SDISR) & BLKD_IF));
 			writel(BLKD_IF, REG_SDISR);
-			//while(1);
 
 		} else if (data->flags & MMC_DATA_WRITE) {
-			//printf("W\n");
 			while(!(readl(REG_SDISR) & BLKD_IF));
 			writel(BLKD_IF, REG_SDISR);
 
@@ -237,10 +231,6 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 		printf("========================================================\n");
 	*/
 
-	if((readl(REG_EMMCCTL) & 0xF) != 0)
-		if(nuc970_emmc_check_ready_busy() < 0)
-			return(-ETIMEDOUT);
-
 #ifdef CONFIG_CMD_JPEG
 	JPEG_TRIGGER();
 #endif
@@ -262,7 +252,6 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 		block_length = data->blocksize;
 		blocks = data->blocks;
 
-		//printf("size %d len %d\n", block_length, blocks);
 		writel(block_length - 1, REG_EMMCBLEN);
 
 		if (block_length <= 0x200) {
@@ -271,7 +260,6 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 			else
 				printf("NUC970 eMMC Max block transfer is 255!!\n");
 		}
-		//printf("emmcctl 0x%x \n", emmcctl);
 
 		if (data->flags == MMC_DATA_READ) {
 			emmcctl |= DI_EN;
@@ -292,7 +280,6 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 #endif
 
 	writel(cmd->cmdarg, REG_EMMCCMD);
-	//printf("arg: %x\n", cmd->cmdarg);
 	writel(emmcctl, REG_EMMCCTL);
 	udelay(300);
 	while (readl(REG_EMMCCTL) & CO_EN); //wait 'til command out complete
@@ -315,16 +302,22 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 				                   ((tmp[i + 1] & 0xff000000) >> 24);
 		} else {
 			while (1) {
-				if (!(readl(REG_EMMCCTL) & RI_EN))
+				if (!(readl(REG_EMMCCTL) & RI_EN)) {
+					if (readl(REG_EMMCINTSTS) & RITO_IF) {
+						writel(RITO_IF, REG_EMMCINTSTS);
+						writel(readl(REG_EMMCCTL)|(1<<14), REG_EMMCCTL);
+						writel(0, REG_EMMCTOUT);
+						return(-ETIMEDOUT);
+					}
 					break;
+				}
 				if (readl(REG_EMMCINTSTS) & RITO_IF) {
 					writel(RITO_IF, REG_EMMCINTSTS);
+					writel(readl(REG_EMMCCTL)|(1<<14), REG_EMMCCTL);
 					writel(0, REG_EMMCTOUT);
 					return(-ETIMEDOUT);
 				}
 			}
-			//printf("=>%x %x %x %x\n", emmcctl, readl(REG_EMMCBLEN), readl(REG_EMMCRESP0), readl(REG_EMMCRESP1));
-			//printf("[xxxx]REG_EMMCINTSTS = 0x%x\n",readl(REG_EMMCINTSTS));
 			cmd->response[0] = (readl(REG_EMMCRESP0) << 8) | (readl(REG_EMMCRESP1) & 0xff);
 			cmd->response[1] = cmd->response[2] = cmd->response[3] = 0;
 		}
@@ -343,9 +336,6 @@ int nuc970_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 #endif
 	if (data) {
 		if (data->flags & MMC_DATA_READ) {
-			//printf("R\n");
-			//printf("**** %x %x %x %x\n", readl(REG_DMACCSR), readl(REG_DMACSAR2), readl(REG_DMACBCR), readl(REG_DMACISR));
-			//writel(readl(REG_EMMCCTL) | DI_EN, REG_EMMCCTL);
 #ifdef CONFIG_CMD_JPEG
 			while(!(readl(REG_EMMCINTSTS) & BLKD_IF))
 				JPEG_TRIGGER();
