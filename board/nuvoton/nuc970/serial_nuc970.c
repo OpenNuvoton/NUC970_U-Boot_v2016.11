@@ -78,7 +78,7 @@ int nuc970_serial_init (void)
 	__raw_writel((__raw_readl(REG_MFP_GPE_L) & 0xffffff00) | 0x99, REG_MFP_GPE_L); // UART0 multi-function
 
 	/* UART0 line configuration for (115200,n,8,1) */
-	UART0->LCR |=0x07;
+	UART0->LCR = 0x03;
 	UART0->BAUD = 0x30000066; /* 12MHz reference clock input, 115200 */
 
 	return 0;
