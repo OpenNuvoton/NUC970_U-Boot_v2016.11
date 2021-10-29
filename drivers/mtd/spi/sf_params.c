@@ -150,9 +150,11 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"W25N01GV",	   0xefaa21, 0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"W25N02KV",	   0xefaa22, 0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 	{"W25M02GV",	   0xefab21, 0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
-	{"GD5F1GQ4xExxG",  0xc8d1c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K}, //suppurt GD & WB in one uboot
-	{"GD5F1GQ5xExxG",  0xc851c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K}, //suppurt GD & WB in one uboot
-	{"TC58CVG0S3HRAIJ",  0x98e240, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},//suppurt GD & WB & KIOXIA in one uboot
+	{"GD5F1GQ4xExxG",  0xc8d1c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},  //suppurt GD & WB in one uboot
+	{"GD5F1GQ5xExxG",  0xc851c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},  //suppurt GD & WB in one uboot
+	{"TC58CVG0S3HRAIJ",0x98e240, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},  //suppurt GD & WB & KIOXIA in one uboot
+	{"FM25S01A",  	   0xa1e47f, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},	//suppurt GD & WB & KIOXIA & FM25 in one uboot
+	{"S35ML04G03", 	   0x013501, 0x0,       64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 #endif
 #ifdef CONFIG_SPI_NAND_MACRONIX		/* MACRONIX SPI NAND */
 	{"MX35LF1GE4AB",   0xc212,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
@@ -164,11 +166,14 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"XT26G01BWSEGA",  0x0bf1,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"XT26G02BWSIGA",  0x0bf2,   0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 	{"XT26G01CWSIGA",  0x0b11,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
-
+	{"XT26G11CWSIGA",  0x0b15,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+        {"XT26G04CWSIGA",  0x0b13,   0x0,	64 * 2048,  4096, RD_FULL | WR_QPP | SECT_4K},
+ 	{"XT26G02CWSIGA",  0x0b12,   0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 #endif
 #ifdef CONFIG_SPI_NAND_MK		/* MK SPI NAND */
 	{"MKSV1GCL-DE",	   0xd51c,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"MKSV1GCW-BE",	   0xd511,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+	{"MKSV4GIL-DE",	   0xd50b,   0x0,	64 * 2048,  4096, RD_FULL | WR_QPP | SECT_4K},
 #endif
 #ifdef CONFIG_SPI_NAND_ATO		/* ATO SPI NAND */
 	{"ATO25D1GA",	   0x9b12,   0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},

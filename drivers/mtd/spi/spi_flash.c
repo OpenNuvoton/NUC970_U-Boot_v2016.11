@@ -1243,12 +1243,14 @@ int spi_flash_scan(struct spi_flash *flash)
 		}
 	}
 #endif
+
+#ifndef CONFIG_SPI_NAND
 	/* Flash powers up read-only, so clear BP# bits */
 	if (idcode[0] == SPI_FLASH_CFI_MFR_ATMEL ||
 	        idcode[0] == SPI_FLASH_CFI_MFR_MACRONIX ||
 	        idcode[0] == SPI_FLASH_CFI_MFR_SST)
 		write_sr(flash, 0);
-
+#endif
 	/* Assign spi data */
 	flash->name = params->name;
 	flash->memory_map = spi->memory_map;
@@ -1365,16 +1367,22 @@ int spi_flash_scan(struct spi_flash *flash)
 	flash->page_size = 2048;		// 2kB per page
 	flash->sector_size = 2048 * 64;		// 64 pages per sector(block)
 	spinand_enable_internal_ecc(flash);
+	printf("jedec %x",jedec);
 	if ((jedec == 0x0be1) || (jedec == 0x0bf1) ||
 	        (jedec == 0xc212) || (jedec == 0xd511) ||
 	        (jedec == 0xd51c) || (jedec == 0xaa21) || (jedec == 0x9b12) ||
 	        (jedec == 0xb148) || (jedec == 0xa148) || (jedec == 0xd1c8) ||
-		(jedec == 0x51c8) || (jedec == 0xe240) || (jedec == 0x0b11)) {
+		(jedec == 0x51c8) || (jedec == 0xe240) || (jedec == 0x0b11) ||
+		(jedec == 0x0b15) || (jedec == 0xe47f)) {
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
 	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) ||
 		(jedec == 0xab21) || (jedec == 0xaa22) ||
-		(jedec == 0xc222) || (jedec == 0x2c24)) {
+		(jedec == 0xc222) || (jedec == 0x2c24) || (jedec == 0x3501) || (jedec == 0x0b12)) {
 		flash->size = 2048 * 64 * 2048;		// 2048 sectors per chip
+	} else if ((jedec == 0x0b13) || (jedec == 0xd50b)){
+		flash->page_size = 4096;		// 4kB per page
+		flash->sector_size = 4096 * 64;		// 64 pages per sector(block)
+		flash->size = 4096 * 64 * 2048;		// 2048 sectors per chip
 	} else {
 #else
 	if(1) {
