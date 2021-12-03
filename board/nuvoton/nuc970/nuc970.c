@@ -160,7 +160,7 @@ int board_mmc_init(bd_t *bd)
 #endif
 
 #ifdef CONFIG_NUC970_SD_PORT0
-    writel(0x66666666, REG_MFP_GPD_L);   // Set GPD for SD0
+    writel((readl(REG_MFP_GPD_L) & ~0x0fffffff) | 0x6666666, REG_MFP_GPD_L);   // Set GPD for SD0
 
     nuc970_mmc_init(0); // init for SD port 0
 #endif
