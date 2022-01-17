@@ -40,13 +40,16 @@ struct eth_descriptor volatile *tx_desc_ptr, *rx_desc_ptr;
 
 int nuc980_eth_mii_write(uchar addr, uchar reg, ushort val)
 {
-
 	writel(val, MIID);
 	writel((addr << 8) | reg | PHYBUSY | PHYWR, MIIDA);
 
 	while (readl(MIIDA) & PHYBUSY);
-
 	return(0);
+}
+
+int nuc980_mii_write(struct mii_dev *bus, int addr, int devad, int reg, u16 value)
+{
+	return nuc980_eth_mii_write((uchar)addr, (uchar)reg, (ushort)value);
 }
 
 
@@ -56,8 +59,15 @@ int nuc980_eth_mii_read(uchar addr, uchar reg, ushort *val)
 	while (readl(MIIDA) & PHYBUSY);
 
 	*val = (ushort)readl(MIID);
-
 	return(0);
+}
+
+int nuc980_mii_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	ushort  value;
+	
+	nuc980_eth_mii_read((uchar)addr, (uchar)reg, &value);
+	return value;
 }
 
 int nuc980_reset_phy(void)
@@ -242,7 +252,7 @@ int nuc980_eth_register(void)
 		return(-1);
 
 	memset(dev, 0, sizeof(*dev));
-	sprintf(dev->name, "emac");
+	sprintf(dev->name, "nuc980 emac");
 
 	dev->init = nuc980_eth_init;
 	dev->halt = nuc980_eth_halt;
@@ -251,6 +261,20 @@ int nuc980_eth_register(void)
 	dev->write_hwaddr = nuc980_eth_write_hwaddr;
 
 	eth_register(dev);
+
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
+	int retval;
+	struct mii_dev *mdiodev = mdio_alloc();
+	if (!mdiodev)
+		return -ENOMEM;
+	strncpy(mdiodev->name, dev->name, MDIO_NAME_LEN);
+	mdiodev->read = nuc980_mii_read;
+	mdiodev->write = nuc980_mii_write;
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
+#endif
 
 	return(0);
 }
