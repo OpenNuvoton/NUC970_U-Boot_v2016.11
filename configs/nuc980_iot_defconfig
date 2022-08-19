@@ -664,7 +664,7 @@ CONFIG_REGEX=y
 #
 # CONFIG_LZ4 is not set
 # CONFIG_ERRNO_STR is not set
-# CONFIG_OF_LIBFDT is not set
+CONFIG_OF_LIBFDT=y
 # CONFIG_OF_LIBFDT_OVERLAY is not set
 # CONFIG_SPL_OF_LIBFDT is not set
 
