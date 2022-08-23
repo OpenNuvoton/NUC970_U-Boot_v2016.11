@@ -39,6 +39,7 @@
 #define spi_print(...)  printf("spi_nand: " __VA_ARGS__)
 
 struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
+int verify_4bit_ecc(int status);
 int verify_3bit_ecc(int status);
 int verify_2bit_ecc(int status);
 int verify_dummy_ecc(int status);
@@ -89,6 +90,22 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 		.name = "MX35LFxGE4AB",
 	},
 #endif
+
+#ifdef CONFIG_SPI_FLASH_XTX
+	{
+		.id = { 0x00, 0x0b, 0x12, 0x00 },
+		.page_size = 2048,
+		.erase_size = 0x00020000,
+		.pages_per_sector = 64,
+		.nr_sectors = 2048,
+		.oob_size = 128,
+		.protec_bpx = 0xb7,
+		.norm_read_cmd = winbond_norm_read_cmd,
+		.verify_ecc = verify_4bit_ecc,
+		.name = "XTX26G02C",
+	},
+#endif
+
 #ifdef CONFIG_SPI_NAND_GD
 	{
 		.id = { 0xc8, 0xb1, 0x48, 0xc8 },
@@ -534,6 +551,18 @@ static int spi_nand_block_markbad(struct mtd_info *mtd, loff_t offs)
 out:
 	spi_release_bus(flash->spi);
 	return ret;
+}
+
+int verify_4bit_ecc(int status)
+{
+	int ecc_status = (status & SPINAND_4BIT_ECC_MASK);
+
+	if (ecc_status == SPINAND_4BIT_ECC_ERROR)
+		return ECC_ERR;
+	else if (ecc_status)
+		return ECC_CORRECTED;
+	else
+		return 0;
 }
 
 int verify_3bit_ecc(int status)
@@ -1020,7 +1049,11 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 #ifdef CONFIG_SPI_NAND_GD
 		ret = verify_3bit_ecc(status);
 #else
-		ret = verify_2bit_ecc(status);
+		#ifdef CONFIG_SPI_FLASH_XTX
+		       ret = verify_4bit_ecc(status);
+		#else
+		       ret = verify_2bit_ecc(status);
+		#endif
 #endif
 
 		if (ret == ECC_ERR) {

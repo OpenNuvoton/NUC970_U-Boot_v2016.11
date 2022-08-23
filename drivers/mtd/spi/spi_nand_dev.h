@@ -99,6 +99,9 @@ struct ipq40xx_spinand_info {
 #define ECC_ERR		1
 #define ECC_CORRECTED	2
 
+#define SPINAND_4BIT_ECC_MASK		0xF0
+#define SPINAND_4BIT_ECC_ERROR		0xF0
+
 #define SPINAND_3BIT_ECC_MASK		0x70
 #define SPINAND_3BIT_ECC_ERROR		0x70
 
