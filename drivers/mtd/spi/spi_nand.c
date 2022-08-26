@@ -1452,6 +1452,7 @@ int spi_nand_init(void)
 
 	mtd->priv = chip;
 	mtd->writesize = flash->page_size;
+	mtd->writebufsize = mtd->writesize;
 	mtd->erasesize = spi_nand_flash_tbl[0].erase_size;
 	mtd->oobsize = spi_nand_flash_tbl[0].oob_size;
 	mtd->size = flash->size;
