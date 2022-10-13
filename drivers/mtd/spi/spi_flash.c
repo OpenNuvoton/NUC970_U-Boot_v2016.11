@@ -1370,7 +1370,7 @@ int spi_flash_scan(struct spi_flash *flash)
 	printf("jedec %x",jedec);
 	if ((jedec == 0x0be1) || (jedec == 0x0bf1) ||
 	        (jedec == 0xc212) || (jedec == 0xd511) ||
-	        (jedec == 0xd51c) || (jedec == 0xaa21) || (jedec == 0x9b12) ||
+	        (jedec == 0xd51c) || (jedec == 0xaa21) || (jedec == 0x9b12) || (jedec == 0xae21) ||
 	        (jedec == 0xb148) || (jedec == 0xa148) || (jedec == 0xd1c8) ||
 		(jedec == 0x51c8) || (jedec == 0xe240) || (jedec == 0x0b11) ||
 		(jedec == 0x0b15) || (jedec == 0xe47f)) {

@@ -149,6 +149,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 #endif
 #ifdef CONFIG_SPI_NAND_WINBOND		/* WINBOND SPI NAND */
 	{"W25N01GV",	   0xefaa21, 0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
+	{"W25N01KV",	   0xefae21, 0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"W25N02KV",	   0xefaa22, 0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 	{"W25M02GV",	   0xefab21, 0x0,	64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 	{"GD5F1GQ4xExxG",  0xc8d1c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},  //suppurt GD & WB in one uboot
