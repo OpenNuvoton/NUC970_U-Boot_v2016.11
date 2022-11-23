@@ -164,10 +164,10 @@ int board_mmc_init(bd_t *bd)
 #endif
 
 #ifdef CONFIG_NUC970_SD_PORT0
-    writel(0x66666666, REG_MFP_GPD_L);   // Set GPD for SD0
 #ifdef CONFIG_NUC970_SD_PORT0_CD_DAT3
     writel(readl(REG_GPIOD_PDEN) | (1<<5), REG_GPIOD_PDEN); // Set pulldown on DAT3
 #endif
+    writel((readl(REG_MFP_GPD_L) & ~0x0fffffff) | 0x6666666, REG_MFP_GPD_L);   // Set GPD for SD0
     nuc970_mmc_init(0); // init for SD port 0
 #endif
 #ifdef CONFIG_NUC970_SD_PORT1
@@ -240,8 +240,8 @@ int board_late_init(void)
 
 #ifdef CONFIG_NUC970_I2C_PG_PU
       /* Workaround for board errata */
-    writel(readl(REG_GPIOG_PDEN) & 0xfffffffc, REG_GPIOG_PDEN); 
-    writel(readl(REG_GPIOG_PUEN) | 3, REG_GPIOG_PUEN); 
+    writel(readl(REG_GPIOG_PDEN) & 0xfffffffc, REG_GPIOG_PDEN);
+    writel(readl(REG_GPIOG_PUEN) | 3, REG_GPIOG_PUEN);
 #endif
     uchar mac_id[6];
 

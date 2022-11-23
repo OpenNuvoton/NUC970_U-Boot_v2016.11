@@ -436,7 +436,6 @@ int fmiSMCorrectData (struct mtd_info *mtd, unsigned long uDAddr )
 //sysprintf(">>> 0x%x\n", uErrorCnt);
 					fmiSM_CorrectData_BCH(jj*4+ii, uErrorCnt, (u8 *)uDAddr);
 
-					break;
 				} else { // uncorrectable error or ECC error
 //sysprintf("uncorrectable\n");
 					return -1;

@@ -430,8 +430,6 @@ static int  nuc980_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 	uint32_t I2C_TIME_OUT_COUNT = 0x200000;
 	i2c_dev i2c_device;
 
-	alen = 2;
-
 	//printf("Start Rx --> %d %d 0x%x 0x%x \n", len, alen, addr, chip);
 
 	memset((void *)&i2c_device, 0, sizeof(i2c_dev));
@@ -504,8 +502,6 @@ static int  nuc980_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	uint32_t u32time_out;
 	uint32_t I2C_TIME_OUT_COUNT = 0x20000;
 	i2c_dev i2c_device;
-
-	alen = 2;
 
 	//printf("Start Tx --> %d %d 0x%x 0x%x \n", len, alen, addr, chip);
 

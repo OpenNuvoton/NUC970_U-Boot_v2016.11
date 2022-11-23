@@ -111,9 +111,10 @@ config SPI_FLASH_XTX
 	  Add support for various XTX SPI flash chips (XTxxx)
 
 config SPI_FLASH_ZETTA
-	bool "Zetta SPI flash support"
+	bool "ZETTA SPI flash support"
 	help
-	  Add support for various Zetta SPI flash chips (ZDxxx)
+	  Add support for various ZETTA SPI flash chips (ZDxxx)
+
 
 config SPI_NAND
 	bool "SPI NAND flash support"
