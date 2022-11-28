@@ -27,6 +27,8 @@
 #define REG_PCLKEN0     0xB0000218
 #define REG_CLKDIVCTL8  0xB0000240
 #define REG_WDT_CTL     0xB0040000
+#define REG_WDT_ALTCTL  0xB0040004
+#define REG_WDT_RSTCNT  0xB0040008
 
 void hw_watchdog_reset(void);
 void hw_watchdog_init(void);
@@ -36,7 +38,7 @@ extern void NUC980_Lock(void);
 void hw_watchdog_reset(void)
 {
 	NUC980_UnLock();
-	writel(readl(REG_WDT_CTL) | 1, REG_WDT_CTL);   // Reset WDT up-counter value
+	writel(0x00005AA5, REG_WDT_RSTCNT);   // Reset WDT up-counter value
 	NUC980_Lock();
 }
 
