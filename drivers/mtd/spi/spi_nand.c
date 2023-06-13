@@ -854,6 +854,7 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 	}
 
+	*retlen = len - write_len;
 out:
 	spi_release_bus(flash->spi);
 	return ret;
