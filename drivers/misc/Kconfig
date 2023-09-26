@@ -98,6 +98,30 @@ config NUVOTON_NCT6102D
 	  disable the legacy UART, the watchdog or other devices
 	  in the Nuvoton Super IO chips on X86 platforms.
 
+config NUC980_MISC_CAN
+	bool "Enable NUC980 CAN driver"
+	help
+	  If you say Y here, you will get support for the NUC980 CAN driver.
+
+config ENABLE_MISC_CAN0
+	bool "Enable NUC980 CAN0 driver"
+	depends on NUC980_MISC_CAN
+
+config NUC980_MISC_CAN0_PD_1
+        bool "CAN0 PIN: RX-->PD6, TX-->PD7"
+        depends on ENABLE_MISC_CAN0
+        default y
+
+config ENABLE_MISC_CAN1
+	bool "Enable NUC980 CAN1 driver"
+	depends on NUC980_MISC_CAN
+
+config NUC980_MISC_CAN1_PD_1
+        bool "CAN1 PIN: RX-->PD14, TX-->PD15"
+        depends on ENABLE_MISC_CAN1
+        default y
+
+
 config PWRSEQ
 	bool "Enable power-sequencing drivers"
 	depends on DM
