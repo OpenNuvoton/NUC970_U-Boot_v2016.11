@@ -203,7 +203,7 @@ static int aes_mtp_decrypt(unsigned int image_addr, int image_size)
 {
 	int ret;
 	int volatile loop;
-	
+
 	int  i;
 	unsigned char  *ptr = (unsigned char *)image_addr;
 	
@@ -217,18 +217,18 @@ static int aes_mtp_decrypt(unsigned int image_addr, int image_size)
 		ret = -3;
 		goto ret_out;
 	}
-		
+
 	__raw_writel(__raw_readl(REG_MTP_KEYEN)|0x1, REG_MTP_KEYEN);
-	
+
 	/* check if secure boot */
 	for (loop = 0; loop < 0x100000; loop++)
 	{
 		if ((__raw_readl(REG_MTP_STATUS) & 0x3) == 0x3)
 		{
-			if ((__raw_readl(REG_MTP_USERDATA) & 0x3) == 0x1)
+			if ((__raw_readl(REG_MTP_USERDATA) & 0x5) == 0x5)
 			{
-				printk("Is AES encrypt.\n");
-				
+				printk("Is secure boot with AES encrypt.\n");
+
 				/* initial CRYPTO engine */
 				__raw_writel(__raw_readl(REG_HCLKEN)|(1<<23), REG_HCLKEN);
 				__raw_writel(0x3, REG_CRPT_INTEN);
@@ -236,7 +236,7 @@ static int aes_mtp_decrypt(unsigned int image_addr, int image_size)
 				__raw_writel(0, REG_CRPT_AES_IV1);
 				__raw_writel(0, REG_CRPT_AES_IV2);
 				__raw_writel(0, REG_CRPT_AES_IV3);
-				
+
 				__raw_writel(image_addr, REG_CRPT_AES_SADR);
 				__raw_writel(image_addr, REG_CRPT_AES_DADR);
 				__raw_writel(image_size, REG_CRPT_AES_CNT);
@@ -247,14 +247,14 @@ static int aes_mtp_decrypt(unsigned int image_addr, int image_size)
 				__raw_writel(0x00C000B9, REG_CRPT_AES_CTL);
 
 				while ((__raw_readl(REG_CRPT_INTSTS) & 0x3) == 0);
-				
+
 				if (__raw_readl(REG_CRPT_INTSTS) & 0x2) {
 					ret = -1;
 					goto ret_out;
 				}
-	
+
 				__raw_writel(0x3, REG_CRPT_INTSTS);
-				
+
 				ret = 0;
 				goto ret_out;
 
