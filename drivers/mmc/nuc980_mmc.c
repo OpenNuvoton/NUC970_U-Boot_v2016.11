@@ -278,6 +278,9 @@ int nuc980_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 	//printf("arg: %x\n", cmd->cmdarg);
 	writel(emmcctl, REG_EMMCCTL);
 	udelay(300);
+	if(cmd->cmdarg==55)
+		mdelay(1);
+
 	while (readl(REG_EMMCCTL) & CO_EN); //wait 'til command out complete
 
 	if(mmc_resp_type(cmd) != MMC_RSP_NONE) {
