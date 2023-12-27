@@ -25,7 +25,7 @@
 void board_init_f(unsigned long bootflag);
 
 extern void nuc980_spi_init(void);
-extern uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address);
+extern uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address, uint32_t page_size);
 extern void WB_Serial_NAND_PageDataRead(uint8_t addr2, uint8_t addr1, uint8_t addr0);
 extern void WB_Serial_NAND_Normal_Read(uint8_t addh, uint8_t addl, uint8_t* buff, uint32_t count);
 extern int nuc980_serial_init (void);
@@ -38,10 +38,23 @@ static int spinand_is_bad_block(struct mtd_info *mtd, int block)
 {
 	int page_addr = 0 + block * (mtd->erasesize / mtd->writesize);
 
-	if (WB_Serial_NAND_bad_block_check(page_addr))
+	if (WB_Serial_NAND_bad_block_check(page_addr, mtd->writesize))
 		return 1;
 	return 0;
 
+}
+
+/* for reading page size from SPI NAND header, offset 0x10 */
+static int spinand_read_first_256byte(struct mtd_info *mtd, uchar *dst)
+{
+
+	WB_Serial_NAND_PageDataRead(0, 0, 0);
+#ifdef CONFIG_SPI_NAND_MICRON
+	WB_Serial_NAND_Normal_Read(real_page & (1 << 6) ? (1 << 4) : 0, 0, dst, 256);
+#else
+	WB_Serial_NAND_Normal_Read(0, 0, dst, 256);
+#endif
+	return 0;
 }
 
 static int spinand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
@@ -116,8 +129,12 @@ void board_init_f(unsigned long bootflag)
 
 	nuc980_spi_init();
 
-	mtd->writesize = 2048;
+	/* Read page size from SPI NAND Flash header */
+	spinand_read_first_256byte(mtd, (uchar *)0xE00000);
+
+	mtd->writesize = *(unsigned int*)0xE00010 & 0xFFFF;
 	mtd->erasesize = 64 * (mtd->writesize);
+	printf("Page size: 0x%x, OOB size: 0x%x\n", mtd->writesize, *(unsigned int*)0xE00010 >> 16);
 
 	/*
 	 * Load U-Boot image from SPI NAND into RAM

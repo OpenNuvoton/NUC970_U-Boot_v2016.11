@@ -149,7 +149,7 @@ return:
 0: Check block is not bad block.
 update: V.1.0.8 // correct the bad block mark address
 *********************/
-uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address)
+uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address, uint32_t page_size)
 {
 	uint8_t read_buf;
 	//uint8_t EPR_status;
@@ -164,9 +164,9 @@ uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address)
 		  }
 	*/
 #ifdef CONFIG_SPI_NAND_MICRON
-	WB_Serial_NAND_Normal_Read(0x8 | (page_address & (1 << 6) ? (1 << 4) : 0), 0x0, &read_buf, 1);
+	WB_Serial_NAND_Normal_Read((page_size >> 8) | (page_address & (1 << 6) ? (1 << 4) : 0), 0x0, &read_buf, 1);
 #else
-	WB_Serial_NAND_Normal_Read(0x8, 0x0, &read_buf, 1);	// Read bad block mark at 0x800 update at v.1.0.8
+	WB_Serial_NAND_Normal_Read((page_size >> 8), 0x0, &read_buf, 1);	// Read bad block mark at 0x800 update at v.1.0.8
 #endif
 	if(read_buf != 0xFF) {	// update at v.1.0.7
 		return 1;
@@ -182,9 +182,9 @@ uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address)
 		  }
 	*/
 #ifdef CONFIG_SPI_NAND_MICRON
-	WB_Serial_NAND_Normal_Read(0x8 | ((page_address+1) & (1 << 6) ? (1 << 4) : 0), 0x0, &read_buf, 1);
+	WB_Serial_NAND_Normal_Read((page_size >> 8) | ((page_address+1) & (1 << 6) ? (1 << 4) : 0), 0x0, &read_buf, 1);
 #else
-	WB_Serial_NAND_Normal_Read(0x8, 0x0, &read_buf, 1);	// Read bad block mark at 0x800 update at v.1.0.8
+	WB_Serial_NAND_Normal_Read((page_size >> 8), 0x0, &read_buf, 1);	// Read bad block mark at 0x800 update at v.1.0.8
 #endif
 	if(read_buf != 0xFF) {	// update at v.1.0.7
 		return 1;
