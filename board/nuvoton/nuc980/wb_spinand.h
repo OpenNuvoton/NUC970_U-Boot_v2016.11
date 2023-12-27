@@ -23,7 +23,7 @@ uint8_t WB_Check_Embedded_ECC(void);
 uint8_t WB_Read_Serial_NAND_StatusRegister(uint8_t sr_sel);
 void WB_Serial_NAND_ReadyBusy_Check(void);
 uint32_t WB_NAND_Read_JEDEC_ID(void);
-uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address);
+uint8_t WB_Serial_NAND_bad_block_check(uint32_t page_address, uint32_t page_size);
 void WB_Serial_NAND_LUT_Read(uint16_t* LBA, uint16_t* PBA);
 
 /* Stack function for W25M series */

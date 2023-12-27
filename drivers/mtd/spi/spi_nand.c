@@ -91,7 +91,7 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 	},
 #endif
 
-#ifdef CONFIG_SPI_FLASH_XTX
+#ifdef CONFIG_SPI_NAND_XTX
 	{
 		.id = { 0x00, 0x0b, 0x12, 0x00 },
 		.page_size = 2048,
@@ -103,6 +103,18 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 		.norm_read_cmd = winbond_norm_read_cmd,
 		.verify_ecc = verify_4bit_ecc,
 		.name = "XTX26G02C",
+	},
+	{
+		.id = { 0x00, 0x0b, 0x13, 0x00 },
+		.page_size = 4096,
+		.erase_size = 0x00040000,
+		.pages_per_sector = 64,
+		.nr_sectors = 4096,
+		.oob_size = 256,
+		.protec_bpx = 0xb7,
+		.norm_read_cmd = winbond_norm_read_cmd,
+		.verify_ecc = verify_4bit_ecc,
+		.name = "XTX26G04C",
 	},
 #endif
 
@@ -604,8 +616,14 @@ static int spi_nand_read_std(struct mtd_info *mtd, loff_t from, struct mtd_oob_o
 	u8 status;
 	int realpage, page, readlen, bytes, column, bytes_oob;
 	int ecc_corrected = 0;
+
 	column = mtd->writesize;
-	realpage = (int)(from >> 0xB);
+	if (column == 2048)
+		realpage = (int)(from >> 0xB); //2K page >> 11
+	else if (column == 4096)
+		realpage = (int)(from >> 0xC); //2K page >> 12
+	else
+		realpage = (int)(from >> 0xB); //2K page >> 11
 
 
 	page = realpage & 0xfffff;
@@ -757,7 +775,13 @@ static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 		return -EINVAL;
 	}
 
-	realpage = (int)(to >> 0xb);
+	if (bytes == 2048)
+		realpage = (int)(to >> 0xB); //2K page >> 11
+	else if (bytes == 4096)
+		realpage = (int)(to >> 0xC); //2K page >> 12
+	else
+		realpage = (int)(to >> 0xB); //2K page >> 11
+
 	page = realpage & 0xfffff;
 
 	ret = spi_claim_bus(flash->spi);
