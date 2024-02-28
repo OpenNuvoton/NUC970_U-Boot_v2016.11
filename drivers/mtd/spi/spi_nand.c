@@ -1074,7 +1074,7 @@ int spi_nand_read_raw(struct spi_flash *flash, u32 offset, size_t len, void *dat
 #ifdef CONFIG_SPI_NAND_GD
 		ret = verify_3bit_ecc(status);
 #else
-		#ifdef CONFIG_SPI_FLASH_XTX
+		#ifdef CONFIG_SPI_NAND_XTX
 		       ret = verify_4bit_ecc(status);
 		#else
 		       ret = verify_2bit_ecc(status);
