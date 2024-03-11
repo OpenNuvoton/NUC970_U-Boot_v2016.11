@@ -46,6 +46,8 @@ int verify_dummy_ecc(int status);
 void gigadevice_norm_read_cmd(u8 *cmd, int column);
 void macronix_norm_read_cmd(u8 *cmd, int column);
 void winbond_norm_read_cmd(u8 *cmd, int column);
+static int spi_nand_write(struct mtd_info *mtd, loff_t to, size_t len,
+                          size_t *retlen, const u_char *buf);
 extern int spi_nand_flash_cmd_wait_ready(struct spi_flash *flash, u8 status_bit, u8 *status,
         unsigned long timeout);
 int nand_register(int devnum, struct mtd_info *mtd);
@@ -259,8 +261,6 @@ static int spi_nand_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 	u32 page = (int)(instr->addr >> chip->page_shift);
 
-
-
 	if (check_offset(mtd, instr->addr))
 		return -1;
 
@@ -419,6 +419,12 @@ static int spinand_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,  
 	wbuf = chip->oob_poi;
 	column = mtd->writesize;
 
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		printf ("Claim bus failed. %s\n", __func__);
+		return -1;
+	}
+
 #ifdef CONFIG_WINBOND_MULTIDIE
 	u8 dieid;///die #0, #1
 	dieid = (int)(page>>16);
@@ -518,7 +524,14 @@ static int spi_nand_write_oob(struct mtd_info *mtd, loff_t to,
 
 	fill_oob_data(mtd, ops->oobbuf, ops->ooblen, ops);
 
-	return spinand_write_oob_std(mtd, chip, page & chip->pagemask);
+	/* Check if in-band tags */
+	if (ops->ooblen == 0) {
+		size_t len;
+		spi_nand_write(mtd, to, ops->len, &len, ops->datbuf);
+		return len;
+	}
+	else
+		return spinand_write_oob_std(mtd, chip, page & chip->pagemask);
 }
 
 static int spi_nand_block_markbad(struct mtd_info *mtd, loff_t offs)
@@ -627,7 +640,6 @@ static int spi_nand_read_std(struct mtd_info *mtd, loff_t from, struct mtd_oob_o
 
 
 	page = realpage & 0xfffff;
-
 
 	readlen = ops->len;
 
@@ -1141,7 +1153,7 @@ int spi_nand_erase_raw(struct spi_flash *flash, u32 offset, size_t len)
 	u32 start, end, page;
 	int ret;
 	u8 cmd[5], status;
-	printf("erase\n");
+	
 	page = (int)(offset >> (ffs(flash->page_size) - 1));
 
 	if (offset % flash->sector_size || len % flash->sector_size) {
