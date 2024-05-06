@@ -7,6 +7,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <watchdog.h>
+#include <pwm.h>
 
 #define REG_HCLKEN      0xB0000210
 #define REG_PCLKEN0     0xB0000218
@@ -257,6 +258,18 @@ int board_late_init(void)
 #ifdef CONFIG_HW_WATCHDOG
 	hw_watchdog_init();
 #endif
+
+#ifdef CONFIG_PWM_NUC980
+	/* Set multi-function pin PB.13 for PWM0 channel 2 */
+	writel((readl(REG_MFP_GPB_H) & ~0xF00000) | 0x400000, REG_MFP_GPB_H);
+
+	/* enable PWM0 channel 2, div 1, no invert */
+	pwm_init(2, 1, 0);
+	pwm_enable(2);
+	/* duty cycle 32000000ns, period: 65000000ns */
+	pwm_config(2, 32000000, 65000000);
+#endif
+
 	return 0;
 }
 
@@ -272,9 +285,14 @@ int NUC980_cleanup(void)
 		writel(0, REG_MFP_GPA_L);
 	else
 		writel((readl(REG_MFP_GPA_L) & 0x0FFFFF00), REG_MFP_GPA_L);
+
 	writel(0, REG_MFP_GPA_H);
 	writel(0, REG_MFP_GPB_L);
+#ifdef CONFIG_PWM_NUC980
+	writel(0x400000, REG_MFP_GPB_H); /* Keep PB.13 for PWM0 channel 2 works */
+#else
 	writel(0, REG_MFP_GPB_H);
+#endif
 	writel(0, REG_MFP_GPC_L);
 	writel(0, REG_MFP_GPC_H);
 	writel(0, REG_MFP_GPD_L);

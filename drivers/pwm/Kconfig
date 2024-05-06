@@ -35,3 +35,10 @@ config PWM_TEGRA
 	  four channels with a programmable period and duty cycle. Only a
 	  32KHz clock is supported by the driver but the duty cycle is
 	  configurable.
+
+config PWM_NUC980
+	bool "Enable support for the NUC980 PWM"
+	help
+	  This PWM is found on Nuvoton NUC980. It supports two PWM controllers.
+	  Each PWM has four channels, with a programmable period and duty cycle.
+
