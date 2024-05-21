@@ -97,7 +97,7 @@ config SANDBOX_MMC
 
 config NUC970_MMC
 	bool "NUC970/N9H30 MMC support"
-	depends on NUC970
+	depends on NUC970 || NUC970_BT1001
 
 config GENERIC_MMC
 	bool "Generic MMC support"

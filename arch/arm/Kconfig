@@ -187,6 +187,10 @@ config TARGET_MX25PDK
 	bool "Support mx25pdk"
 	select CPU_ARM926EJS
 
+config TARGET_NUC970_BT1001
+	bool "Support nuc970_BT1001"
+	select CPU_ARM926EJS
+
 config TARGET_NUC970
 	bool "Support nuc970/n9h30"
 	select CPU_ARM926EJS

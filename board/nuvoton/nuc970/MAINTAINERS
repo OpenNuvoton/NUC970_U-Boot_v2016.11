@@ -4,3 +4,10 @@ S:	Maintained
 F:	board/nuvoton/nuc970/
 F:	include/configs/nuc970_evb.h
 F:	configs/nuc970_defconfig
+
+NUC970_BT1001 BOARD
+M:	Sapelkin Sergey <ssapelkin_s@rit-it.com>
+S:	Maintained
+F:	board/nuvoton/nuc970/
+F:	include/configs/nuc970_bt1001.h
+F:	configs/nuc970_bt1001_defconfig
