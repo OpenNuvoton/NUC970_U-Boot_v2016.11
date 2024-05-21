@@ -43,11 +43,10 @@
 #define CONFIG_INITRD_TAG	1
 
 /*#define CONFIG_NUC970_HW_CHECKSUM */
-
-/*#define CONFIG_SYS_USE_SPIFLASH */
-#define CONFIG_SYS_USE_NANDFLASH  
-#define CONFIG_ENV_IS_IN_NAND 
-/*#define CONFIG_ENV_IS_IN_SPI_FLASH */
+#define CONFIG_SYS_USE_SPIFLASH
+/*#define CONFIG_SYS_USE_NANDFLASH*/  
+/*#define CONFIG_ENV_IS_IN_NAND*/
+#define CONFIG_ENV_IS_IN_SPI_FLASH
 /*#define CONFIG_ENV_IS_IN_MMC */
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -76,7 +75,7 @@
 /*#undef CONFIG_SYS_ICACHE_OFF */
 /*#undef CONFIG_SYS_DCACHE_OFF */
 /*#define CONFIG_SYS_ICACHE_OFF*/
-#define CONFIG_SYS_DCACHE_OFF
+/*#define CONFIG_SYS_DCACHE_OFF*/
 
 /*
  * BOOTP options
@@ -202,13 +201,13 @@
 
 /* Following block is for MMC support */
 #ifdef CONFIG_NUC970_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_FAT
-/*#define CONFIG_MMC */
+/*#define CONFIG_CMD_MMC*/
+/*#define CONFIG_CMD_FAT*/
+/*#define CONFIG_MMC*/
 /*#define CONFIG_GENERIC_MMC */
-#define CONFIG_DOS_PARTITION
-/*#define CONFIG_MMC_TRACE */
-/*#define CONFIG_NUC970_SD_PORT0 */
+/*#define CONFIG_DOS_PARTITION*/
+/*#define CONFIG_MMC_TRACE*/
+/*#define CONFIG_NUC970_SD_PORT0*/
 /*#define CONFIG_NUC970_SD_PORT1 */
 /*#define CONFIG_NUC970_EMMC */      /* Don't enable eMMC(CONFIG_NUC970_EMMC) and NAND(CONFIG_NAND_NUC970) at the same time! */
 #ifdef CONFIG_ENV_IS_IN_MMC

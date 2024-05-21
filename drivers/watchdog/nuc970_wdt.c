@@ -60,7 +60,7 @@ void hw_watchdog_init(void)
     char *s;
     int enable;
 
-    enable = 1;
+    enable = 0;
     s = getenv("watchdog");
     if (s != NULL)
         if ((strncmp(s, "off", 3) == 0) || (strncmp(s, "0", 1) == 0))
