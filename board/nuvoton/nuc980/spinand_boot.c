@@ -87,7 +87,7 @@ static int spinand_load(struct mtd_info *mtd, unsigned int offs,
 	page = (offs % mtd->erasesize) / mtd->writesize;
 
 	while (block <= lastblock) {
-		if (!spinand_is_bad_block(mtd, offs)) {
+		if (!spinand_is_bad_block(mtd, block)) {
 			/*
 			 * Skip bad blocks
 			 */
