@@ -47,13 +47,9 @@ static int spinand_is_bad_block(struct mtd_info *mtd, int block)
 /* for reading page size from SPI NAND header, offset 0x10 */
 static int spinand_read_first_256byte(struct mtd_info *mtd, uchar *dst)
 {
-
 	WB_Serial_NAND_PageDataRead(0, 0, 0);
-#ifdef CONFIG_SPI_NAND_MICRON
-	WB_Serial_NAND_Normal_Read(real_page & (1 << 6) ? (1 << 4) : 0, 0, dst, 256);
-#else
 	WB_Serial_NAND_Normal_Read(0, 0, dst, 256);
-#endif
+
 	return 0;
 }
 
