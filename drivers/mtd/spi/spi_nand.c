@@ -146,6 +146,30 @@ static const struct spi_nand_flash_params spi_nand_flash_tbl[] = {
 		.verify_ecc = verify_2bit_ecc,
 		.name = "W25N01GV",
 	},
+	{
+		.id = { 0xff, 0xef, 0xbf, 0x22 },	// First byte dummy. SPI NAND high-Z, weak pull high in 970
+		.page_size = 2048,
+		.erase_size = 0x00020000,
+		.pages_per_sector = 64,
+		.nr_sectors = 1024,
+		.oob_size = 64,
+		.protec_bpx = 0x87,
+		.norm_read_cmd = winbond_norm_read_cmd,
+		.verify_ecc = verify_2bit_ecc,
+		.name = "W25N01GV",
+	},
+	{
+		.id = { 0xff, 0xef, 0xaa, 0x23 },	// First byte dummy. SPI NAND high-Z, weak pull high in 970
+		.page_size = 2048,
+		.erase_size = 0x00020000,
+		.pages_per_sector = 64,
+		.nr_sectors = 1024,
+		.oob_size = 128,
+		.protec_bpx = 0x87,
+		.norm_read_cmd = winbond_norm_read_cmd,
+		.verify_ecc = verify_2bit_ecc,
+		.name = "W25N04KV",
+	},
 #endif
 };
 
