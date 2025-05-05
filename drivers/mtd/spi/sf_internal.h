@@ -38,6 +38,7 @@ enum spi_nor_option_flags {
 #define SPI_FLASH_CFI_MFR_XTX		0x0b
 #define SPI_FLASH_CFI_MFR_ATMEL		0x1f
 #define SPI_FLASH_CFI_MFR_EON		0x1c
+#define SPI_FLASH_CFI_MFR_XMC		0x20
 
 /* Erase commands */
 #define CMD_ERASE_4K			0x20
