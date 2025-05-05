@@ -86,7 +86,7 @@ static int write_sr(struct spi_flash *flash, u8 ws)
 	return 0;
 }
 
-#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_XTX)
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_XTX) || defined(CONFIG_SPI_FLASH_XMC)
 static int read_cr(struct spi_flash *flash, u8 *rc)
 {
 	int ret;
@@ -880,7 +880,7 @@ static int macronix_quad_enable(struct spi_flash *flash)
 }
 #endif
 
-#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_XTX)
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_XTX) || defined(CONFIG_SPI_FLASH_XMC)
 static int spansion_quad_enable(struct spi_flash *flash)
 {
 	u8 qeb_status;
@@ -943,10 +943,11 @@ static int set_quad_mode(struct spi_flash *flash, u8 idcode0)
 	case SPI_FLASH_CFI_MFR_MACRONIX:
 		return macronix_quad_enable(flash);
 #endif
-#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_XTX)
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_XTX) || defined(CONFIG_SPI_FLASH_XMC)
 	case SPI_FLASH_CFI_MFR_SPANSION:
 	case SPI_FLASH_CFI_MFR_WINBOND:
 	case SPI_FLASH_CFI_MFR_XTX:
+	case SPI_FLASH_CFI_MFR_XMC:
 		return spansion_quad_enable(flash);
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
@@ -1376,11 +1377,9 @@ int spi_flash_scan(struct spi_flash *flash)
 		(jedec == 0x0b15) || (jedec == 0xe47f)) {
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
 	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) ||
-		(jedec == 0xab21) || (jedec == 0xaa22) || (jedec == 0xbf22) ||
+		(jedec == 0xab21) || (jedec == 0xaa22) ||
 		(jedec == 0xc222) || (jedec == 0x2c24) || (jedec == 0x3501) || (jedec == 0x0b12)||(jedec == 0x52c8)) {
 		flash->size = 2048 * 64 * 2048;		// 2048 sectors per chip
-	} else if (jedec == 0xaa23) {
-		flash->size = 2048 * 64 * 4096;		// 4096 sectors per chip
 	} else if ((jedec == 0x0b13) || (jedec == 0xd50b)){
 		flash->page_size = 4096;		// 4kB per page
 		flash->sector_size = 4096 * 64;		// 64 pages per sector(block)
@@ -1491,7 +1490,7 @@ int spi_flash_reset(void)
 
 #endif
 
-#if defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_EON) || defined(CONFIG_SPI_FLASH_XTX)
+#if defined(CONFIG_SPI_FLASH_WINBOND) || defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_EON) || defined(CONFIG_SPI_FLASH_XTX) || defined(CONFIG_SPI_FLASH_XMC)
 	ret = spi_flash_cmd(spi, CMD_RESET_ENABLE, NULL, 0);
 	if (ret) {
 		printf("SF: Failed issue reset command (CMD_RESET_ENABLE)\n");

@@ -149,6 +149,9 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"XT25F128BSSIGU",  0x0b4018, 	0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K},
 	{"XT25F256BSSIGU",  0x0b4019, 	0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K},
 #endif
+#ifdef CONFIG_SPI_FLASH_XMC		/* XMC */
+	{"XM25QH256C",  0x204019, 	0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K},
+#endif
 #ifdef CONFIG_SPI_NAND_WINBOND		/* WINBOND SPI NAND */
 	{"W25N01GV",	   0xefaa21, 0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"W25N01KV",	   0xefae21, 0x0,	64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
