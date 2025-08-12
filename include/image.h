@@ -537,6 +537,8 @@ int genimg_get_os_id(const char *name);
 int genimg_get_arch_id(const char *name);
 int genimg_get_type_id(const char *name);
 int genimg_get_comp_id(const char *name);
+int genimg_get_encrypt_id(const char *name);
+int genimg_get_checksum_id(const char *name);
 void genimg_print_size(uint32_t size);
 
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || \
