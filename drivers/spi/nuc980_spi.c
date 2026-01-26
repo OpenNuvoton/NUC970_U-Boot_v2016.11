@@ -174,7 +174,7 @@ void spi_release_bus(struct spi_slave *slave)
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
              const void *dout, void *din, unsigned long flags)
 {
-	unsigned int len;
+	unsigned int len, words;
 	unsigned int i;
 	unsigned char *tx = (unsigned char *)dout;
 	unsigned char *rx = din;
@@ -239,8 +239,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			/* set PDMA */
 			writel(SPI_RX, REG_PDMA_DSCT0_SA);
 
-			len = (len + 3) >> 2;
-			loop = len / 0x10000;
+			words = len >> 2;
+			loop = words / 0x10000;
 			for (i=0; i<loop; i++) {
 				writel((unsigned int)rx, REG_PDMA_DSCT0_DA);
 				writel((0xFFFF << TXCNT_Pos)|TXWIDTH_32|SRC_FIXED|TBINTDIS|TX_SINGLE|MODE_BASIC, REG_PDMA_DSCT0_CTL);
@@ -253,10 +253,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 				}
 				rx += 0x40000;
 			}
-			count = len % 0x10000;
+			if ((count = words % 0x10000) != 0)
 			{
 				writel((unsigned int)rx, REG_PDMA_DSCT0_DA);
-				writel((count << TXCNT_Pos)|TXWIDTH_32|SRC_FIXED|TBINTDIS|TX_SINGLE|MODE_BASIC, REG_PDMA_DSCT0_CTL);
+				writel(((count -1) << TXCNT_Pos)|TXWIDTH_32|SRC_FIXED|TBINTDIS|TX_SINGLE|MODE_BASIC, REG_PDMA_DSCT0_CTL);
 				writel(readl(SPI_PDMACTL)|0x2, SPI_PDMACTL);
 				while(1) {
 					if (readl(REG_PDMA_TDSTS) & 0x1) {
@@ -269,6 +269,16 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			writel((readl(SPI_CTL) & ~0x1F00)| (0x800), SPI_CTL); //Data length 8 bit
 			writel(0, SPI_PDMACTL);     // disable RX
 			writel((readl(REG_HCLKEN) & ~0x1000), REG_HCLKEN); /* disable PDMA0 clock */
+			/* Process the non word alignment case */
+			if (len % 4) {
+				rx += (count * 4);
+				for (i = len % 4; i > 0; i--) {
+					while ((readl(SPI_STATUS) & 0x20000)); //TXFULL
+					writel(0, SPI_TX);
+					while ((readl(SPI_STATUS) & 0x100)); //RXEMPTY
+					*rx++ = (unsigned char)readl(SPI_RX);
+				}
+			}
 		}
 	} else if (rx && (len >= 2048)) {
 		u32 count;
@@ -290,7 +300,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		writel(0x1, REG_PDMA_CHCTL);
 		writel(21, REG_PDMA_REQSEL0_3);  /* QSPI0 RX */
 
-		count = (len + 3) >> 2;
+		count = len >> 2;
 		/* set PDMA */
 		writel(SPI_RX, REG_PDMA_DSCT0_SA);
 		writel((unsigned int)rx, REG_PDMA_DSCT0_DA);
@@ -306,6 +316,16 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		writel((readl(SPI_CTL) & ~0x1F00)| (0x800), SPI_CTL); //Data length 8 bit
 		writel(0, SPI_PDMACTL);     // disable RX
 		writel((readl(REG_HCLKEN) & ~0x1000), REG_HCLKEN); /* disable PDMA0 clock */
+		/* Process the non word alignment case */
+		if (len % 4) {
+			rx += (count * 4);
+			for (i = len % 4; i > 0; i--) {
+				while ((readl(SPI_STATUS) & 0x20000)); //TXFULL
+				writel(0, SPI_TX);
+				while ((readl(SPI_STATUS) & 0x100)); //RXEMPTY
+				*rx++ = (unsigned char)readl(SPI_RX);
+			}
+		}
 	} else {
 		for (i = 0; i < len; i++) {
 			if(tx) {
