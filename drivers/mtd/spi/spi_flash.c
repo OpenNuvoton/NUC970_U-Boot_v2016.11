@@ -1377,7 +1377,7 @@ int spi_flash_scan(struct spi_flash *flash)
 		(jedec == 0x0b15) || (jedec == 0xf20a) || (jedec == 0xe47f)) {
 		flash->size = 2048 * 64 * 1024;		// 1024 sectors per chip
 	} else if ((jedec == 0x0be2) || (jedec == 0x0bf2) ||
-		(jedec == 0xab21) || (jedec == 0xaa22) ||
+		(jedec == 0xab21) || (jedec == 0xaa22) || (jedec == 0x8a22) ||
 		(jedec == 0xc222) || (jedec == 0x2c24) || (jedec == 0x3501) || (jedec == 0x0b12)||(jedec == 0x52c8)) {
 		flash->size = 2048 * 64 * 2048;		// 2048 sectors per chip
 	} else if ((jedec == 0x0b13) || (jedec == 0xd50b)){
