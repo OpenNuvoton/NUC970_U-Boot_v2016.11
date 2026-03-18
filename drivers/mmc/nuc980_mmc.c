@@ -118,8 +118,8 @@ int nuc980_sd_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *da
 		//printf("sdcsr 0x%x \n", sdcsr);
 
 		if (data->flags == MMC_DATA_READ) {
-			writel(DITO_IF, REG_SDISR);
-			writel(0xFFFFFF, REG_SDTMOUT);
+			writel(DITO_IF, REG_EMMCINTSTS);
+			writel(0xFFFFFF, REG_EMMCTOUT);
 			sdcsr |= DI_EN;
 			writel((unsigned int)data->dest, REG_DMACSAR2);
 
@@ -259,6 +259,8 @@ int nuc980_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 		//printf("emmcctl 0x%x \n", emmcctl);
 
 		if (data->flags == MMC_DATA_READ) {
+			writel(DITO_IF, REG_EMMCISR);
+			writel(0xFFFFFF, REG_EMMCTOUT);
 			emmcctl |= DI_EN;
 			writel((unsigned int)data->dest, REG_FMIDMASA);
 
