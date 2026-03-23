@@ -259,7 +259,7 @@ int nuc980_emmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *
 		//printf("emmcctl 0x%x \n", emmcctl);
 
 		if (data->flags == MMC_DATA_READ) {
-			writel(DITO_IF, REG_EMMCISR);
+			writel(DITO_IF, REG_EMMCINTSTS);
 			writel(0xFFFFFF, REG_EMMCTOUT);
 			emmcctl |= DI_EN;
 			writel((unsigned int)data->dest, REG_FMIDMASA);
