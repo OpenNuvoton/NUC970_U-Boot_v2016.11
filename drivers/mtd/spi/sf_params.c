@@ -162,6 +162,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"W25N04KV",	   0xefaa23, 0x0,	64 * 2048,  4096, RD_FULL | WR_QPP | SECT_4K},
 	{"GD5F1GQ4xExxG",  0xc8d1c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},  //suppurt GD & WB in one uboot
 	{"GD5F1GQ5xExxG",  0xc851c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},  //suppurt GD & WB in one uboot
+	{"GD5F1GM7xExxG",  0xc891c8, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},
 	{"GD5F2GQ5xExxG",  0xc852c8, 0x0,       64 * 2048,  2048, RD_FULL | WR_QPP | SECT_4K},
 	{"TC58CVG0S3HRAIJ",0x98e240, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},  //suppurt GD & WB & KIOXIA in one uboot
 	{"FM25S01A",  	   0xa1e47f, 0x0,       64 * 2048,  1024, RD_FULL | WR_QPP | SECT_4K},	//suppurt GD & WB & KIOXIA & FM25 in one uboot
